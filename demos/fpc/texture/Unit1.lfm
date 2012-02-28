@@ -1,0 +1,24 @@
+object Form1: TForm1
+  Left = 309
+  Height = 326
+  Top = 140
+  Width = 441
+  Caption = 'Texture demo'
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  Position = poScreenCenter
+  LCLVersion = '0.9.31'
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 1
+    OnTimer = Timer1Timer
+    left = 32
+    top = 16
+  end
+  object ApplicationProperties1: TApplicationProperties
+    OnIdle = ApplicationProperties1Idle
+    left = 136
+    top = 16
+  end
+end
