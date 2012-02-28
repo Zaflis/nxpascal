@@ -1,0 +1,28 @@
+object Form1: TForm1
+  Left = 314
+  Height = 240
+  Top = 137
+  Width = 320
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
+  Caption = 'nxExtra demo'
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
+  OnMouseMove = FormMouseMove
+  Position = poScreenCenter
+  LCLVersion = '0.9.31'
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 15
+    OnTimer = Timer1Timer
+    left = 24
+    top = 16
+  end
+  object ApplicationProperties1: TApplicationProperties
+    OnIdle = ApplicationProperties1Idle
+    left = 112
+    top = 16
+  end
+end

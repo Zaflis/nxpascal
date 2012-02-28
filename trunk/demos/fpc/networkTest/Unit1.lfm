@@ -1,0 +1,206 @@
+object Form1: TForm1
+  Left = 314
+  Height = 274
+  Top = 141
+  Width = 505
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
+  BorderIcons = [biSystemMenu, biMinimize]
+  BorderStyle = bsSingle
+  Caption = 'Network Test'
+  ClientHeight = 274
+  ClientWidth = 505
+  OnClose = FormClose
+  OnCreate = FormCreate
+  Position = poScreenCenter
+  LCLVersion = '0.9.31'
+  object Label1: TLabel
+    Left = 16
+    Height = 16
+    Top = 211
+    Width = 43
+    Caption = 'Threads'
+    ParentColor = False
+  end
+  object Label2: TLabel
+    Left = 272
+    Height = 16
+    Top = 211
+    Width = 84
+    Caption = 'Port 5400  Host:'
+    ParentColor = False
+  end
+  object Label3: TLabel
+    Left = 136
+    Height = 16
+    Top = 235
+    Width = 83
+    Caption = 'Now using TCP'
+    ParentColor = False
+  end
+  object Label4: TLabel
+    Left = 272
+    Height = 16
+    Top = 240
+    Width = 34
+    Caption = 'My IP:'
+    ParentColor = False
+  end
+  object GroupBox1: TGroupBox
+    Left = 6
+    Height = 190
+    Top = 10
+    Width = 242
+    Caption = 'Server'
+    ClientHeight = 172
+    ClientWidth = 238
+    TabOrder = 0
+    object Shape1: TShape
+      Left = 112
+      Height = 13
+      Top = 6
+      Width = 13
+      Brush.Color = clGray
+      Shape = stCircle
+    end
+    object Memo1: TMemo
+      Left = 8
+      Height = 132
+      Top = 30
+      Width = 220
+      ScrollBars = ssBoth
+      TabOrder = 0
+      WordWrap = False
+    end
+    object Button1: TButton
+      Left = 8
+      Height = 25
+      Top = -2
+      Width = 48
+      Caption = 'Start'
+      OnClick = Button1Click
+      TabOrder = 1
+    end
+    object Button2: TButton
+      Left = 56
+      Height = 25
+      Top = -2
+      Width = 48
+      Caption = 'Stop'
+      OnClick = Button2Click
+      TabOrder = 2
+    end
+    object serverTest1: TButton
+      Left = 136
+      Height = 25
+      Top = -2
+      Width = 32
+      Caption = 'test'
+      OnClick = serverTest1Click
+      TabOrder = 3
+    end
+    object ServerTest2: TButton
+      Left = 172
+      Height = 25
+      Top = -2
+      Width = 24
+      Caption = 'R'
+      OnClick = ServerTest2Click
+      TabOrder = 4
+    end
+  end
+  object GroupBox2: TGroupBox
+    Left = 256
+    Height = 190
+    Top = 10
+    Width = 242
+    Caption = 'Client'
+    ClientHeight = 172
+    ClientWidth = 238
+    TabOrder = 1
+    object Shape2: TShape
+      Left = 110
+      Height = 13
+      Top = 6
+      Width = 13
+      Brush.Color = clGray
+      Shape = stCircle
+    end
+    object Memo2: TMemo
+      Left = 8
+      Height = 132
+      Top = 30
+      Width = 220
+      ScrollBars = ssBoth
+      TabOrder = 0
+      WordWrap = False
+    end
+    object Button3: TButton
+      Left = 8
+      Height = 25
+      Top = -2
+      Width = 48
+      Caption = 'Start'
+      OnClick = Button3Click
+      TabOrder = 1
+    end
+    object Button4: TButton
+      Left = 56
+      Height = 25
+      Top = -2
+      Width = 48
+      Caption = 'Stop'
+      OnClick = Button4Click
+      TabOrder = 2
+    end
+    object ClientTest1: TButton
+      Left = 134
+      Height = 25
+      Top = -2
+      Width = 32
+      Caption = 'test'
+      OnClick = ClientTest1Click
+      TabOrder = 3
+    end
+    object ClientTest2: TButton
+      Left = 174
+      Height = 25
+      Top = -2
+      Width = 22
+      Caption = 'R'
+      OnClick = ClientTest2Click
+      TabOrder = 4
+    end
+  end
+  object Edit1: TEdit
+    Left = 382
+    Height = 23
+    Top = 208
+    Width = 112
+    TabOrder = 2
+    Text = '127.0.0.1'
+  end
+  object Button5: TButton
+    Left = 16
+    Height = 25
+    Top = 236
+    Width = 115
+    Caption = 'Change to UDP'
+    OnClick = Button5Click
+    TabOrder = 3
+  end
+  object Edit2: TEdit
+    Left = 382
+    Height = 23
+    Top = 235
+    Width = 112
+    Color = clBtnFace
+    ReadOnly = True
+    TabOrder = 4
+  end
+  object Timer1: TIdleTimer
+    OnTimer = Timer1Timer
+    left = 104
+    top = 80
+  end
+end
