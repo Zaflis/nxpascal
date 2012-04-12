@@ -44,7 +44,7 @@ uses nxTypes;
   function Rotate(const v: TVector; const angle: single; axis: TVector): TVector; overload;
   function Scale(const v: TVector; s: single): TVector; overload;
   function Tangent(const a, b, c: TVector): TVector;
-  procedure VectorAdd(var a: TVector; const b: TVector);
+  procedure VectorAdd(var a: TVector; const b: TVector); overload;
   function VectorAdd2(const a, b: TVector): TVector;
   function VectorDist(const a, b: TVector): single;
   procedure VectorDiv(var a: TVector; s: single);

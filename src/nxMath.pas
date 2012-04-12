@@ -40,7 +40,8 @@ uses nxTypes, math;
   procedure Rotate(var px,py: single; const _angle,cx,cy: single); overload;
   function Smoothen(n: single): single;
   function Tangent(const p1, p2: TVector2f): TVector2f;
-  function Vector2f(const x,y: single): TVector2f;
+  function Vector2f(const x, y: single): TVector2f;
+  function VectorAdd(const v1, v2: TVector2f): TVector2f; overload;
 
 implementation
 
@@ -315,6 +316,12 @@ end;
 function Vector2f(const x,y: single): TVector2f;
 begin
   Vector2f.x:=x; Vector2f.y:=y;
+end;
+
+function VectorAdd(const v1, v2: TVector2f): TVector2f;
+begin
+  result.x:=v1.x+v2.x;
+  result.y:=v1.y+v2.y;
 end;
 
 end.
