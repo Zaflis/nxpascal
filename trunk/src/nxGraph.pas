@@ -121,6 +121,7 @@ type
 
 var nxTex: TTextureSet;
     nxEngine: TNXCustomEngine;
+    NX_SaveFontBitmap: boolean = false;
 
 implementation
 
@@ -796,8 +797,8 @@ begin
     self.height:=TextHeight('Åjq@');
     CenterH:=self.height div 2;
   end;
-  nxTex.LoadBMPData(@nxTex.texture[textureI],b);
-  //b.SaveToFile('FontTemp.bmp');
+  nxTex.LoadBMPData(@nxTex.texture[textureI], b);
+  if NX_SaveFontBitmap then b.SaveToFile('FontBitmap.bmp');
   b.Free;
 end;
 

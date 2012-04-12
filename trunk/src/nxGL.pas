@@ -151,7 +151,6 @@ type
     {$IFDEF fpc}{$IFnDEF NX_CUSTOM_WINDOW}window: TOpenGLControl;{$ENDIF}{$ENDIF}
     rs: TRenderSettings;
     property FPS: integer read FFPS;
-
     function AllOK: boolean;
     constructor Create;
     destructor Destroy; override;
@@ -196,11 +195,14 @@ type
     procedure Perspective(Stretch: boolean = false);
     function ProgDir: string;
     procedure RectT(x1,y1,x2,y2: single);
+    procedure RectZT(x1,z1,x2,z2,y: single);
     procedure SetClearColor(r,g,b,a: single);
     procedure SetColor(r,g,b: single); overload;
     procedure SetColor(r,g,b,a: single); overload;
+    procedure SetColor(const rgb: TRGB); overload;
+    procedure SetColor(const rgba: TRGBA); overload;
     procedure SetFont(index: integer);
-    procedure SetLight4f(light,pname: TGLenum; x,y,z,w: single);
+    procedure SetLight4f(light, pname: TGLenum; x,y,z: single; w: single=1);
     procedure SetPixel(x,y: integer);
     procedure SetSpecular(Enable: boolean; r,g,b,shininess: single);
     procedure SetView(X, Y, _Width, _Height: integer);
@@ -1105,6 +1107,16 @@ begin
   glEnd;
 end;
 
+procedure TNXGL.RectZT(x1, z1, x2, z2, y: single);
+begin
+  glBegin(GL_QUADS);
+    glTexCoord2f(0,0); glVertex3f(x1, y, z1);
+    glTexCoord2f(0,1); glVertex3f(x1, y, z2);
+    glTexCoord2f(1,1); glVertex3f(x2, y, z2);
+    glTexCoord2f(1,0); glVertex3f(x2, y, z1);
+  glEnd;
+end;
+
 procedure TNXGL.SetClearColor(r, g, b, a: single);
 begin
   glClearColor(r,g,b,a);
@@ -1136,6 +1148,16 @@ begin
   glColor4f(r,g,b,a);
 end;
 
+procedure TNXGL.SetColor(const rgb: TRGB);
+begin
+  glColor3ubv(@rgb);
+end;
+
+procedure TNXGL.SetColor(const rgba: TRGBA);
+begin
+  glColor4ubv(@rgba);
+end;
+
 procedure TNXGL.SetFont(index: integer);
 begin
   TGLFont(Font[index]).SetTexture;
@@ -1152,11 +1174,12 @@ begin
   else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 end;
 
+// Use light index starting from 0
 procedure TNXGL.SetLight4f(light, pname: TGLenum; x, y, z, w: single);
 var v: TVector4f;
 begin
   v.x:=x; v.y:=y; v.z:=z; v.w:=w;
-  glLightfv(light, pname, @v);
+  glLightfv(GL_LIGHT0+light, pname, @v);
 end;
 
 procedure TNXGL.SetPixel(x, y: integer);
