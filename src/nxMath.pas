@@ -42,6 +42,7 @@ uses nxTypes, math;
   function Tangent(const p1, p2: TVector2f): TVector2f;
   function Vector2f(const x, y: single): TVector2f;
   function VectorAdd(const v1, v2: TVector2f): TVector2f; overload;
+  function VectorSub(const v1, v2: TVector2f): TVector2f; overload;
 
 implementation
 
@@ -322,6 +323,12 @@ function VectorAdd(const v1, v2: TVector2f): TVector2f;
 begin
   result.x:=v1.x+v2.x;
   result.y:=v1.y+v2.y;
+end;
+
+function VectorSub(const v1, v2: TVector2f): TVector2f;
+begin
+  result.x:=v1.x-v2.x;
+  result.y:=v1.y-v2.y;
 end;
 
 end.

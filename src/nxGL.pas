@@ -135,10 +135,13 @@ type
     constructor CreateFont(fontName: string; fontSize, _TexSize: integer);
     procedure Draw(x,y: single; s: string; maxW: integer = 0); override;
     procedure DrawC(x,y: single; s: string; maxW: integer = 0); override;
+    procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
+    procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); override;
+    procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
     procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: integer); override;
     procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: integer = 0); override;
     procedure SetColor; overload;
-    procedure SetTexture;
+    procedure SetTexture; override;
   end;
 
   { TNXGL }
@@ -146,11 +149,12 @@ type
   TNXGL = class(TNXCustomEngine)
   private
     {$IFnDEF NX_CUSTOM_WINDOW}procedure doResize(Sender: TObject);{$ENDIF}
+    function GetFFPS: integer;
     function NewFontName(base: string): string;
   public
     {$IFDEF fpc}{$IFnDEF NX_CUSTOM_WINDOW}window: TOpenGLControl;{$ENDIF}{$ENDIF}
     rs: TRenderSettings;
-    property FPS: integer read FFPS;
+    property FPS: integer read GetFFPS;
     function AllOK: boolean;
     constructor Create;
     destructor Destroy; override;
@@ -202,7 +206,7 @@ type
     procedure SetColor(const rgb: TRGB); overload;
     procedure SetColor(const rgba: TRGBA); overload;
     procedure SetFont(index: integer);
-    procedure SetLight4f(light, pname: TGLenum; x,y,z: single; w: single=1);
+    procedure SetLight(light, pname: TGLenum; x,y,z: single; w: single=1);
     procedure SetPixel(x,y: integer);
     procedure SetSpecular(Enable: boolean; r,g,b,shininess: single);
     procedure SetView(X, Y, _Width, _Height: integer);
@@ -676,8 +680,7 @@ begin
     rs.Lighting:=true;
     glEnable(GL_LIGHT0); // Point
     glEnable(GL_LIGHT1); // Ambient
-    c.r:=0.6; c.g:=c.r; c.b:=c.r; c.a:=1;
-    glLightfv(GL_LIGHT1, GL_AMBIENT, @c);
+    nx.SetLight(1, GL_AMBIENT, 0.6, 0.6, 0.6);
     glEnable(GL_COLOR_MATERIAL);
     c.r:=0; c.g:=0; c.b:=0; c.a:=1;
     glMaterialfv(GL_FRONT, GL_SPECULAR, PGLFloat(@c));
@@ -723,6 +726,12 @@ begin
   SetView(0,0,Width,Height);
   Perspective(PerspectiveStretch);
 end;
+
+function TNXGL.GetFFPS: integer;
+begin
+  result:=FFPS;
+end;
+
 {$ENDIF}
 
 procedure TNXGL.Draw(x, y: integer; pattern: word);
@@ -1175,7 +1184,7 @@ begin
 end;
 
 // Use light index starting from 0
-procedure TNXGL.SetLight4f(light, pname: TGLenum; x, y, z, w: single);
+procedure TNXGL.SetLight(light, pname: TGLenum; x, y, z: single; w: single);
 var v: TVector4f;
 begin
   v.x:=x; v.y:=y; v.z:=z; v.w:=w;
@@ -1736,6 +1745,34 @@ begin
   w:=TextW(s)/2;
   if (maxW>0) and (w>maxW/2) then w:=maxW/2;
   Draw(x-w, y-CenterH, s, maxW);
+end;
+
+procedure TGLFont.DrawScaled(x, y, scaleX, scaleY: single; s: string; maxW: integer);
+begin
+  glPushMatrix;
+  glTranslatef(x, y, 0);
+  glScalef(scaleX, scaleY, 1);
+  Draw(0, 0, s, maxW);
+  glPopMatrix;
+end;
+
+procedure TGLFont.DrawCScaled(x, y, scaleX, scaleY: single; s: string; maxW: integer);
+begin
+  glPushMatrix;
+  glTranslatef(x, y, 0);
+  glScalef(scaleX, scaleY, 1);
+  DrawC(0, 0, s, maxW);
+  glPopMatrix;
+end;
+
+procedure TGLFont.DrawRotate(x, y, scaleX, scaleY, _angle: single; s: string; maxW: integer);
+begin
+  glPushMatrix;
+  glTranslatef(x, y, 0);
+  glRotatef(_angle, 0,0,1);
+  glScalef(scaleX, scaleY, 1);
+  DrawC(0, 0, s, maxW);
+  glPopMatrix;
 end;
 
 procedure TGLFont.DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll, y_scroll: integer);

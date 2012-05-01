@@ -50,7 +50,7 @@ uses nxTypes;
   procedure VectorDiv(var a: TVector; s: single);
   function VectorMatch(const a, b: TVector; delta: single=0.01): boolean; overload;
   function VectorMatch(const a, b: TVector2f; delta: single=0.01): boolean; overload;
-  procedure VectorSub(var a: TVector; const b: TVector);
+  procedure VectorSub(var a: TVector; const b: TVector); overload;
   function VectorSub2(const a, b: TVector): TVector;
 
   { Matrix Functions }
