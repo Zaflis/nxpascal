@@ -1,5 +1,7 @@
 unit nxModel;
 
+{$mode delphi}{$H+}
+
 {TODO:
  - Rearrange model classes (Polymodel)
  - Redo loading of W3D, OBJ
