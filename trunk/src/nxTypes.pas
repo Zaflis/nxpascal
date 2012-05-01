@@ -44,7 +44,7 @@ type
     toFitNoScale, toColorKey, toFileName, toNoLoad);
 
   TTexturePart = record
-    r: TRectf; center: TVector2f; name: string;
+    r: TRecti; center: TVector2f; name: string;
   end;
 
   function pointf(const x, y: single): TVector2f;

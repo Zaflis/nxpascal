@@ -94,8 +94,12 @@ type
     function WrapLines(w,h: integer; s: TStrings; first: integer = 0): integer;
     procedure Draw(x,y: single; s: string; maxW: integer = 0); virtual; abstract;
     procedure DrawC(x,y: single; s: string; maxW: integer = 0); virtual; abstract;
+    procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); virtual; abstract;
+    procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); virtual; abstract;
+    procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); virtual; abstract;
     procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: integer); virtual; abstract;
     procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: integer = 0); virtual; abstract;
+    procedure SetTexture; virtual; abstract;
   end;
 
   { TNXCustomEngine }
