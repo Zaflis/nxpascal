@@ -1,0 +1,1125 @@
+object Form1: TForm1
+  Left = 304
+  Height = 639
+  Top = 132
+  Width = 639
+  Caption = 'UI Editor'
+  ClientHeight = 619
+  ClientWidth = 639
+  Font.Height = -12
+  Font.Name = 'Sans'
+  KeyPreview = True
+  Menu = Menu1
+  OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
+  OnMouseDown = FormMouseDown
+  OnMouseMove = FormMouseMove
+  OnMouseUp = FormMouseUp
+  OnResize = FormResize
+  Position = poScreenCenter
+  LCLVersion = '0.9.31'
+  object pnlProperties: TPanel
+    Left = 0
+    Height = 587
+    Top = 32
+    Width = 112
+    Align = alLeft
+    ClientHeight = 587
+    ClientWidth = 112
+    ParentColor = False
+    TabOrder = 0
+    OnMouseDown = pnlPropertiesMouseDown
+    OnMouseMove = pnlPropertiesMouseMove
+    object Panel4: TPanel
+      Left = 1
+      Height = 55
+      Top = 1
+      Width = 110
+      Align = alTop
+      ClientHeight = 55
+      ClientWidth = 110
+      TabOrder = 0
+      OnMouseDown = pnlPropertiesMouseDown
+      object Label2: TLabel
+        Left = 8
+        Height = 16
+        Top = 5
+        Width = 35
+        Caption = 'Name'
+        ParentColor = False
+      end
+      object eName: TEdit
+        Left = 49
+        Height = 23
+        Top = 2
+        Width = 57
+        OnChange = eNameChange
+        TabStop = False
+        TabOrder = 0
+      end
+      object sColor: TShape
+        Left = 52
+        Height = 22
+        Hint = 'Left click - Change color, Right click - change transparency'
+        Top = 28
+        Width = 22
+        ParentShowHint = False
+        OnMouseDown = sColorMouseDown
+        ShowHint = True
+      end
+      object Label1: TLabel
+        Left = 9
+        Height = 16
+        Top = 31
+        Width = 31
+        Caption = 'Color'
+        ParentColor = False
+      end
+    end
+    object pnlSize: TPanel
+      Left = 1
+      Height = 204
+      Top = 108
+      Width = 110
+      Align = alTop
+      ClientHeight = 204
+      ClientWidth = 110
+      TabOrder = 2
+      OnMouseDown = pnlPropertiesMouseDown
+      object chkPos: TCheckBox
+        Left = 9
+        Height = 19
+        Hint = 'If unchecked, position will be 0..1 multiplier of parent size'
+        Top = 1
+        Width = 66
+        Caption = 'Abs Pos'
+        OnChange = chkPosChange
+        ParentShowHint = False
+        TabOrder = 3
+        TabStop = False
+      end
+      object chkSize: TCheckBox
+        Left = 9
+        Height = 19
+        Hint = 'If unchecked, size will be 0..1 multiplier of parent size'
+        Top = 20
+        Width = 67
+        Caption = 'Abs Size'
+        OnChange = chkSizeChange
+        ParentShowHint = False
+        TabOrder = 1
+        TabStop = False
+      end
+      object lblText1: TLabel
+        Left = 9
+        Height = 16
+        Top = 51
+        Width = 21
+        Caption = 'Left'
+        ParentColor = False
+      end
+      object eLeft: TEdit
+        Left = 51
+        Height = 23
+        Top = 44
+        Width = 47
+        OnChange = eLeftChange
+        TabStop = False
+        TabOrder = 5
+      end
+      object lblText2: TLabel
+        Left = 8
+        Height = 16
+        Top = 75
+        Width = 21
+        Caption = 'Top'
+        ParentColor = False
+      end
+      object lblText3: TLabel
+        Left = 8
+        Height = 16
+        Top = 99
+        Width = 32
+        Caption = 'Width'
+        ParentColor = False
+      end
+      object lblText4: TLabel
+        Left = 8
+        Height = 16
+        Top = 123
+        Width = 37
+        Caption = 'Height'
+        ParentColor = False
+      end
+      object eHeight: TEdit
+        Left = 51
+        Height = 23
+        Top = 116
+        Width = 47
+        OnChange = eLeftChange
+        TabStop = False
+        TabOrder = 6
+      end
+      object eWidth: TEdit
+        Left = 51
+        Height = 23
+        Top = 92
+        Width = 47
+        OnChange = eLeftChange
+        TabStop = False
+        TabOrder = 7
+      end
+      object eTop: TEdit
+        Left = 51
+        Height = 23
+        Top = 68
+        Width = 47
+        OnChange = eLeftChange
+        TabStop = False
+        TabOrder = 8
+      end
+      object chkParAlpha: TCheckBox
+        Left = 9
+        Height = 19
+        Top = 140
+        Width = 90
+        Caption = 'Parent alpha'
+        OnChange = chkParAlphaChange
+        TabOrder = 4
+        TabStop = False
+      end
+      object chkEnabled: TCheckBox
+        Left = 9
+        Height = 19
+        Top = 160
+        Width = 66
+        Caption = 'Enabled'
+        OnChange = chkEnabledChange
+        TabOrder = 2
+        TabStop = False
+      end
+      object chkVisible: TCheckBox
+        Left = 9
+        Height = 19
+        Top = 180
+        Width = 57
+        Caption = 'Visible'
+        OnChange = chkVisibleChange
+        TabOrder = 0
+        TabStop = False
+      end
+    end
+    object pnlText: TPanel
+      Left = 1
+      Height = 28
+      Top = 56
+      Width = 110
+      Align = alTop
+      ClientHeight = 28
+      ClientWidth = 110
+      TabOrder = 3
+      Visible = False
+      OnMouseDown = pnlPropertiesMouseDown
+      object lblText: TLabel
+        Left = 5
+        Height = 16
+        Top = 6
+        Width = 22
+        Caption = 'Text'
+        ParentColor = False
+      end
+      object eText: TEdit
+        Left = 24
+        Height = 23
+        Top = 2
+        Width = 79
+        OnChange = eTextChange
+        TabStop = False
+        TabOrder = 0
+      end
+    end
+    object pnlCentered: TPanel
+      Left = 1
+      Height = 24
+      Top = 312
+      Width = 110
+      Align = alTop
+      ClientHeight = 24
+      ClientWidth = 110
+      TabOrder = 4
+      Visible = False
+      OnMouseDown = pnlPropertiesMouseDown
+      object chkCentered: TCheckBox
+        Left = 9
+        Height = 19
+        Top = 2
+        Width = 71
+        Caption = 'Centered'
+        OnChange = chkCenteredChange
+        TabOrder = 0
+        TabStop = False
+      end
+    end
+    object pnlGroup: TPanel
+      Left = 1
+      Height = 28
+      Top = 360
+      Width = 110
+      Align = alTop
+      ClientHeight = 28
+      ClientWidth = 110
+      TabOrder = 5
+      Visible = False
+      OnMouseDown = pnlPropertiesMouseDown
+      object lblText5: TLabel
+        Left = 8
+        Height = 16
+        Top = 5
+        Width = 35
+        Caption = 'Group'
+        ParentColor = False
+      end
+      object eGroup: TEdit
+        Left = 52
+        Height = 23
+        Top = 2
+        Width = 40
+        OnChange = eGroupChange
+        TabStop = False
+        TabOrder = 0
+      end
+    end
+    object pnlChecked: TPanel
+      Left = 1
+      Height = 24
+      Top = 336
+      Width = 110
+      Align = alTop
+      ClientHeight = 24
+      ClientWidth = 110
+      TabOrder = 6
+      Visible = False
+      OnMouseDown = pnlPropertiesMouseDown
+      object chkChecked: TCheckBox
+        Left = 9
+        Height = 19
+        Top = 2
+        Width = 69
+        Caption = 'Checked'
+        OnChange = chkCheckedChange
+        TabOrder = 0
+        TabStop = False
+      end
+    end
+    object pnlScrollbar: TPanel
+      Left = 1
+      Height = 51
+      Top = 388
+      Width = 110
+      Align = alTop
+      ClientHeight = 51
+      ClientWidth = 110
+      TabOrder = 7
+      Visible = False
+      OnMouseDown = pnlPropertiesMouseDown
+      object lblText6: TLabel
+        Left = 8
+        Height = 16
+        Top = 5
+        Width = 22
+        Caption = 'Max'
+        ParentColor = False
+      end
+      object eMax: TEdit
+        Left = 62
+        Height = 23
+        Top = 2
+        Width = 40
+        OnChange = eMaxChange
+        TabStop = False
+        TabOrder = 0
+      end
+      object lblText7: TLabel
+        Left = 9
+        Height = 16
+        Top = 30
+        Width = 46
+        Caption = 'Position'
+        ParentColor = False
+      end
+      object ePosition: TEdit
+        Left = 62
+        Height = 23
+        Top = 26
+        Width = 40
+        OnChange = ePositionChange
+        TabStop = False
+        TabOrder = 1
+      end
+    end
+    object pnlWrap: TPanel
+      Left = 1
+      Height = 24
+      Top = 439
+      Width = 110
+      Align = alTop
+      ClientHeight = 24
+      ClientWidth = 110
+      TabOrder = 8
+      Visible = False
+      OnMouseDown = pnlPropertiesMouseDown
+      object chkWrap: TCheckBox
+        Left = 9
+        Height = 19
+        Top = 2
+        Width = 79
+        Caption = 'Word wrap'
+        OnChange = chkWrapChange
+        TabOrder = 0
+        TabStop = False
+      end
+    end
+    object pnlStrings: TPanel
+      Left = 1
+      Height = 24
+      Top = 84
+      Width = 110
+      Align = alTop
+      ClientHeight = 24
+      ClientWidth = 110
+      TabOrder = 9
+      Visible = False
+      OnMouseDown = pnlPropertiesMouseDown
+      object btnOpenStrings: TButton
+        Left = 9
+        Height = 20
+        Top = 2
+        Width = 89
+        Caption = 'Strings...'
+        OnClick = btnOpenStringsClick
+        TabOrder = 0
+        TabStop = False
+      end
+    end
+    object pnlDrawStyle: TPanel
+      Left = 1
+      Height = 48
+      Top = 463
+      Width = 110
+      Align = alTop
+      ClientHeight = 48
+      ClientWidth = 110
+      TabOrder = 10
+      OnMouseDown = pnlPropertiesMouseDown
+      object cmbDrawStyle: TComboBox
+        Left = 5
+        Height = 23
+        Top = 2
+        Width = 100
+        ItemHeight = 15
+        ItemIndex = 0
+        Items.Strings = (
+          'Scaled'
+          'Sections'
+          'Repeat'
+        )
+        OnChange = cmbDrawStyleChange
+        Style = csDropDownList
+        TabOrder = 0
+        TabStop = False
+        Text = 'Scaled'
+      end
+      object barSections: TScrollBar
+        Left = 5
+        Height = 19
+        Top = 25
+        Width = 97
+        LargeChange = 10
+        Max = 254
+        Min = 1
+        PageSize = 0
+        Position = 1
+        TabOrder = 1
+        TabStop = False
+        OnChange = barSectionsChange
+      end
+    end
+    object pnlAlpha: TPanel
+      Left = 80
+      Height = 124
+      Top = 29
+      Width = 29
+      ClientHeight = 124
+      ClientWidth = 29
+      TabOrder = 1
+      Visible = False
+      object alphaScroll: TScrollBar
+        Left = 0
+        Height = 104
+        Top = 0
+        Width = 23
+        Kind = sbVertical
+        LargeChange = 10
+        PageSize = 0
+        Position = 10
+        TabOrder = 0
+        OnChange = alphaScrollChange
+        OnScroll = alphaScrollScroll
+      end
+    end
+    object pnlEditable: TPanel
+      Left = 1
+      Height = 24
+      Top = 511
+      Width = 110
+      Align = alTop
+      ClientHeight = 24
+      ClientWidth = 110
+      TabOrder = 11
+      Visible = False
+      OnMouseDown = pnlPropertiesMouseDown
+      object chkEditable: TCheckBox
+        Left = 9
+        Height = 19
+        Top = 2
+        Width = 65
+        Caption = 'Editable'
+        OnChange = chkEditableChange
+        TabOrder = 0
+        TabStop = False
+      end
+    end
+  end
+  object pnlToolbar: TPanel
+    Left = 0
+    Height = 32
+    Top = 0
+    Width = 639
+    Align = alTop
+    ClientHeight = 32
+    ClientWidth = 639
+    TabOrder = 1
+    OnMouseMove = pnlPropertiesMouseMove
+    object btnAdd: TSpeedButton
+      Left = 64
+      Height = 21
+      Top = 5
+      Width = 46
+      Caption = 'Add'
+      Down = True
+      GroupIndex = 1
+      NumGlyphs = 0
+      OnClick = btnAddClick
+    end
+    object btnSel: TSpeedButton
+      Left = 8
+      Height = 21
+      Top = 5
+      Width = 54
+      Caption = 'Select'
+      GroupIndex = 1
+      NumGlyphs = 0
+      OnClick = btnAddClick
+    end
+    object selItemList: TComboBox
+      Left = 112
+      Height = 23
+      Top = 2
+      Width = 128
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'Button'
+        'Checkbox'
+        'Dropdown list'
+        'Edit'
+        'Image'
+        'Label'
+        'List'
+        'Memo'
+        'Panel'
+        'ScrollBar'
+        'TabControl'
+        'Window'
+      )
+      OnChange = selItemListChange
+      OnDropDown = selItemListDropDown
+      Style = csDropDownList
+      TabOrder = 0
+      TabStop = False
+      Text = 'Button'
+    end
+    object Button1: TButton
+      Left = 248
+      Height = 21
+      Top = 5
+      Width = 82
+      Caption = 'Objects'
+      OnClick = Button1Click
+      TabOrder = 1
+    end
+    object btnTextures: TButton
+      Left = 408
+      Height = 21
+      Top = 5
+      Width = 66
+      Caption = 'Textures'
+      Enabled = False
+      OnClick = btnTexturesClick
+      TabOrder = 2
+    end
+    object btnFonts: TButton
+      Left = 480
+      Height = 21
+      Top = 5
+      Width = 59
+      Caption = 'Fonts'
+      Enabled = False
+      OnClick = btnFontsClick
+      TabOrder = 3
+    end
+    object btnParticles: TButton
+      Left = 544
+      Height = 21
+      Top = 5
+      Width = 72
+      Caption = 'Particles'
+      Enabled = False
+      OnClick = btnParticlesClick
+      TabOrder = 4
+    end
+  end
+  object btnLayout: TButton
+    Left = 336
+    Height = 21
+    Top = 5
+    Width = 66
+    Caption = 'Visibility'
+    OnClick = btnLayoutClick
+    TabOrder = 2
+  end
+  object tabs: TPageControl
+    Left = 192
+    Height = 352
+    Top = 32
+    Width = 376
+    TabStop = False
+    ActivePage = tabObjects
+    TabIndex = 1
+    TabOrder = 3
+    Visible = False
+    object tabStrings: TTabSheet
+      Caption = '0'
+      ClientHeight = 324
+      ClientWidth = 368
+      Enabled = False
+      object Panel5: TPanel
+        Left = 0
+        Height = 45
+        Top = 279
+        Width = 368
+        Align = alBottom
+        ClientHeight = 45
+        ClientWidth = 368
+        TabOrder = 0
+        object btnAcceptStrings: TButton
+          Left = 84
+          Height = 27
+          Top = 9
+          Width = 89
+          Anchors = [akLeft, akBottom]
+          Caption = 'OK'
+          Font.Height = -17
+          Font.Name = 'Sans'
+          OnClick = btnAcceptStringsClick
+          ParentFont = False
+          TabOrder = 0
+        end
+        object btnCloseStrings: TButton
+          Left = 196
+          Height = 27
+          Top = 9
+          Width = 89
+          Anchors = [akLeft, akBottom]
+          Caption = 'Cancel'
+          Font.Height = -15
+          Font.Name = 'Sans'
+          OnClick = btnCloseStringsClick
+          ParentFont = False
+          TabOrder = 1
+        end
+      end
+      object memoStrings: TMemo
+        Left = 24
+        Height = 146
+        Top = 18
+        Width = 228
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        ScrollBars = ssBoth
+        TabOrder = 1
+        WordWrap = False
+      end
+    end
+    object tabObjects: TTabSheet
+      Caption = '1'
+      ClientHeight = 324
+      ClientWidth = 368
+      Enabled = False
+      object TreeView1: TTreeView
+        Left = 44
+        Height = 192
+        Top = 39
+        Width = 260
+        Anchors = [akLeft]
+        AutoExpand = True
+        DefaultItemHeight = 18
+        ReadOnly = True
+        ShowRoot = False
+        TabOrder = 0
+        OnSelectionChanged = TreeView1SelectionChanged
+        Options = [tvoAutoExpand, tvoAutoItemHeight, tvoHideSelection, tvoKeepCollapsedNodes, tvoReadOnly, tvoShowButtons, tvoShowLines, tvoToolTips]
+      end
+      object Panel6: TPanel
+        Left = 0
+        Height = 47
+        Top = 277
+        Width = 368
+        Align = alBottom
+        ClientHeight = 47
+        ClientWidth = 368
+        TabOrder = 1
+        object Button2: TButton
+          Left = 124
+          Height = 31
+          Top = 11
+          Width = 112
+          Anchors = [akLeft]
+          Caption = 'Hide'
+          Font.Height = -17
+          Font.Name = 'Sans'
+          OnClick = Button2Click
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+    end
+    object tabVisibility: TTabSheet
+      Caption = '2'
+      ClientHeight = 324
+      ClientWidth = 368
+      Enabled = False
+      object Panel2: TPanel
+        Left = 0
+        Height = 42
+        Top = 282
+        Width = 368
+        Align = alBottom
+        ClientHeight = 42
+        ClientWidth = 368
+        TabOrder = 0
+        object Button3: TButton
+          Left = 124
+          Height = 31
+          Top = 6
+          Width = 112
+          Anchors = [akLeft]
+          Caption = 'Hide'
+          Font.Height = -17
+          Font.Name = 'Sans'
+          OnClick = Button3Click
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+      object visItems: TCheckListBox
+        Left = 24
+        Height = 232
+        Top = 8
+        Width = 272
+        ItemHeight = 0
+        OnClick = visItemsClick
+        TabOrder = 1
+      end
+    end
+    object tabTextures: TTabSheet
+      Caption = '3'
+      ClientHeight = 324
+      ClientWidth = 368
+      Enabled = False
+      object Panel1: TPanel
+        Left = 0
+        Height = 43
+        Top = 281
+        Width = 368
+        Align = alBottom
+        ClientHeight = 43
+        ClientWidth = 368
+        TabOrder = 0
+        object Button4: TButton
+          Left = 84
+          Height = 31
+          Top = 7
+          Width = 112
+          Anchors = [akLeft]
+          Caption = 'Hide'
+          Font.Height = -17
+          Font.Name = 'Sans'
+          OnClick = Button4Click
+          ParentFont = False
+          TabOrder = 0
+        end
+        object btnPreviewTex: TButton
+          Left = 260
+          Height = 25
+          Top = 7
+          Width = 94
+          Caption = 'Preview...'
+          OnClick = btnPreviewTexClick
+          TabOrder = 1
+        end
+      end
+      object Panel8: TPanel
+        Left = 0
+        Height = 48
+        Top = 0
+        Width = 368
+        Align = alTop
+        ClientHeight = 48
+        ClientWidth = 368
+        TabOrder = 1
+        object btnAddTex: TButton
+          Left = 28
+          Height = 25
+          Top = 9
+          Width = 91
+          Caption = 'Add texture...'
+          OnClick = btnAddTexClick
+          TabOrder = 0
+        end
+        object btnRemoveTex: TButton
+          Left = 135
+          Height = 25
+          Top = 9
+          Width = 75
+          Caption = 'Remove'
+          OnClick = btnRemoveTexClick
+          TabOrder = 1
+        end
+        object btnReloadTex: TButton
+          Left = 252
+          Height = 25
+          Top = 9
+          Width = 80
+          Caption = 'Reload all'
+          OnClick = btnReloadTexClick
+          TabOrder = 2
+        end
+      end
+      object pnlTexInfo: TPanel
+        Left = 0
+        Height = 217
+        Top = 48
+        Width = 156
+        Align = alLeft
+        ClientHeight = 217
+        ClientWidth = 156
+        Enabled = False
+        TabOrder = 2
+        object Label3: TLabel
+          Left = 10
+          Height = 16
+          Top = 24
+          Width = 38
+          Caption = 'Name:'
+          ParentColor = False
+        end
+        object eTexName: TEdit
+          Left = 60
+          Height = 23
+          Top = 24
+          Width = 80
+          OnChange = eTexNameChange
+          OnExit = eTexNameExit
+          TabOrder = 0
+        end
+        object lblTexSize: TLabel
+          Left = 6
+          Height = 16
+          Top = 49
+          Width = 142
+          Alignment = taCenter
+          AutoSize = False
+          Caption = '----------'
+          ParentColor = False
+        end
+        object Label6: TLabel
+          Left = 44
+          Height = 16
+          Top = 76
+          Width = 68
+          Caption = 'Pattern size:'
+          ParentColor = False
+        end
+        object ePatW: TEdit
+          Left = 34
+          Height = 23
+          Top = 96
+          Width = 44
+          MaxLength = 5
+          OnChange = ePatWChange
+          TabOrder = 1
+        end
+        object ePatH: TEdit
+          Left = 84
+          Height = 23
+          Top = 96
+          Width = 44
+          MaxLength = 5
+          OnChange = ePatHChange
+          TabOrder = 2
+        end
+        object eSkipW: TEdit
+          Left = 34
+          Height = 23
+          Top = 148
+          Width = 44
+          MaxLength = 5
+          OnChange = eSkipWChange
+          TabOrder = 3
+        end
+        object eSkipH: TEdit
+          Left = 84
+          Height = 23
+          Top = 148
+          Width = 44
+          MaxLength = 5
+          OnChange = eSkipHChange
+          TabOrder = 4
+        end
+        object Label7: TLabel
+          Left = 52
+          Height = 16
+          Top = 128
+          Width = 53
+          Caption = 'Skip size:'
+          ParentColor = False
+        end
+        object lblTexFile: TLabel
+          Left = 10
+          Height = 16
+          Top = 7
+          Width = 130
+          Alignment = taCenter
+          AutoSize = False
+          Caption = '---'
+          ParentColor = False
+          ParentShowHint = False
+          ShowHint = True
+        end
+      end
+      object texList: TListBox
+        Left = 167
+        Height = 152
+        Top = 60
+        Width = 149
+        ItemHeight = 0
+        OnMouseDown = texListMouseDown
+        TabOrder = 3
+      end
+      object Label5: TLabel
+        Left = 0
+        Height = 16
+        Top = 265
+        Width = 368
+        Align = alBottom
+        Alignment = taCenter
+        Caption = '* marked textures cannot be modified'
+        ParentColor = False
+      end
+    end
+    object tabFonts: TTabSheet
+      Caption = '4'
+      ClientHeight = 324
+      ClientWidth = 368
+      Enabled = False
+      object Panel3: TPanel
+        Left = 0
+        Height = 44
+        Top = 280
+        Width = 368
+        Align = alBottom
+        ClientHeight = 44
+        ClientWidth = 368
+        TabOrder = 0
+        object Button5: TButton
+          Left = 124
+          Height = 31
+          Top = 8
+          Width = 112
+          Anchors = [akLeft]
+          Caption = 'Hide'
+          Font.Height = -17
+          Font.Name = 'Sans'
+          OnClick = Button5Click
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+    end
+    object tabParticles: TTabSheet
+      Caption = '5'
+      ClientHeight = 324
+      ClientWidth = 368
+      Enabled = False
+      object Panel7: TPanel
+        Left = 0
+        Height = 45
+        Top = 279
+        Width = 368
+        Align = alBottom
+        ClientHeight = 45
+        ClientWidth = 368
+        TabOrder = 0
+        object Button6: TButton
+          Left = 124
+          Height = 31
+          Top = 9
+          Width = 112
+          Anchors = [akLeft]
+          Caption = 'Hide'
+          Font.Height = -17
+          Font.Name = 'Sans'
+          OnClick = Button6Click
+          ParentFont = False
+          TabOrder = 0
+        end
+      end
+    end
+    object tabTexPreview: TTabSheet
+      Caption = '6'
+      ClientHeight = 324
+      ClientWidth = 368
+      object imgPreview: TImage
+        Left = 35
+        Height = 90
+        Top = 49
+        Width = 90
+        OnMouseDown = imgPreviewMouseDown
+        Stretch = True
+      end
+    end
+  end
+  object Menu1: TMainMenu
+    left = 136
+    top = 40
+    object MenuItem1: TMenuItem
+      Caption = 'File'
+      object menuNew: TMenuItem
+        Caption = 'New'
+        OnClick = menuNewClick
+      end
+      object menuOpen: TMenuItem
+        Caption = 'Open...'
+        OnClick = menuOpenClick
+      end
+      object menuSave: TMenuItem
+        Caption = 'Save as...'
+        OnClick = menuSaveClick
+      end
+      object MenuItem5: TMenuItem
+        Caption = '-'
+      end
+      object menuExit: TMenuItem
+        Caption = 'Exit'
+        OnClick = menuExitClick
+      end
+    end
+    object MenuItem7: TMenuItem
+      Caption = 'Edit'
+      object menuToFront: TMenuItem
+        Caption = 'Bring to front'
+        ShortCut = 36
+        OnClick = menuToFrontClick
+      end
+      object menuToBack: TMenuItem
+        Caption = 'Send to back'
+        ShortCut = 35
+        OnClick = menuToBackClick
+      end
+      object MenuItem2: TMenuItem
+        Caption = '-'
+      end
+      object menuDelete: TMenuItem
+        Caption = 'Delete'
+        OnClick = menuDeleteClick
+      end
+      object MenuItem4: TMenuItem
+        Caption = '-'
+      end
+      object menuSnap: TMenuItem
+        AutoCheck = True
+        Caption = 'Snapping'
+        Checked = True
+        ShortCut = 32851
+      end
+    end
+  end
+  object Timer1: TTimer
+    Enabled = False
+    Interval = 15
+    OnTimer = Timer1Timer
+    left = 136
+    top = 88
+  end
+  object OpenD: TOpenDialog
+    DefaultExt = '.ui'
+    Filter = 'User Interface|*.ui|All files|*.*'
+    Options = [ofEnableSizing]
+    left = 136
+    top = 145
+  end
+  object SaveD: TSaveDialog
+    DefaultExt = '.ui'
+    Filter = 'User Interface|*.ui|All files|*.*'
+    Options = [ofEnableSizing]
+    left = 136
+    top = 200
+  end
+  object ColorD: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 136
+    top = 264
+  end
+  object OpenPic: TOpenPictureDialog
+    DefaultExt = '.PNG'
+    Filter = 'Graphic (*.bmp;*.jpg;*.png)|*.bmp;*.jpg;*.png'
+    Options = [ofPathMustExist, ofFileMustExist, ofEnableSizing, ofDontAddToRecent, ofViewDetail, ofAutoPreview]
+    left = 136
+    top = 328
+  end
+end

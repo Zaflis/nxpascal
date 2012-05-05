@@ -1,0 +1,368 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <ProjectOptions>
+    <Version Value="9"/>
+    <PathDelim Value="\"/>
+    <General>
+      <Flags>
+        <AlwaysBuild Value="True"/>
+      </Flags>
+      <MainUnit Value="0"/>
+      <UseXPManifest Value="True"/>
+      <Icon Value="0"/>
+      <ActiveWindowIndexAtStart Value="0"/>
+    </General>
+    <BuildModes Count="1">
+      <Item1 Name="default" Default="True"/>
+    </BuildModes>
+    <PublishOptions>
+      <Version Value="2"/>
+      <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
+      <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
+    </PublishOptions>
+    <RunParams>
+      <local>
+        <FormatVersion Value="1"/>
+        <LaunchingApplication PathPlusParams="\usr\X11R6\bin\xterm -T 'Lazarus Run Output' -e $(LazarusDir)\tools\runwait.sh $(TargetCmdLine)"/>
+      </local>
+    </RunParams>
+    <RequiredPackages Count="2">
+      <Item1>
+        <PackageName Value="LazOpenGLContext"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="LCL"/>
+      </Item2>
+    </RequiredPackages>
+    <Units Count="18">
+      <Unit0>
+        <Filename Value="UITest.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="UITest"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="19" Y="5"/>
+        <UsageCount Value="71"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="TestMain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="TestMain"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="0"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="3"/>
+        <CursorPos X="1" Y="9"/>
+        <UsageCount Value="71"/>
+        <Loaded Value="True"/>
+        <LoadedDesigner Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\next3d\src\next3d\nxGL.pas"/>
+        <UnitName Value="nxGL"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="111"/>
+        <CursorPos X="29" Y="115"/>
+        <UsageCount Value="31"/>
+        <Bookmarks Count="1">
+          <Item0 X="1" Y="1531" ID="0"/>
+        </Bookmarks>
+      </Unit2>
+      <Unit3>
+        <Filename Value="..\..\next3d\src\next3d\nxGraph.pas"/>
+        <UnitName Value="nxGraph"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="80"/>
+        <CursorPos X="16" Y="795"/>
+        <UsageCount Value="31"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="..\..\lazarus\lcl\controls.pp"/>
+        <UnitName Value="Controls"/>
+        <TopLine Value="131"/>
+        <CursorPos X="3" Y="144"/>
+        <UsageCount Value="8"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="..\..\lazarus\lcl\lcltype.pp"/>
+        <UnitName Value="LCLType"/>
+        <TopLine Value="538"/>
+        <CursorPos X="3" Y="425"/>
+        <UsageCount Value="9"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="..\..\lazarus\lcl\fileutil.pas"/>
+        <UnitName Value="FileUtil"/>
+        <TopLine Value="128"/>
+        <CursorPos X="10" Y="189"/>
+        <UsageCount Value="9"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="..\..\next3d\src\next3d\nxTypes.pas"/>
+        <UnitName Value="nxTypes"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="12"/>
+        <CursorPos X="60" Y="48"/>
+        <UsageCount Value="23"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="..\..\lazarus\fpc\2.4.3\source\rtl\inc\mathh.inc"/>
+        <TopLine Value="66"/>
+        <CursorPos X="14" Y="78"/>
+        <UsageCount Value="9"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="..\..\next3d\src\next3d\nxUI.pas"/>
+        <UnitName Value="nxUI"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1090"/>
+        <CursorPos X="34" Y="1091"/>
+        <UsageCount Value="17"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="..\..\next3d\src\next3d\nxGLUI.pas"/>
+        <UnitName Value="nxGLUI"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="102"/>
+        <CursorPos X="11" Y="119"/>
+        <UsageCount Value="17"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="..\..\lazarus\fpc\2.4.3\source\rtl\objpas\classes\classesh.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="97"/>
+        <CursorPos X="3" Y="110"/>
+        <UsageCount Value="10"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="..\src\nx\nxGraph.pas"/>
+        <UnitName Value="nxGraph"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="102"/>
+        <CursorPos X="35" Y="114"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="..\src\nx\nxGLUI.pas"/>
+        <UnitName Value="nxGLUI"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="188"/>
+        <CursorPos X="5" Y="230"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="..\src\nx\nxUI.pas"/>
+        <UnitName Value="nxUI"/>
+        <EditorIndex Value="5"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="256"/>
+        <CursorPos X="3" Y="296"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <UnitName Value="nxGL"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="157"/>
+        <CursorPos X="1" Y="170"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="..\src\nx\nxTypes.pas"/>
+        <UnitName Value="nxTypes"/>
+        <EditorIndex Value="3"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="31"/>
+        <CursorPos X="5" Y="40"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\src\nx\dglOpenGL.pas"/>
+        <UnitName Value="dglOpenGL"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="346"/>
+        <CursorPos X="27" Y="368"/>
+        <UsageCount Value="10"/>
+      </Unit17>
+    </Units>
+    <JumpHistory Count="30" HistoryIndex="29">
+      <Position1>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="377" Column="21" TopLine="368"/>
+      </Position1>
+      <Position2>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="298" Column="10" TopLine="288"/>
+      </Position2>
+      <Position3>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="20" Column="3" TopLine="1"/>
+      </Position3>
+      <Position4>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="74" Column="26" TopLine="57"/>
+      </Position4>
+      <Position5>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="262" Column="22" TopLine="250"/>
+      </Position5>
+      <Position6>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="847" Column="21" TopLine="847"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="279" Column="34" TopLine="261"/>
+      </Position7>
+      <Position8>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="832" Column="14" TopLine="823"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="842" Column="13" TopLine="837"/>
+      </Position9>
+      <Position10>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="262" Column="15" TopLine="248"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="276" Column="41" TopLine="262"/>
+      </Position11>
+      <Position12>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="398" Column="1" TopLine="385"/>
+      </Position12>
+      <Position13>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="79" Column="48" TopLine="64"/>
+      </Position13>
+      <Position14>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="75" Column="19" TopLine="64"/>
+      </Position14>
+      <Position15>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="266" Column="34" TopLine="265"/>
+      </Position15>
+      <Position16>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="294" Column="19" TopLine="286"/>
+      </Position16>
+      <Position17>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="271" Column="27" TopLine="267"/>
+      </Position17>
+      <Position18>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="72" Column="7" TopLine="61"/>
+      </Position18>
+      <Position19>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="279" Column="52" TopLine="263"/>
+      </Position19>
+      <Position20>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="452" Column="1" TopLine="438"/>
+      </Position20>
+      <Position21>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="673" Column="5" TopLine="660"/>
+      </Position21>
+      <Position22>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="674" Column="5" TopLine="661"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="662" Column="22" TopLine="658"/>
+      </Position23>
+      <Position24>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="475" Column="17" TopLine="468"/>
+      </Position24>
+      <Position25>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position25>
+      <Position26>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="1028" Column="25" TopLine="1006"/>
+      </Position26>
+      <Position27>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
+      </Position27>
+      <Position28>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="1028" Column="1" TopLine="1006"/>
+      </Position28>
+      <Position29>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="815" Column="1" TopLine="814"/>
+      </Position29>
+      <Position30>
+        <Filename Value="..\src\nx\nxGL.pas"/>
+        <Caret Line="1008" Column="46" TopLine="992"/>
+      </Position30>
+    </JumpHistory>
+  </ProjectOptions>
+  <CompilerOptions>
+    <Version Value="10"/>
+    <PathDelim Value="\"/>
+    <Target>
+      <Filename Value="$NameOnly($ProjFile())"/>
+    </Target>
+    <SearchPaths>
+      <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="..\src\nx"/>
+      <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <UseAnsiStrings Value="False"/>
+      </SyntaxOptions>
+    </Parsing>
+    <Linking>
+      <Debugging>
+        <StripSymbols Value="True"/>
+        <UseExternalDbgSyms Value="True"/>
+      </Debugging>
+      <Options>
+        <Win32>
+          <GraphicApplication Value="True"/>
+        </Win32>
+      </Options>
+    </Linking>
+    <Other>
+      <CompilerMessages>
+        <UseMsgFile Value="True"/>
+      </CompilerMessages>
+      <CompilerPath Value="$(CompPath)"/>
+    </Other>
+  </CompilerOptions>
+  <Debugging>
+    <Exceptions Count="3">
+      <Item1>
+        <Name Value="EAbort"/>
+      </Item1>
+      <Item2>
+        <Name Value="ECodetoolError"/>
+      </Item2>
+      <Item3>
+        <Name Value="EFOpenError"/>
+      </Item3>
+    </Exceptions>
+  </Debugging>
+</CONFIG>
