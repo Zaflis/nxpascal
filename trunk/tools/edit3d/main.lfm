@@ -4,8 +4,9 @@ object Form1: TForm1
   Top = 124
   Width = 320
   Caption = 'Edit3D'
-  ClientHeight = 240
+  ClientHeight = 220
   ClientWidth = 320
+  Menu = MainMenu1
   OnClose = FormClose
   OnCreate = FormCreate
   LCLVersion = '0.9.31'
@@ -22,5 +23,206 @@ object Form1: TForm1
     Enabled = False
     left = 24
     top = 41
+  end
+  object MainMenu1: TMainMenu
+    left = 72
+    top = 108
+    object MenuItem1: TMenuItem
+      Caption = 'File'
+      object MenuItem8: TMenuItem
+        Caption = 'New workspace...'
+      end
+      object MenuItem9: TMenuItem
+        Caption = 'Open workspace...'
+        ShortCut = 114
+      end
+      object MenuItem60: TMenuItem
+        Caption = 'Save workspace'
+        ShortCut = 113
+      end
+      object MenuItem12: TMenuItem
+        Caption = 'Save workspace as...'
+      end
+      object MenuItem13: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem16: TMenuItem
+        Caption = 'Add object...'
+      end
+      object MenuItem11: TMenuItem
+        Caption = 'Save selected object as...'
+      end
+      object MenuItem15: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem10: TMenuItem
+        Caption = 'Exit'
+      end
+    end
+    object MenuItem2: TMenuItem
+      Caption = 'Edit'
+      object MenuItem14: TMenuItem
+        Caption = 'Undo'
+        ShortCut = 16474
+      end
+      object MenuItem22: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem23: TMenuItem
+        Caption = 'Copy'
+        ShortCut = 16451
+      end
+      object MenuItem24: TMenuItem
+        Caption = 'New Item24'
+        ShortCut = 16470
+      end
+      object MenuItem25: TMenuItem
+        Caption = 'New Item25'
+        ShortCut = 46
+      end
+      object MenuItem26: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem27: TMenuItem
+        Caption = 'Select all'
+        ShortCut = 16449
+      end
+    end
+    object MenuItem3: TMenuItem
+      Caption = 'View'
+      object MenuItem17: TMenuItem
+        Caption = 'Camera'
+        object MenuItem28: TMenuItem
+          Caption = 'Top'
+          ShortCut = 32817
+        end
+        object MenuItem29: TMenuItem
+          Caption = 'Front'
+          ShortCut = 32818
+        end
+        object MenuItem30: TMenuItem
+          Caption = 'Right'
+          ShortCut = 32819
+        end
+      end
+      object MenuItem31: TMenuItem
+        Caption = 'Visuals'
+        object MenuItem38: TMenuItem
+          Caption = 'Wireframe'
+        end
+        object MenuItem39: TMenuItem
+          Caption = 'Grid'
+        end
+        object MenuItem40: TMenuItem
+          Caption = 'Both sided faces'
+        end
+        object MenuItem41: TMenuItem
+          Caption = 'Normals'
+        end
+      end
+      object MenuItem32: TMenuItem
+        Caption = 'Background image'
+        object MenuItem36: TMenuItem
+          Caption = 'None'
+          Checked = True
+          RadioItem = True
+        end
+        object MenuItem37: TMenuItem
+          Caption = 'Load image...'
+          RadioItem = True
+        end
+      end
+      object MenuItem33: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem34: TMenuItem
+        Caption = 'Snapping'
+        ShortCut = 32851
+      end
+      object MenuItem42: TMenuItem
+        Caption = '-'
+      end
+      object MenuItem43: TMenuItem
+        Caption = 'Refresh all'
+        Checked = True
+        ShortCut = 116
+      end
+    end
+    object MenuItem4: TMenuItem
+      Caption = 'Actions'
+      object MenuItem18: TMenuItem
+        Caption = 'Mirror'
+        object MenuItem50: TMenuItem
+          Caption = 'X'
+        end
+        object MenuItem55: TMenuItem
+          Caption = 'Y'
+        end
+        object MenuItem56: TMenuItem
+          Caption = 'Z'
+        end
+      end
+      object MenuItem35: TMenuItem
+        Caption = 'Scale'
+        object MenuItem51: TMenuItem
+          Caption = 'New Item53'
+        end
+      end
+      object MenuItem44: TMenuItem
+        Caption = 'Flip face(s)'
+      end
+      object MenuItem45: TMenuItem
+        Caption = 'Triangle actions'
+        object MenuItem52: TMenuItem
+          Caption = 'Polygons to triangles'
+        end
+        object MenuItem53: TMenuItem
+          Caption = 'Split in 4'
+        end
+        object MenuItem54: TMenuItem
+          Caption = 'Split in 3 "crystallize"'
+        end
+      end
+      object MenuItem46: TMenuItem
+        Caption = 'Normals'
+        object MenuItem57: TMenuItem
+          Caption = 'Flatten'
+        end
+        object MenuItem58: TMenuItem
+          Caption = 'Smooth'
+        end
+      end
+    end
+    object MenuItem5: TMenuItem
+      Caption = 'Effects'
+      object MenuItem19: TMenuItem
+        Caption = 'Smoothen'
+      end
+      object MenuItem47: TMenuItem
+        Caption = 'Circulate...'
+      end
+      object MenuItem48: TMenuItem
+        Caption = 'Noise...'
+      end
+      object MenuItem49: TMenuItem
+        Caption = 'Spiral...'
+      end
+      object MenuItem59: TMenuItem
+        Caption = 'Snap vertices...'
+      end
+    end
+    object MenuItem6: TMenuItem
+      Caption = 'Tools'
+      object MenuItem21: TMenuItem
+        Caption = 'Memory usage...'
+      end
+      object MenuItem20: TMenuItem
+        Caption = 'List GL extensions of your card...'
+      end
+    end
+    object MenuItem7: TMenuItem
+      Caption = 'Help'
+      Visible = False
+    end
   end
 end
