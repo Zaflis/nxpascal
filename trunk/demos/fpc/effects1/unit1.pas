@@ -114,7 +114,7 @@ begin
 
   bassSound:=TBassEngine.Create(handle);
   if not bassSound.CheckErrors then begin
-    bassSound.Add('music', '..'+PathChar+'..'+PathChar+'media'+PathChar+
+    bassSound.Add('music', '..'+PathChar+'..'+PathChar+'..'+PathChar+'media'+PathChar+
       'test.s3m').Play;
     bassSound.sound[0].looped:=true;
   end;
