@@ -31,7 +31,7 @@
     <RequiredPackages Count="3">
       <Item1>
         <PackageName Value="LCLBase"/>
-        <MinVersion Major="1" Valid="True" Release="1"/>
+        <MinVersion Major="1" Release="1" Valid="True"/>
       </Item1>
       <Item2>
         <PackageName Value="LazOpenGLContext"/>
@@ -51,13 +51,14 @@
         <Filename Value="Unit1.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="82"/>
-        <CursorPos X="50" Y="96"/>
+        <TopLine Value="1"/>
+        <CursorPos X="28" Y="10"/>
         <UsageCount Value="21"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -169,7 +170,7 @@
         <UsageCount Value="10"/>
       </Unit15>
     </Units>
-    <JumpHistory Count="12" HistoryIndex="11">
+    <JumpHistory Count="13" HistoryIndex="12">
       <Position1>
         <Filename Value="Unit1.pas"/>
         <Caret Line="81" Column="12" TopLine="64"/>
@@ -218,6 +219,10 @@
         <Filename Value="Unit1.pas"/>
         <Caret Line="8" Column="59" TopLine="1"/>
       </Position12>
+      <Position13>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="73" Column="50" TopLine="62"/>
+      </Position13>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -228,7 +233,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="D:\pascal\nx\src\nx\"/>
+      <OtherUnitFiles Value="..\..\..\src"/>
       <UnitOutputDirectory Value="lib"/>
     </SearchPaths>
     <CodeGeneration>

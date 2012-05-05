@@ -32,7 +32,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="30">
+    <Units Count="32">
       <Unit0>
         <Filename Value="NetworkTest.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -46,12 +46,14 @@
         <Filename Value="Unit1.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
         <TopLine Value="223"/>
-        <CursorPos X="40" Y="242"/>
+        <CursorPos X="41" Y="235"/>
         <UsageCount Value="71"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -211,12 +213,10 @@
       <Unit25>
         <Filename Value="..\..\src\nx\nxNetwork.pas"/>
         <UnitName Value="nxNetwork"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="792"/>
         <CursorPos X="3" Y="794"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit25>
       <Unit26>
         <Filename Value="..\..\..\lazarus\fpc\2.5.1\source\rtl\objpas\classes\classesh.inc"/>
@@ -243,136 +243,49 @@
       <Unit29>
         <Filename Value="..\..\src\synapse\blcksock.pas"/>
         <UnitName Value="blcksock"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1055"/>
         <CursorPos X="24" Y="1067"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit29>
+      <Unit30>
+        <Filename Value="..\..\..\src\nxNetwork.pas"/>
+        <UnitName Value="nxNetwork"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="28" Y="7"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="..\..\..\src\synapse\blcksock.pas"/>
+        <UnitName Value="blcksock"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="3628"/>
+        <CursorPos X="1" Y="3641"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit31>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="4" HistoryIndex="3">
       <Position1>
         <Filename Value="Unit1.pas"/>
         <Caret Line="234" Column="41" TopLine="220"/>
       </Position1>
       <Position2>
-        <Filename Value="..\..\src\nx\nxNetwork.pas"/>
-        <Caret Line="638" Column="58" TopLine="1"/>
-      </Position2>
-      <Position3>
         <Filename Value="Unit1.pas"/>
         <Caret Line="201" Column="2" TopLine="157"/>
+      </Position2>
+      <Position3>
+        <Filename Value="..\..\..\src\nxNetwork.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position3>
       <Position4>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1431" Column="20" TopLine="1418"/>
+        <Filename Value="..\..\..\src\nxNetwork.pas"/>
+        <Caret Line="7" Column="28" TopLine="1"/>
       </Position4>
-      <Position5>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="286" Column="20" TopLine="273"/>
-      </Position5>
-      <Position6>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1432" Column="18" TopLine="1410"/>
-      </Position6>
-      <Position7>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1485" Column="27" TopLine="1463"/>
-      </Position7>
-      <Position8>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position8>
-      <Position9>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="286" Column="20" TopLine="264"/>
-      </Position9>
-      <Position10>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="314" Column="36" TopLine="292"/>
-      </Position10>
-      <Position11>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1432" Column="18" TopLine="1410"/>
-      </Position11>
-      <Position12>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1490" Column="19" TopLine="1469"/>
-      </Position12>
-      <Position13>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1660" Column="20" TopLine="1638"/>
-      </Position13>
-      <Position14>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1671" Column="45" TopLine="1654"/>
-      </Position14>
-      <Position15>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1673" Column="37" TopLine="1654"/>
-      </Position15>
-      <Position16>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1676" Column="18" TopLine="1654"/>
-      </Position16>
-      <Position17>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1772" Column="26" TopLine="1750"/>
-      </Position17>
-      <Position18>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1791" Column="27" TopLine="1777"/>
-      </Position18>
-      <Position19>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position19>
-      <Position20>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="286" Column="20" TopLine="264"/>
-      </Position20>
-      <Position21>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="314" Column="36" TopLine="292"/>
-      </Position21>
-      <Position22>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1432" Column="18" TopLine="1410"/>
-      </Position22>
-      <Position23>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1488" Column="7" TopLine="1467"/>
-      </Position23>
-      <Position24>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1490" Column="18" TopLine="1468"/>
-      </Position24>
-      <Position25>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="3626" Column="20" TopLine="3614"/>
-      </Position25>
-      <Position26>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="1480" Column="3" TopLine="1475"/>
-      </Position26>
-      <Position27>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="3606" Column="3" TopLine="3603"/>
-      </Position27>
-      <Position28>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="3604" Column="43" TopLine="3591"/>
-      </Position28>
-      <Position29>
-        <Filename Value="..\..\src\synapse\blcksock.pas"/>
-        <Caret Line="3976" Column="3" TopLine="3976"/>
-      </Position29>
-      <Position30>
-        <Filename Value="..\..\src\nx\nxNetwork.pas"/>
-        <Caret Line="794" Column="3" TopLine="792"/>
-      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -383,7 +296,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\src\nx;..\..\src\synapse"/>
+      <OtherUnitFiles Value="..\..\..\src;..\..\..\src\synapse"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

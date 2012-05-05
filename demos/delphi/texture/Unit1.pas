@@ -66,7 +66,7 @@ begin
     Render;
 
     // Save CPU a little? Limits fps to few thousands (varies)
-    //sleep(1); // Comment out for full performance
+    sleep(1); // Comment out for full performance
 
     Done:=false;
   end;

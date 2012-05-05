@@ -1,6 +1,6 @@
 unit nxModel;
 
-{$mode delphi}{$H+}
+{$IFDEF fpc}{$mode delphi}{$H+}{$ENDIF}
 
 {TODO:
  - Rearrange model classes (Polymodel)
