@@ -1,0 +1,461 @@
+objects
+add(uiMainPanel):Main
+begin
+ rgba 0.000 0.502 0.502 1.000
+ bool 1 1 1 1 0
+ texture ui_panel
+end
+3
+add(uiPanel):Panel1
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.009 0.012 0.372 0.488
+ texture ui_panel
+end
+10
+add(uiLabel):lblFPS
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.053 0.164 0.103
+ text Text
+ font Arial1
+ centered 0
+end
+add(uiEdit):Edit1
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.270 0.053 0.676 0.103
+ texture ui_edit
+ maxlength 64
+ text Text value
+ font Arial1
+ centered 0
+end
+add(uiLabel):Label2
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.206 0.164 0.103
+ text Label2
+ font Arial1
+ centered 0
+end
+add(uiLabel):Label3
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.358 0.164 0.107
+ text Label3
+ font Arial1
+ centered 0
+end
+add(uiLabel):Label4
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.514 0.164 0.103
+ text Label4
+ font Arial1
+ centered 0
+end
+add(uiEdit):Edit2
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.270 0.206 0.676 0.103
+ texture ui_edit
+ maxlength 64
+ text Edit2
+ font Arial1
+ centered 0
+end
+add(uiEdit):Edit3
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.270 0.358 0.676 0.108
+ texture ui_edit
+ maxlength 64
+ text W2äöj
+ font Arial1
+ centered 0
+end
+add(uiEdit):Edit4
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.270 0.510 0.676 0.107
+ texture ui_edit
+ maxlength 64
+ text Last value
+ font Arial1
+ centered 1
+end
+add(uiButton):Button1
+begin
+ rgba 0.502 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.844 0.406 0.107
+ texture ui_button
+ text Action 1
+ font Arial1
+end
+add(uiButton):Button2
+begin
+ rgba 1.000 1.000 0.502 0.530
+ bool 1 1 0 0 1
+ size 0.512 0.844 0.434 0.107
+ texture ui_button
+ text Do something
+ font Arial1
+end
+add(uiPanel):Panel2
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.390 0.010 0.602 0.976
+ texture ui_panel
+end
+5
+add(uiList):List1
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.580 0.076 0.386 0.426
+ texture ui_list
+ font Arial1
+ centered 1
+ strings 
+n:=n-32
+ääööööö
+tx:=(n mod 16)*sx*d1+d1;
+ty:=(n div 16)*sy*d1;
+glTexCoord2f(tx,ty);
+glVertex2f(x1,y1);
+glTexCoord2f(tx,ty+(sy-1)*d1);
+glVertex2i(x1,y1+sy-1);
+glTexCoord2f(tx+cw*d1,ty+(sy-1)*d1);
+glVertex2i(x1+cw,y1+sy-1);
+glTexCoord2f(tx+cw*d1,ty);
+glVertex2i(x1+cw,y1);inc(x1,cw);
+1
+2
+3
+4
+5
+6
+end
+¤end¤
+ itemindex 0
+end
+add(uiPanel):Panel1
+begin
+ rgba 0.890 0.894 0.949 1.000
+ bool 1 1 0 1 1
+ size 0.033 0.540 388.000 207.000
+ texture ui_panel
+end
+12
+add(uiButton):Button1
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 1 1 1
+ size 14.000 13.000 104.000 31.000
+ texture ui_button
+ text First
+ font Arial1
+end
+add(uiButton):Button2
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 1 1 1
+ size 131.000 13.000 111.000 32.000
+ texture ui_button
+ text Button2
+ font Arial1
+end
+add(uiButton):Button3
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 1 1 1
+ size 255.000 13.000 118.000 32.000
+ texture ui_button
+ text Button3
+ font Arial1
+end
+add(uiButton):Button4
+begin
+ rgba 0.643 0.875 0.725 1.000
+ bool 1 1 1 1 1
+ size 14.000 62.000 105.000 32.000
+ texture ui_button
+ text Button4
+ font Arial1
+end
+add(uiButton):Button6
+begin
+ rgba 0.471 0.490 0.745 0.430
+ bool 1 1 1 1 1
+ size 255.000 62.000 118.000 32.000
+ texture ui_button
+ text Button6
+ font Arial1
+end
+add(uiButton):Button7
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 1 1 1
+ size 14.000 112.000 105.000 32.000
+ texture ui_button
+ text Button7
+ font Arial1
+end
+add(uiButton):Button8
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 1 1 1
+ size 131.000 112.000 111.000 32.000
+ texture ui_button
+ text Button8
+ font Arial1
+end
+add(uiButton):Button9
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 1 1 1
+ size 255.000 112.000 118.000 32.000
+ texture ui_button
+ text Button9
+ font Arial1
+end
+add(uiButton):Button10
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 1 1 1
+ size 14.000 162.000 105.000 32.000
+ texture ui_button
+ text Button10
+ font Arial1
+end
+add(uiButton):Button11
+begin
+ rgba 1.000 1.000 1.000 0.190
+ bool 1 1 1 1 1
+ size 131.000 162.000 111.000 32.000
+ texture ui_button
+ text Button11
+ font Arial1
+end
+add(uiButton):Button12
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 1 1 1
+ size 255.000 162.000 117.000 30.000
+ texture ui_button
+ text Last
+ font Arial1
+end
+add(uiButton):Button5
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 1 1 1
+ size 131.000 62.000 111.000 32.000
+ texture ui_button
+ text ööööö
+ font Arial1
+end
+add(uiLabel):Label1
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.034 0.027 0.517 0.040
+ text Memo
+ font Arial1
+ centered 1
+end
+add(uiLabel):Label2
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.580 0.025 0.386 0.041
+ text List
+ font Arial1
+ centered 1
+end
+add(uiMemo):Memo1
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.031 0.079 0.536 0.424
+ texture ui_list
+ font Arial1
+ wrap 1
+ strings 
+procedure TGLFont.Draw(x, y: singl
+e; s: string; maxW: integer);
+...äö...
+var i,cw,n,x1,y1,wLimit: integer; d1,t
+x,ty: single;
+begin
+  s:=UTF8toSys(s); wLimit:=0;
+  d1:=1/TexSize; x1:=round(x); y1:=r
+ound(y);
+  glBegin(GL_QUADS);
+    for i:=1 to length(s) do begin
+      n:=byte(s[i]); cw:=charW[n];
+      if maxW>0 then begin
+        wLimit:=wLimit+cw;
+        if wLimit>maxW then break;
+      end;
+      n:=n-32; tx:=(n mod 16)*sx*d1+
+d1; ty:=(n div 16)*sy*d1;
+      glTexCoord2f(tx,ty); glVertex2f(x
+1,y1);
+      glTexCoord2f(tx,ty+(sy-1)*d1); gl
+Vertex2i(x1,y1+sy-1);
+      glTexCoord2f(tx+cw*d1,ty+(sy-1
+)*d1); glVertex2i(x1+cw,y1+sy-1);
+      glTexCoord2f(tx+cw*d1,ty); glVe
+rtex2i(x1+cw,y1);
+      x1:=x1+cw;
+    end;
+  glEnd;
+end;
+¤end¤
+end
+add(uiPanel):Panel3
+begin
+ rgba 1.000 1.000 1.000 0.720
+ bool 1 1 0 0 1
+ size 0.009 0.511 0.372 0.477
+ texture ui_panel
+end
+10
+add(uiCheckBox):CheckBox1
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.051 0.328 0.084
+ texture ui_checkbox
+ text Option 1
+ font Arial1
+ group 0
+ checked 1
+end
+add(uiCheckBox):CheckBox2
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.181 0.328 0.084
+ texture ui_checkbox
+ text Option 2
+ font Arial1
+ group 0
+ checked 1
+end
+add(uiScrollBar):ScrollBar1
+begin
+ rgba 1.000 1.000 1.000 0.810
+ bool 1 1 0 0 1
+ size 0.406 0.055 0.570 0.081
+ max 5
+ vertical 0
+ position 1
+end
+add(uiCheckBox):CheckBox3
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.316 0.328 0.080
+ texture ui_checkbox
+ text Option 3
+ font Arial1
+ group 0
+ checked 0
+end
+add(uiDropDown):DropDown1
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.447 0.598 0.111
+ texture ui_edit
+ font Arial1
+ editable 0
+ strings 
+1wer
+2ewr
+3we
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15....
+¤end¤
+ itemindex 0
+end
+add(uiScrollBar):bar
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.914 0.162 0.059 0.791
+ max 100
+ vertical 1
+ position 0
+end
+add(uiDropDown):DropDown2
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.579 0.598 0.106
+ texture ui_edit
+ font Arial1
+ editable 0
+ strings 
+¤end¤
+ itemindex 0
+end
+add(uiDropDown):DropDown3
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.055 0.711 0.598 0.106
+ texture ui_edit
+ font Arial1
+ editable 0
+ strings 
+¤end¤
+ itemindex 0
+end
+add(uiDropDown):DropDown4
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.059 0.843 0.594 0.106
+ texture ui_edit
+ font Arial1
+ editable 0
+ strings 
+¤end¤
+ itemindex 0
+end
+add(uiEdit):sEdit
+begin
+ rgba 1.000 1.000 1.000 1.000
+ bool 1 1 0 0 1
+ size 0.727 0.157 0.164 0.111
+ texture ui_edit
+ maxlength 64
+ text 
+ font Arial1
+ centered 0
+end
