@@ -1252,6 +1252,7 @@ begin
   list.EndList;
 end;
 
+// Remember to call SetPointers; before rendering!
 procedure TGLModel.Render;
 var i: integer;
 begin
@@ -1259,7 +1260,7 @@ begin
   nx.rs.Push;
   for i:=0 to groups-1 do
     with grp[i] do begin
-      if (matIndex>-1) and UseMaterials then
+      if UseMaterials and (matIndex>-1) and (mCount>0) then
         with mat[matIndex] do begin
           tex.SetTex(texIndex);
           nx.SetSpecular(specular>0.01, specular,specular,specular, shininess);

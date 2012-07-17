@@ -32,7 +32,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="32">
+    <Units Count="33">
       <Unit0>
         <Filename Value="NetworkTest.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -52,7 +52,7 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="223"/>
+        <TopLine Value="19"/>
         <CursorPos X="41" Y="235"/>
         <UsageCount Value="71"/>
         <Loaded Value="True"/>
@@ -261,15 +261,21 @@
       <Unit31>
         <Filename Value="..\..\..\src\synapse\blcksock.pas"/>
         <UnitName Value="blcksock"/>
-        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="3628"/>
-        <CursorPos X="1" Y="3641"/>
+        <TopLine Value="912"/>
+        <CursorPos X="9" Y="905"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit31>
+      <Unit32>
+        <Filename Value="..\..\..\src\synapse\sswin32.pas"/>
+        <UnitName Value="sswin32"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="753"/>
+        <CursorPos X="24" Y="759"/>
+        <UsageCount Value="10"/>
+      </Unit32>
     </Units>
-    <JumpHistory Count="4" HistoryIndex="3">
+    <JumpHistory Count="5" HistoryIndex="4">
       <Position1>
         <Filename Value="Unit1.pas"/>
         <Caret Line="234" Column="41" TopLine="220"/>
@@ -286,6 +292,10 @@
         <Filename Value="..\..\..\src\nxNetwork.pas"/>
         <Caret Line="7" Column="28" TopLine="1"/>
       </Position4>
+      <Position5>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="235" Column="41" TopLine="1"/>
+      </Position5>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
@@ -306,8 +316,8 @@
     </Parsing>
     <Linking>
       <Debugging>
-        <UseHeaptrc Value="True"/>
         <StripSymbols Value="True"/>
+        <UseExternalDbgSyms Value="True"/>
       </Debugging>
       <Options>
         <Win32>
