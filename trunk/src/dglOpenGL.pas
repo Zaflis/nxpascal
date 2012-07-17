@@ -1,8 +1,8 @@
 {==============================================================================}
 {                                                                              }
 {       OpenGL 4.2 - Headertranslation                                         }
-{       Version 4.2                                                            }
-{       Date : 08.08.2011                                                      }
+{       Version 4.2a                                                           }
+{       Date : 26.11.2011                                                      }
 {                                                                              }
 {       Works with :                                                           }
 {        - Delphi 3 and up                                                     }
@@ -24,6 +24,7 @@
 {         - Sascha Willems             - http://www.saschawillems.de           }
 {         - Steffen Xonna (Lossy eX)   - http://www.dev-center.de              }
 {       Additional input :                                                     }
+{         - Andrey Gruzdev (Mac OS X patch for XE2 / FPC)                      }
 {         - Lars Middendorf                                                    }
 {         - Martin Waldegger (Mars)                                            }
 {         - Benjamin Rosseaux (BeRo)   - http://www.0ok.de                     }
@@ -358,10 +359,11 @@
 {                Added Extension GL_ARB_shader_image_load_store           (SW) }
 {                Added Extension GL_ARB_shading_language_packing          (SW) }
 {                Added Extension GL_ARB_texture_storage                   (SW) }
-{                Added Extension WGL_NV_DX_interop                       (SW) }
+{                Added Extension WGL_NV_DX_interop                        (SW) }
 {                Added Define for WGL_EXT_create_context_es2_profile      (SW) }
+{ Version 4.2a   Added Mac OS X patch by Andrey Gruzdev                   (SW) }
 
-
+                                 
 {==============================================================================}
 { Header based on glext.h  rev 72 (2011/08/08)                                 }
 { Header based on wglext.h rev 23 (2011/04/13)                                 }
@@ -471,6 +473,17 @@ interface
   {$DEFINE DGL_LINUX}
 {$ENDIF}
 
+{$IFDEF DARWIN}  // Mac OS X and FPC
+   {$DEFINE DGL_MAC}
+{$ENDIF}   
+
+{$IFDEF DELPHI}  // Mac OS X add Delphi 
+{$IFDEF MACOS}
+   {$DEFINE DGL_MAC}
+{$ENDIF}   
+{$ENDIF}   
+
+
 // detecting 64 Bit CPU
 {$IFDEF CPU64}          // fpc on 64 bit cpus
   {$DEFINE DGL_64BIT}   // dgl define for 64 bit
@@ -479,6 +492,7 @@ interface
 
 
 uses
+  {$IFDEF FPC}{$IFDEF DARWIN}dynlibs,{$ENDIF}{$ENDIF}  // LoadLibrary functions 
   SysUtils
   {$IFDEF DGL_WIN}, Windows{$ENDIF}
   {$IFDEF DGL_LINUX}, X, XLib, XUtil{$ENDIF}
@@ -13434,6 +13448,10 @@ function dlclose(Lib: Pointer): LongInt; cdecl; external LibraryLib name 'dlclos
 function dlsym(Lib: Pointer; Name: PAnsiChar): Pointer; cdecl; external LibraryLib name 'dlsym';
 {$ENDIF}
 
+{$IFDEF DGL_MAC}{$IFDEF OPENGL_FRAMEWORK}  // OpenGL framework used
+const
+  RTLD_DEFAULT = Pointer(-2);
+{$ENDIF}{$ENDIF}
 
 function dglLoadLibrary(Name: PChar): Pointer;
 begin
@@ -13444,6 +13462,14 @@ begin
   {$IFDEF DGL_LINUX}
   Result := dlopen(Name, RTLD_LAZY);
   {$ENDIF}
+  
+  {$IFDEF DGL_MAC}
+  {$IFDEF OPENGL_FRAMEWORK}
+  Result := RTLD_DEFAULT;
+  {$ELSE}
+  Result := Pointer(LoadLibrary(Name));
+  {$ENDIF}  
+  {$ENDIF}  
 end;
 
 
@@ -13459,6 +13485,14 @@ begin
     {$IFDEF DGL_LINUX}
     Result := dlclose(LibHandle) = 0;
     {$ENDIF}
+	
+    {$IFDEF DGL_MAC}
+    {$IFDEF OPENGL_FRAMEWORK}
+	Result := true;
+	{$ELSE}
+    Result := FreeLibrary(HMODULE(LibHandle));
+    {$ENDIF}	
+	{$ENDIF}
 end;
 
 
@@ -13496,6 +13530,10 @@ begin
 
     Result := dlsym(LibHandle, ProcName);
   {$ENDIF}
+  
+  {$IFDEF DGL_MAC}
+    Result := GetProcAddress(HMODULE(LibHandle), ProcName);
+  {$ENDIF}  
 end;
 
 
@@ -18216,4 +18254,3 @@ initialization
 finalization
 
 end.
-

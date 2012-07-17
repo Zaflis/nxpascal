@@ -55,7 +55,7 @@ type
   function vector(const x, y: single; const z: single = 0): TVector;
   function vector2f(const x, y: single): TVector2f;
   function vector3i(const x, y, z: integer): TVector3i;
-  function vector4f(const x, y, z, w: single): TVector4f;
+  function vector4f(const x, y, z: single; const w: single = 1): TVector4f;
   function RGB(const r, g, b: byte): TRGB;
   function RGBA(const r, g, b, a: byte): TRGBA;
   function fRGBA(const r, g, b, a: single): TfRGBA;
