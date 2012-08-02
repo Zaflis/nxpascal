@@ -77,8 +77,10 @@ type
     procedure SetfCount(n: integer);
   public
     property fCount: integer read FfCount write SetfCount;
+    function AddFace(const gIndex: word): integer;
     procedure AssignTo(poly: TPolyModel);
     procedure Clear;
+    procedure DoTextureCorrection;
     function GetTangent(const fIndex: word): TVector;
     procedure LoadFromFile(filename: string);
     procedure LoadFromMS3D(filename: string);
@@ -141,6 +143,7 @@ type
     destructor Destroy; override;
     procedure AssignTo(const poly: TPolyModel); overload;
     procedure AssignTo(const tri: TTriModel); overload;
+    procedure DoTextureCorrection;
     procedure SaveToFile(filename: string);
   end;
 
@@ -1012,6 +1015,8 @@ end;
 procedure TModelW3D.AssignTo(const poly: TPolyModel);
 var i, j: integer;
 begin
+  DoTextureCorrection;
+
   poly.Clear;
   poly.UseColors:=UseColors; poly.UseMaterials:=UseMaterials;
   poly.vCount:=vCount; poly.fCount:=fCount;
@@ -1020,8 +1025,10 @@ begin
   setlength(poly.mat, mCount);
   setlength(poly.grp, groups);
   setlength(poly.bone, bCount);
-  for i:=0 to vCount-1 do
+  for i:=0 to vCount-1 do begin
     poly.va[i]:=va[i];
+    //poly.na[i]:=na[i]; poly.ta[i]:=ta[i];
+  end;
   for i:=0 to fCount-1 do begin
     poly.fa[i].count:=fa[i].Count;
     setlength(poly.fa[i].index, fa[i].Count);
@@ -1047,6 +1054,42 @@ begin
   AssignTo(poly);
   poly.AssignTo(tri);
   poly.Free;
+end;
+
+procedure TModelW3D.DoTextureCorrection;
+var g, i: integer;
+
+  function BalanceOK(const a, b: single): boolean;
+  var j: integer;
+  begin
+    if ((a<=0) and (b>0)) or ((b<=0) and (a>0)) or
+       ((a<1) and (b>=1)) or ((b<1) and (a>=1)) then begin
+      result:=false;
+      vCount:=vCount+fa[i].Count;
+      for j:=0 to fa[i].Count-1 do begin
+        va[vCount-fa[i].Count+j]:=va[fa[i].v[j]];
+        fa[i].v[j]:=vCount-fa[i].Count+j;
+      end;
+    end else result:=true;
+  end;
+
+var t0, t1, t2: TVector2f; UnFinishedFunction: boolean;
+begin
+  //EXIT; // This function does fix something, but brake others... or not
+
+  // Go through each face and duplicate whole face vertices
+  // if tex-coords loop over boundaries
+  for g:=groups-1 downto 0 do
+    with grp[g] do begin
+      for i:=first+count{%H-}-1 downto first do begin
+        t0:=fa[i].uv[0];
+        t1:=fa[i].uv[1];
+        t2:=fa[i].uv[2];
+        if BalanceOK(t0.x, t1.x) and BalanceOK(t0.x, t2.x) and
+           BalanceOK(t1.x, t2.x) and BalanceOK(t0.y, t1.y) and
+           BalanceOK(t0.y, t2.y) then BalanceOK(t1.y, t2.y);
+      end;
+    end;
 end;
 
 procedure TModelW3D.SaveToFile(filename: string);
@@ -1110,6 +1153,44 @@ begin
   setlength(fa, 0); setlength(frame, 0);
 end;
 
+procedure TTriModel.DoTextureCorrection;
+var g, i: integer;
+
+  function BalanceOK(const a, b: single): boolean;
+  var j: integer;
+  begin
+    if ((a<0) and (b>=0)) or ((b<0) and (a>=0)) or
+       ((a<1) and (b>=1)) or ((b<1) and (a>=1)) then begin
+      result:=false;
+      vCount:=vCount+3;
+      for j:=0 to 2 do begin
+        va[vCount-3+j]:=va[fa[i, j]];
+        na[vCount-3+j]:=na[fa[i, j]];
+        ta[vCount-3+j]:=ta[fa[i, j]];
+        fa[i, j]:=vCount-3+j;
+      end;
+    end else result:=true;
+  end;
+
+var t0, t1, t2: TVector2f; UnneededFunction: boolean;
+begin
+  EXIT; // Done in W3D loading, so not needed here
+
+  // Go through each face. If texture U or V difference is above 0.5
+  // then duplicate vertex
+  for g:=groups-1 downto 0 do
+    with grp[g] do begin
+      for i:=first+count{%H-}-1 downto first do begin
+        t0:=ta[fa[i, 0]];
+        t1:=ta[fa[i, 1]];
+        t2:=ta[fa[i, 2]];
+        if BalanceOK(t0.x, t1.x) and BalanceOK(t0.x, t2.x) and
+           BalanceOK(t1.x, t2.x) and BalanceOK(t0.y, t1.y) and
+           BalanceOK(t0.y, t2.y) then BalanceOK(t1.y, t2.y);
+      end;
+    end;
+end;
+
 function TTriModel.GetTangent(const fIndex: word): TVector;
 begin
   result:=Tangent(va[fa[fIndex,0]], va[fa[fIndex,1]], va[fa[fIndex,2]]);
@@ -1135,6 +1216,7 @@ begin
   ms3d:=TModelMS3D.Create(filename);
   ms3d.AssignToTri(self);
   ms3d.Free;
+  DoTextureCorrection;
 end;
 
 procedure TTriModel.LoadFromOBJ(filename: string);
@@ -1144,6 +1226,7 @@ begin
   poly.LoadFromOBJ(filename);
   poly.AssignTo(self);
   poly.Free;
+  DoTextureCorrection;
 end;
 
 procedure TTriModel.LoadFromW3D(filename: string; obj: integer);
@@ -1153,6 +1236,7 @@ begin
   w3d.LoadFromFile(filename, obj);
   w3d.AssignTo(self);
   w3d.Free;
+  DoTextureCorrection;
 end;
 
 procedure TTriModel.MakeNormals;
@@ -1223,6 +1307,26 @@ begin
   if n<>fCount2 then begin
     fCount2:=n; setlength(fa, fCount2);
   end;
+end;
+
+function TTriModel.AddFace(const gIndex: word): integer;
+var i, g: integer;
+begin
+  if gIndex>=groups then begin
+    result:=-1; exit;
+  end;
+  vCount:=vCount+3;
+  fCount:=fCount+1;
+  with grp[gIndex] do begin
+    result:=first+count;
+    for i:=fCount-1 downto first+count do fa[i]:=fa[i-1];
+    inc(count, 1);
+    fa[first+count{%H-}-1, 0]:=vCount-3;
+    fa[first+count{%H-}-1, 1]:=vCount-2;
+    fa[first+count{%H-}-1, 2]:=vCount-1;
+  end;
+  for g:=0 to groups-1 do
+    if grp[g].first>=result then inc(grp[g].first, 1);
 end;
 
 procedure TTriModel.AssignTo(poly: TPolyModel);

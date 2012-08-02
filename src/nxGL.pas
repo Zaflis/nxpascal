@@ -121,7 +121,7 @@ type
     procedure FreeTextures;
     procedure LoadTextures(path: string);
     procedure MakeDisplayList(var list: TDisplayList);
-    procedure Render;
+    procedure Render(Initialize: boolean = true);
     procedure SetFrames(count: integer);
     procedure SetFrame(t: single; fStart,fEnd: integer; loop: boolean);
     procedure SetFrameEx(a,b,c,d: PVertexFrame; delta: single);
@@ -184,8 +184,6 @@ type
     function GetEXT: string;
     procedure GetMouseRay(const mx, my: single; const p, normal: PVector;
       rayMove: single = -100);
-    function GetTick: cardinal;
-    function GetTick2(range: integer; scale: single = 1): single;
     function GLInfo(ext: array of string): boolean; overload;
     function GLInfo(ext: string): boolean; overload;
     function Initialized: boolean;
@@ -981,18 +979,6 @@ begin
   if normal<>nil then normal^:=n;
 end;
 
-function TNXGL.GetTick: cardinal;
-begin
-  result:=GetTickCount mod cardinal(high(longint));
-end;
-
-// Return tick value 0..range-1
-// Call with range >= 1 and scale >0
-function TNXGL.GetTick2(range: integer; scale: single): single;
-begin
-  result:=(GetTickCount mod round(range/scale))*scale;
-end;
-
 function TNXGL.GLInfo(ext: array of string): boolean;
 var s: string; i: integer;
 begin
@@ -1242,7 +1228,6 @@ end;
 procedure TGLModel.MakeDisplayList(var list: TDisplayList);
 var i: integer;
 begin
-  SetPointers;
   if (list=nil) or (not assigned(list)) then
     list:=TDisplayList.Create(true)
   else list.UpdateList;
@@ -1252,11 +1237,12 @@ begin
   list.EndList;
 end;
 
-// Remember to call SetPointers; before rendering!
-procedure TGLModel.Render;
+procedure TGLModel.Render(Initialize: boolean);
 var i: integer;
 begin
-  EnableStates;
+  if Initialize then begin
+    SetPointers; EnableStates;
+  end;
   nx.rs.Push;
   for i:=0 to groups-1 do
     with grp[i] do begin
@@ -1271,7 +1257,7 @@ begin
         @fa[first])
     end;
   nx.rs.Pop;
-  DisableStates;
+  if Initialize then DisableStates;
 end;
 
 procedure TGLModel.SetFrame(t: single; fStart, fEnd: integer; loop: boolean);
@@ -1488,14 +1474,15 @@ begin
         _SetTex(tex^.index,tex^.tex3D);
         LastTexIndex:=-17;
       end else SetTex(i,true);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, TextureQuality);
       if not (toMipMap in Options) then begin
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, TextureQuality);
-        glTexImage2D(GL_TEXTURE_2D, 0, tex^.values, tex^.sizeX, tex^.sizeY, 0,
+        glTexImage2D(GL_TEXTURE_2D, 0, tex^.Format, tex^.sizeX, tex^.sizeY, 0,
           tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
       end else begin
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, tex^.values, tex^.sizeX, tex^.sizeY,
+        gluBuild2DMipmaps(GL_TEXTURE_2D, tex^.Format, tex^.sizeX, tex^.sizeY,
           tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
       end;
     end;
@@ -1547,13 +1534,14 @@ begin
         freemem(temp.data);
       end;
       _SetTex(tex^.index,tex^.tex3D);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, TextureQuality);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
       //if not (toMipMap in Options) then begin
         glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER, TextureQuality);
-        glTexImage3D(GL_TEXTURE_3D, 0, tex^.values, tex^.sizeX, tex^.sizeY, tex^.sizeZ,
+        glTexImage3D(GL_TEXTURE_3D, 0, tex^.Format, tex^.sizeX, tex^.sizeY, tex^.sizeZ,
           0, tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
       {end else begin
 

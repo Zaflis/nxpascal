@@ -10,9 +10,9 @@ interface
   to avoid compile error here.
   (Or move png folder contents to nx source folder.)}
 
-uses SysUtils, {$IFDEF fpc}GraphType, LazUTF8,{$ELSE}Windows, pngimage, JPEG,{$ENDIF}
-  Controls, Graphics, Classes, math,
-  nxStrings, nxMath, nxTypes;
+uses SysUtils, {$IFDEF fpc}GraphType, LazUTF8,{$ELSE}Windows, pngimage,
+  JPEG,{$ENDIF} Controls, Graphics, Classes, math,
+  nxStrings, nxMath, nxTypes, LCLIntf;
 
 type
   TTexture = record
@@ -41,8 +41,8 @@ type
     enable3Dtex: boolean;
   private
     count2: integer;
-    function Pow2Near(var w,h: word; var sx,sy: single): boolean;
-    function Pow2Fit(var w,h: word; var sx,sy: single): boolean;
+    function Pow2Near(var w,h: word; out sx,sy: single): boolean;
+    function Pow2Fit(var w,h: word; out sx,sy: single): boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -119,6 +119,8 @@ type
     FontCount: integer;
     function CheckFile(const filename: string): boolean;
     procedure ClearError;
+    function GetTick: cardinal;
+    function GetTick2(range: integer; scale: single = 1): single;
     function LastError: string;
     function IndexOfFont(name: string): integer;
   end;
@@ -344,13 +346,15 @@ begin
 
   //LoadRaw(tex,bmp.RawImage); // Doesn't work for BMP
 
-  if toFitNoScale in Options then begin
+  if toFitScale in Options then begin
     UseScale:=false;
-    {$HINTS OFF}Pow2Fit(tex^.sizeX,tex^.sizeY,sx,sy);{$HINTS ON}
+    Pow2Fit(tex^.sizeX,tex^.sizeY,sx,sy);
     sx:=1; sy:=1;
-  end else begin
+  end else if toScale in Options then begin
     UseScale:=Pow2Near(tex^.sizeX,tex^.sizeY,sx,sy);
     tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
+  end else begin
+    UseScale:=false; sx:=1; sy:=1;
   end;
   tex^.PatternWidth:=tex^.Width;
   tex^.PatternHeight:=tex^.Height;
@@ -438,7 +442,6 @@ begin
   LoadPNGData:=false;
   if tex=nil then exit;
   png:=TPortableNetworkGraphic.Create;
-
   try
     png.LoadFromFile(filename);
   except
@@ -467,13 +470,15 @@ begin
   end;
   tex^.Width:=png.Width; tex^.Height:=png.Height;
   tex^.sizeX:=tex^.Width; tex^.sizeY:=tex^.Height;
-  if toFitNoScale in Options then begin
+  if toFitScale in Options then begin
     UseScale:=false;
     Pow2Fit(tex^.sizeX,tex^.sizeY,sx,sy);
     sx:=1; sy:=1;
-  end else begin
+  end else if toScale in Options then begin
     UseScale:=Pow2Near(tex^.sizeX,tex^.sizeY,sx,sy);
     tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
+  end else begin
+    UseScale:=false; sx:=1; sy:=1;
   end;
   tex^.PatternWidth:=tex^.Width;
   tex^.PatternHeight:=tex^.Height;
@@ -522,13 +527,15 @@ var sx,sy: single; n: integer; x1,y1,ny,n2: cardinal;
     rp: TRawImagePosition;
 begin
   tex^.sizeX:=tex^.Width; tex^.sizeY:=tex^.Height;
-  if toFitNoScale in Options then begin
+  if toFitScale in Options then begin
     UseScale:=false;
-    Pow2Fit(tex^.sizeX,tex^.sizeY,sx{%H-},sy{%H-});
+    Pow2Fit(tex^.sizeX,tex^.sizeY,sx,sy);
     sx:=1; sy:=1;
-  end else begin
+  end else if toScale in Options then begin
     UseScale:=Pow2Near(tex^.sizeX,tex^.sizeY,sx,sy);
     tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
+  end else begin
+    UseScale:=false; sx:=1; sy:=1;
   end;
   tex^.PatternWidth:=tex^.Width;
   tex^.PatternHeight:=tex^.Height;
@@ -591,7 +598,6 @@ begin
     inc(n2,tex^.values);
   end;
 end;
-
 {$ENDIF}
 
 function TTextureSet.NewName(const base: string): string;
@@ -637,7 +643,7 @@ begin
   end;
 end;
 
-function TTextureSet.Pow2Fit(var w, h: word; var sx, sy: single): boolean;
+function TTextureSet.Pow2Fit(var w, h: word; out sx, sy: single): boolean;
 var w1,h1: word;
 begin
   w1:=w; h1:=h;
@@ -647,7 +653,7 @@ begin
   result:=(w<>w1) or (h<>h1);
 end;
 
-function TTextureSet.Pow2Near(var w, h: word; var sx, sy: single): boolean;
+function TTextureSet.Pow2Near(var w, h: word; out sx, sy: single): boolean;
 var w1,h1: word;
 begin
   w1:=w; h1:=h;
@@ -851,6 +857,18 @@ end;
 procedure TNXCustomEngine.ClearError;
 begin
   nxClearError;
+end;
+
+function TNXCustomEngine.GetTick: cardinal;
+begin
+  result:=GetTickCount mod cardinal(high(longint));
+end;
+
+// Return tick value 0..range-1
+// Call with range >= 1 and scale >0
+function TNXCustomEngine.GetTick2(range: integer; scale: single): single;
+begin
+  result:=(GetTickCount mod round(range/scale))*scale;
 end;
 
 { TNXCustomEngine }
