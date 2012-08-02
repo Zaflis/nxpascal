@@ -808,7 +808,7 @@ begin
   FreeTextures;
 
   tlo:=Tex.Options; // Save old options
-  Tex.Options:=Tex.Options+[toKeepData, toFit, toNoLoad];
+  Tex.Options:=Tex.Options+[toKeepData, toFitScale, toNoLoad];
   textureI[0]:=Tex.AddTexture('#Q0_'+filename, filename, transparent);
   Width:=texture[0]^.Width;
   Height:=texture[0]^.Height;
