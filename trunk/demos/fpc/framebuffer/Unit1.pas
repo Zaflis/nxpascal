@@ -50,7 +50,8 @@ begin
 
   err:=glGetError();
   if err>0 then ShowMessage(format('glGetError, code: %d',[err]));
-  // Seen code 1286, which by some sources isn't actual error
+  // Seen code 1286, possibly INVALID_FRAMEBUFFER_OPERATION_EXT
+  // Recent possible changes, texture format from .Values to .Format
 
   if nx.LastError<>'' then ShowMessage(nx.LastError)
   else timer1.Enabled:=true;
