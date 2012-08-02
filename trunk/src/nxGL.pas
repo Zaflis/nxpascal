@@ -198,7 +198,7 @@ type
     function ProgDir: string;
     procedure RectT(x1,y1,x2,y2: single);
     procedure RectZT(x1,z1,x2,z2,y: single);
-    procedure SetClearColor(r,g,b,a: single);
+    procedure SetClearColor(r,g,b: single; a: single=0);
     procedure SetColor(r,g,b: single); overload;
     procedure SetColor(r,g,b,a: single); overload;
     procedure SetColor(const rgb: TRGB); overload;
@@ -1112,9 +1112,9 @@ begin
   glEnd;
 end;
 
-procedure TNXGL.SetClearColor(r, g, b, a: single);
+procedure TNXGL.SetClearColor(r, g, b: single; a: single);
 begin
-  glClearColor(r,g,b,a);
+  glClearColor(r, g, b, a);
 end;
 
 procedure TNXGL.SetSpecular(Enable: boolean; r,g,b,shininess: single);

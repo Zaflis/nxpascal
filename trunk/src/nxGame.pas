@@ -11,12 +11,11 @@ type
 
   TGameHandler = class
   private
-    FCenterMouse: boolean;
     FrameInterval, nextTick: cardinal;
   protected
     procedure ResetTick;
   public
-    Initialized: boolean;
+    Initialized, isMouseCentered: boolean;
     keys: array[0..255] of boolean;
     mb: array[1..5] of boolean;
     modPath, progDir: string;
@@ -64,7 +63,7 @@ end;
 procedure TGameHandler.CenterMouse(enable: boolean);
 var x, y: integer;
 begin
-  FCenterMouse:=enable;
+  isMouseCentered:=enable;
   mDelta.x:=0; mDelta.y:=0;
   if enable then begin
     x:=nxEngine.nxHWND.ClientOrigin.x+nxEngine.Width div 2;
@@ -97,7 +96,7 @@ begin
   if t<nextTick then begin
     Application.ProcessMessages; Sleep(1);
   end else begin
-    if FCenterMouse and application.Active then begin
+    if isMouseCentered and application.Active then begin
       {$IFDEF windows}
       center.x:=nxEngine.nxHWND.ClientOrigin.x+nxEngine.Width div 2;
       center.y:=nxEngine.nxHWND.ClientOrigin.y+nxEngine.Height div 2;
@@ -113,6 +112,10 @@ begin
       {$ELSE}
 
       {$ENDIF}
+      if mp.x<0 then mp.x:=0
+      else if mp.x>=nxEngine.Width then mp.x:=nxEngine.Width-1;
+      if mp.y<0 then mp.y:=0
+      else if mp.y>=nxEngine.Height then mp.y:=nxEngine.Height-1;
     end;
 
     frameSkips:=0;
@@ -152,7 +155,7 @@ procedure TGameHandler.MouseMove(x, y: integer; _Shift: TShiftState);
 var old: TVector2f;
 begin
   Shift:=_Shift;
-  if not FCenterMouse then begin
+  if not isMouseCentered then begin
     old:=mp;
     mp.x:=x; mp.y:=y;
     if old.x>-9998 then begin
