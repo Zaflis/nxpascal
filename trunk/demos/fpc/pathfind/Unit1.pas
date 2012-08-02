@@ -62,7 +62,7 @@ begin
     tex.AddTexture('tile','tex.png',true);
     tex.SetPattern(tex.IndexOf('tile'),32,32,0,0);
 
-    tex.Options:=[toAlphaColor];
+    tex.Options:=tex.Options+[toAlphaColor];
     tex.AddTexture('glow','glow.png',true);
 
     // Initialize path finder
