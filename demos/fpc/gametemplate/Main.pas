@@ -41,7 +41,7 @@ procedure TForm1.FormCreate(Sender: TObject);
 begin
   // Initialize game window
   clientWidth:=800; clientHeight:=600;
-  //cursor:=crNone;
+  cursor:=crNone; // Hide cursor
   if not nx.CreateGlWindow(self) then begin
     showmessage('Failed to initialize OpenGL!'); exit;
   end;
@@ -74,7 +74,7 @@ begin
   if game<>nil then begin
     game.KeyDown(key, shift);
 
-    // Handle keyDown events
+    // KeyDown events
     if key=VK_ESCAPE then begin
       Close;
     end;
@@ -85,8 +85,7 @@ procedure TForm1.FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
   if game<>nil then begin
     game.KeyUp(key, shift);
-
-    // Handle keyUp events
+    // KeyUp events
 
   end;
 end;
@@ -96,6 +95,8 @@ procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
 begin
   if game<>nil then begin
     game.MouseDown(button, shift);
+    // MouseDown events
+
   end;
 end;
 
@@ -103,6 +104,8 @@ procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Intege
 begin
   if game<>nil then begin
     game.MouseMove(x, y, shift);
+    // MouseMove events
+
   end;
 end;
 
@@ -111,6 +114,8 @@ procedure TForm1.FormMouseUp(Sender: TObject; Button: TMouseButton;
 begin
   if game<>nil then begin
     game.MouseUp(button, shift);
+    // MouseUp events
+
   end;
 end;
 
@@ -118,7 +123,7 @@ procedure TForm1.FormMouseWheel(Sender: TObject; Shift: TShiftState;
   WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
 begin
   if game<>nil then begin
-    // Handle mousewheel events
+    // Mousewheel events
 
   end;
 end;
