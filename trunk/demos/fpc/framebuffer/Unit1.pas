@@ -49,7 +49,8 @@ begin
   model.Free;
 
   err:=glGetError();
-  if err>0 then nxSetError(format('Error code: %d',[err]));
+  if err>0 then ShowMessage(format('glGetError, code: %d',[err]));
+  // Seen code 1286, which by some sources isn't actual error
 
   if nx.LastError<>'' then ShowMessage(nx.LastError)
   else timer1.Enabled:=true;
