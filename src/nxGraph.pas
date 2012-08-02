@@ -10,9 +10,9 @@ interface
   to avoid compile error here.
   (Or move png folder contents to nx source folder.)}
 
-uses SysUtils, {$IFDEF fpc}GraphType, LazUTF8,{$ELSE}Windows, pngimage,
+uses SysUtils, {$IFDEF fpc}GraphType, LazUTF8, LCLIntf,{$ELSE}Windows, pngimage,
   JPEG,{$ENDIF} Controls, Graphics, Classes, math,
-  nxStrings, nxMath, nxTypes, LCLIntf;
+  nxStrings, nxMath, nxTypes;
 
 type
   TTexture = record
