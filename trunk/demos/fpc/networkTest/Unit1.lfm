@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 309
+  Left = 301
   Height = 274
-  Top = 136
+  Top = 128
   Width = 505
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -13,36 +13,36 @@ object Form1: TForm1
   OnClose = FormClose
   OnCreate = FormCreate
   Position = poScreenCenter
-  LCLVersion = '0.9.31'
+  LCLVersion = '1.1'
   object Label1: TLabel
     Left = 16
-    Height = 16
+    Height = 15
     Top = 211
-    Width = 43
+    Width = 42
     Caption = 'Threads'
     ParentColor = False
   end
   object Label2: TLabel
     Left = 272
-    Height = 16
+    Height = 15
     Top = 211
-    Width = 84
+    Width = 83
     Caption = 'Port 5400  Host:'
     ParentColor = False
   end
   object Label3: TLabel
     Left = 136
-    Height = 16
+    Height = 15
     Top = 235
-    Width = 83
+    Width = 82
     Caption = 'Now using TCP'
     ParentColor = False
   end
   object Label4: TLabel
     Left = 272
-    Height = 16
+    Height = 15
     Top = 240
-    Width = 34
+    Width = 33
     Caption = 'My IP:'
     ParentColor = False
   end

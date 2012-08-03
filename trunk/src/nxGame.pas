@@ -1,9 +1,18 @@
 unit nxGame;
 
+{
+  In Lazarus you may have to do this for each project:
+   "Project" menu -> "Project inspector"
+   -> Press "+" button -> New requirement
+     -> Add "LazOpenGLContext" (if using nxGL unit)
+     -> Add "Lazmouseandkeyinput"
+}
+
 interface
 
-uses SysUtils, Classes, Forms, Controls, nxGraph, nxTypes
-  {$IFDEF windows}, windows{$ENDIF};
+uses SysUtils, Classes, Forms,
+  {$IFDEF fpc}mouseandkeyinput{$ELSE}windows{$ENDIF},
+  Controls, nxGraph, nxTypes;
 
 type
 
@@ -26,6 +35,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure CenterMouse(enable: boolean);
+    function GetCursorPos: TPoint;
     function GetPath(filename: string): string;
     procedure Idle;
     procedure KeyDown(key: word; _Shift: TShiftState);
@@ -33,6 +43,7 @@ type
     procedure MouseDown(button: TMouseButton; _Shift: TShiftState);
     procedure MouseMove(x, y: integer; _Shift: TShiftState);
     procedure MouseUp(button: TMouseButton; _Shift: TShiftState);
+    procedure SetCursorPos(x, y: integer);
     procedure SetFrameInterval(interval: cardinal);
 
     // Override these
@@ -69,13 +80,14 @@ begin
     x:=nxEngine.nxHWND.ClientOrigin.x+nxEngine.Width div 2;
     y:=nxEngine.nxHWND.ClientOrigin.y+nxEngine.Height div 2;
     mp:=vector2f(x, y);
-    {$IFDEF windows}
     SetCursorPos(x, y);
-    {$ELSE}
-
-    {$ENDIF}
   end else
     mp:=vector2f(-9999, -9999);
+end;
+
+function TGameHandler.GetCursorPos: TPoint;
+begin
+  result:=mouse.CursorPos;
 end;
 
 function TGameHandler.GetPath(filename: string): string;
@@ -89,7 +101,7 @@ begin
 end;
 
 procedure TGameHandler.Idle;
-var frameSkips: integer; {$IFDEF windows}_mp, center: TPoint;{$ENDIF}
+var frameSkips: integer; _mp, center: TPoint;
 begin
   if not initialized then exit;
   t:=nxEngine.GetTick;
@@ -97,21 +109,15 @@ begin
     Application.ProcessMessages; Sleep(1);
   end else begin
     if isMouseCentered and application.Active then begin
-      {$IFDEF windows}
       center.x:=nxEngine.nxHWND.ClientOrigin.x+nxEngine.Width div 2;
       center.y:=nxEngine.nxHWND.ClientOrigin.y+nxEngine.Height div 2;
-      GetCursorPos(_mp);
+      _mp:=GetCursorPos;
       if (_mp.x<>center.x) or (_mp.y<>center.y) then begin
         mDelta.x:=(_mp.x-center.x)*mouseXSpeed;
         mDelta.y:=(_mp.y-center.y)*mouseYSpeed;
         mp.x:=mp.x+mDelta.x; mp.y:=mp.y+mDelta.y;
         SetCursorPos(center.x, center.y);
-      end else begin
-
       end;
-      {$ELSE}
-
-      {$ENDIF}
       if mp.x<0 then mp.x:=0
       else if mp.x>=nxEngine.Width then mp.x:=nxEngine.Width-1;
       if mp.y<0 then mp.y:=0
@@ -146,8 +152,10 @@ begin
     mbLeft: mb[1]:=true;
     mbRight: mb[2]:=true;
     mbMiddle: mb[3]:=true;
+    {$IFDEF fpc}
     mbExtra1: mb[4]:=true;
     mbExtra2: mb[5]:=true;
+    {$ENDIF}
   end;
 end;
 
@@ -172,9 +180,18 @@ begin
     mbLeft: mb[1]:=false;
     mbRight: mb[2]:=false;
     mbMiddle: mb[3]:=false;
+    {$IFDEF fpc}
     mbExtra1: mb[4]:=false;
     mbExtra2: mb[5]:=false;
+    {$ENDIF}
   end;
+end;
+
+procedure TGameHandler.SetCursorPos(x, y: integer);
+begin
+  {$IFDEF fpc}mouseinput.Move(shift, x, y);
+  {$ELSE}windows.setcursorpos(x, y);
+  {$ENDIF}
 end;
 
 procedure TGameHandler.ResetTick;

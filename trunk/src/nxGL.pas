@@ -5,9 +5,11 @@ unit nxGL;
 {$ENDIF}
 
 {
-  In Lazarus you may have to this for each project:
+  In Lazarus you may have to do this for each project:
    "Project" menu -> "Project inspector"
-   -> Press "+" button -> New requirement -> Add "LazOpenGLContext"
+   -> Press "+" button -> New requirement
+     -> Add "LazOpenGLContext"
+     -> Add "Lazmouseandkeyinput" (if using nxGame unit)
 }
 
 // Remove . if you don't want to use Lazarus OpenGL context.
@@ -156,6 +158,7 @@ type
     rs: TRenderSettings;
     property FPS: integer read GetFFPS;
     function AllOK: boolean;
+    function CanRender: boolean;
     constructor Create;
     destructor Destroy; override;
     procedure Clear(color,depth: boolean);
@@ -361,9 +364,10 @@ begin
 end;
 
 constructor TFrameBuffer.Create(const width, height: integer; transparency: boolean; _depth: boolean);
+var n: integer;
 begin
-  Create(tex.AddEmptyTexture(
-    tex.NewName('__fb'),width,height,transparency),_depth);
+  n:=tex.AddEmptyTexture(tex.NewName('__fb'), width, height, transparency);
+  Create(n, _depth);
 end;
 
 destructor TFrameBuffer.Destroy;
@@ -1057,6 +1061,11 @@ begin
   result:=Initialized and (nxError='');
 end;
 
+function TNXGL.CanRender: boolean;
+begin
+  result:=glCheckFramebufferStatus(GL_FRAMEBUFFER)=GL_FRAMEBUFFER_COMPLETE;
+end;
+
 constructor TNXGL.Create;
 begin
   rs:=TRenderSettings.Create(self);
@@ -1228,12 +1237,15 @@ end;
 procedure TGLModel.MakeDisplayList(var list: TDisplayList);
 var i: integer;
 begin
+  SetPointers;
   if (list=nil) or (not assigned(list)) then
     list:=TDisplayList.Create(true)
   else list.UpdateList;
   for i:=0 to mCount-1 do
     list.SetTexRef(mat[i].texIndex, true);
-  Render;
+  EnableStates;
+  Render(false);
+  DisableStates;
   list.EndList;
 end;
 
@@ -1338,6 +1350,7 @@ begin
       end else begin
         values:=3; Format:=GL_RGB;
       end;
+      intFormat:=Format;
       if Data<>nil then FreeMem(Data);
       size:=sizeX*sizeY*values;
       Data:=AllocMem(size);
@@ -1432,6 +1445,7 @@ begin
     end else begin
       values:=3; Format:=GL_RGB;
     end;
+    intFormat:=Format;
     if texture[n].Data<>nil then begin
       FreeMem(texture[n].Data); texture[n].Data:=nil;
     end;
@@ -1467,8 +1481,11 @@ begin
     nx.RenderThreadReserved:=true;
     glFinish;
     if tex^.values>0 then begin
-      if tex^.values=4 then tex^.format:=GL_RGBA
-      else if tex^.values=3 then tex^.format:=GL_RGB;
+      if tex^.format=0 then begin
+        if tex^.values=4 then tex^.format:=GL_RGBA
+        else if tex^.values=3 then tex^.format:=GL_RGB;
+        tex^.intFormat:=tex^.Format;
+      end;
       i:=FindTex(tex);
       if i<0 then begin
         _SetTex(tex^.index,tex^.tex3D);
@@ -1478,11 +1495,11 @@ begin
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, TextureQuality);
       if not (toMipMap in Options) then begin
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, TextureQuality);
-        glTexImage2D(GL_TEXTURE_2D, 0, tex^.Format, tex^.sizeX, tex^.sizeY, 0,
+        glTexImage2D(GL_TEXTURE_2D, 0, tex^.intFormat, tex^.sizeX, tex^.sizeY, 0,
           tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
       end else begin
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-        gluBuild2DMipmaps(GL_TEXTURE_2D, tex^.Format, tex^.sizeX, tex^.sizeY,
+        gluBuild2DMipmaps(GL_TEXTURE_2D, tex^.Values, tex^.sizeX, tex^.sizeY,
           tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
       end;
     end;
@@ -1508,8 +1525,11 @@ begin
     nx.RenderThreadReserved:=true;
     glFinish;
     if tex^.values>0 then begin
-      if tex^.values=4 then tex^.format:=GL_RGBA
-      else if tex^.values=3 then tex^.format:=GL_RGB;
+      if tex^.Format=0 then begin
+        if tex^.values=4 then tex^.format:=GL_RGBA
+        else if tex^.values=3 then tex^.format:=GL_RGB;
+        tex^.intFormat:=tex^.Format;
+      end;
       i:=FindTex(tex);
       if i<0 then begin
         _SetTex(tex^.index,tex^.tex3D);
@@ -1541,16 +1561,16 @@ begin
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
       //if not (toMipMap in Options) then begin
         glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER, TextureQuality);
-        glTexImage3D(GL_TEXTURE_3D, 0, tex^.Format, tex^.sizeX, tex^.sizeY, tex^.sizeZ,
+        glTexImage3D(GL_TEXTURE_3D, 0, tex^.intFormat, tex^.sizeX, tex^.sizeY, tex^.sizeZ,
           0, tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
-      {end else begin
+      //end else begin
 
         // insert 3D MipMapping here
 
-        glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-        gluBuild3DMipmaps(GL_TEXTURE_3D, tex^.values, tex^.sizeX, tex^.sizeY, tex^.sizeZ,
-          tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
-      end;}
+        //glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+        //gluBuild3DMipmaps(GL_TEXTURE_3D, tex^.values, tex^.sizeX, tex^.sizeY, tex^.sizeZ,
+        //  tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
+      //end;
       if not (toKeepData in Options) then begin
         freemem(tex^.data); tex^.data:=nil;
       end;
@@ -1694,6 +1714,7 @@ begin
   temp:=tex.Options; tempC:=tex.TransparentColor;
   CreateBMP(fontName,fontSize,_TexSize);
   tex.texture[textureI].Format:=GL_RGBA;
+  tex.texture[textureI].intFormat:=GL_RGBA;
   glGenTextures(1,@tex.texture[textureI].index);
   tex.ChangeTexMode3D(false);
   tex.SetTex(textureI,true);

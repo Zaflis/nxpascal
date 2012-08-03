@@ -36,22 +36,15 @@ procedure TForm1.FormCreate(Sender: TObject);
 var model: TGLModel; err: GLenum;
 begin
   nx.CreateGlWindow(self);
-  nx.rs.DepthTest:=true; nx.rs.CullBack:=false;
+  nx.rs.CullBack:=true;
+  //nx.rs.DepthTest:=true;
   nx.DefaultLights;
   nx.SetSpecular(true, 0.5,0.5,0.5, 10);
 
-  fb:=TFrameBuffer.Create(512, 512, false, true);
-  fb2:=TFrameBuffer.Create(512, 512, false, false);
-  model:=TGLModel.Create;
-  model.LoadFromW3D('cube.w3d');
-  model.UseMaterials:=false;
-  model.MakeDisplayList(cube);
-  model.Free;
-
-  err:=glGetError();
-  if err>0 then ShowMessage(format('glGetError, code: %d',[err]));
-  // Seen code 1286, possibly INVALID_FRAMEBUFFER_OPERATION_EXT
-  // Recent possible changes, texture format from .Values to .Format
+  fb:=TFrameBuffer.Create(512, 512, true, false);
+  fb2:=TFrameBuffer.Create(512, 512, true, false);
+  //err:=glGetError();
+  //if err>0 then ShowMessage(format('FB: glGetError, code: %d',[err]));
 
   if nx.LastError<>'' then ShowMessage(nx.LastError)
   else timer1.Enabled:=true;
@@ -64,7 +57,23 @@ begin
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
+var model: TGLModel; err: GLenum;
 begin
+  if cube=nil then begin
+    // Do glCheckFramebufferStatus
+    if not nx.CanRender then exit;
+
+    model:=TGLModel.Create;
+    model.LoadFromW3D('cube.w3d');
+    model.UseMaterials:=false;
+    model.MakeDisplayList(cube);
+    model.Free;
+    //err:=glGetError();
+    //if err>0 then ShowMessage(format('Model: glGetError, code: %d',[err]));
+    // Seen code 1286 (GL_INVALID_FRAMEBUFFER_OPERATION)
+    exit;
+  end;
+
   // Draw cube to framebuffer, using framebuffer2 as texture
   fb.Bind;
   glClearColor(0.2,0.4,1,1);

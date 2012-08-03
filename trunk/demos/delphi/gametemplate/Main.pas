@@ -1,21 +1,16 @@
 unit Main;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Dialogs, LCLType,
-  nxGL, nxTypes, GraphicsUnit;
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
+  Dialogs, nxGL, nxTypes, GraphicsUnit, AppEvnts;
 
 type
-
-  { TForm1 }
-
   TForm1 = class(TForm)
-    AppProperties: TApplicationProperties;
+    AppEvents: TApplicationEvents;
     procedure AppPropertiesIdle(Sender: TObject; var Done: Boolean);
-    procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
+    procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FormKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -33,9 +28,7 @@ var
 
 implementation
 
-{$R *.lfm}
-
-{ TForm1 }
+{$R *.dfm}
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
@@ -133,4 +126,3 @@ begin
 end;
 
 end.
-

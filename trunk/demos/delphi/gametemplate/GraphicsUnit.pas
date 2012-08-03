@@ -1,7 +1,5 @@
 unit GraphicsUnit;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
