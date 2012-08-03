@@ -1,11 +1,9 @@
 unit GameUnit;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
-  Classes, Dialogs, SysUtils, LCLType, math, nxMath, nxMath3D, nxGL,
+  Classes, Dialogs, SysUtils, math, nxMath, nxMath3D, nxGL,
   nxGame, nxTypes;
 
 type

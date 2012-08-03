@@ -4,7 +4,7 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="16">
+    <Units Count="19">
       <Unit0>
         <Filename Value="GameTemplate.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -12,7 +12,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="39" Y="12"/>
-        <UsageCount Value="32"/>
+        <UsageCount Value="33"/>
       </Unit0>
       <Unit1>
         <Filename Value="Main.pas"/>
@@ -23,9 +23,9 @@
         <UnitName Value="Main"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="46" Y="45"/>
-        <UsageCount Value="32"/>
+        <TopLine Value="14"/>
+        <CursorPos X="38" Y="25"/>
+        <UsageCount Value="33"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -33,23 +33,23 @@
         <Filename Value="GameUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GameUnit"/>
-        <EditorIndex Value="3"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="1" Y="1"/>
-        <UsageCount Value="31"/>
+        <TopLine Value="18"/>
+        <CursorPos X="39" Y="27"/>
+        <UsageCount Value="32"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="GraphicsUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GraphicsUnit"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="12"/>
-        <CursorPos X="46" Y="24"/>
-        <UsageCount Value="30"/>
+        <TopLine Value="4"/>
+        <CursorPos X="33" Y="12"/>
+        <UsageCount Value="31"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
@@ -102,12 +102,10 @@
       <Unit10>
         <Filename Value="..\..\..\src\nxGame.pas"/>
         <UnitName Value="nxGame"/>
-        <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="89"/>
-        <CursorPos X="47" Y="116"/>
+        <TopLine Value="2"/>
+        <CursorPos X="30" Y="15"/>
         <UsageCount Value="14"/>
-        <Loaded Value="True"/>
       </Unit10>
       <Unit11>
         <Filename Value="..\..\..\src\nxStrings.pas"/>
@@ -128,12 +126,10 @@
       <Unit13>
         <Filename Value="..\..\..\src\nxGL.pas"/>
         <UnitName Value="nxGL"/>
-        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="187"/>
-        <CursorPos X="46" Y="200"/>
+        <TopLine Value="1"/>
+        <CursorPos X="41" Y="14"/>
         <UsageCount Value="13"/>
-        <Loaded Value="True"/>
       </Unit13>
       <Unit14>
         <Filename Value="..\..\..\..\fpc\svn\rtl\win\wininc\redef.inc"/>
@@ -150,6 +146,30 @@
         <CursorPos X="1" Y="46"/>
         <UsageCount Value="10"/>
       </Unit15>
+      <Unit16>
+        <Filename Value="..\..\..\src\nxGraph.pas"/>
+        <UnitName Value="nxGraph"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="10"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="..\..\..\..\lazarus\lcl\intfgraphics.pas"/>
+        <UnitName Value="IntfGraphics"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="623"/>
+        <CursorPos X="49" Y="637"/>
+        <UsageCount Value="10"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="..\..\..\..\fpc\svn\rtl\objpas\types.pp"/>
+        <UnitName Value="types"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
+        <UsageCount Value="10"/>
+      </Unit18>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
@@ -216,25 +236,26 @@
         <Caret Line="29" Column="33" TopLine="15"/>
       </Position15>
       <Position16>
-        <Filename Value="..\..\..\src\nxGL.pas"/>
-        <Caret Line="201" Column="53" TopLine="187"/>
-      </Position16>
-      <Position17>
-        <Filename Value="..\..\..\src\nxGL.pas"/>
-        <Caret Line="1121" Column="40" TopLine="1115"/>
-      </Position17>
-      <Position18>
         <Filename Value="Main.pas"/>
         <Caret Line="45" Column="46" TopLine="1"/>
-      </Position18>
-      <Position19>
+      </Position16>
+      <Position17>
         <Filename Value="GraphicsUnit.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
-      </Position19>
-      <Position20>
+      </Position17>
+      <Position18>
         <Filename Value="GameUnit.pas"/>
         <Caret Line="1" Column="1" TopLine="1"/>
+      </Position18>
+      <Position19>
+        <Filename Value="Main.pas"/>
+        <Caret Line="46" Column="35" TopLine="1"/>
+      </Position19>
+      <Position20>
+        <Filename Value="Main.pas"/>
+        <Caret Line="9" Column="38" TopLine="4"/>
       </Position20>
     </JumpHistory>
   </ProjectSession>
+  <EditorMacros Count="0"/>
 </CONFIG>

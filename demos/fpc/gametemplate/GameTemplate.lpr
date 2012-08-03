@@ -7,13 +7,12 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, Main, lazopenglcontext, GameUnit, GraphicsUnit
+  Forms, Main, lazopenglcontext, lazmouseandkeyinput, GameUnit, GraphicsUnit
   { you can add units after this };
 
 {$R *.res}
 
 begin
-  Application.Title:='project1';
   //RequireDerivedFormResource := True;
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);

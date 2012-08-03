@@ -21,7 +21,7 @@ type
     Width, Height, PatternWidth, PatternHeight, SkipWidth, SkipHeight: word;
     values: byte;  // values 3 or 4
     Enabled, tex3D: boolean;
-    index, format: cardinal; // GL_RGB or GL_RGBA
+    index, format, intFormat: cardinal; // GL_RGB, GL_RGBA, etc
     {$IFDEF fpc}
     Data: PByte; // size = sizeX*sizeY*values
     {$ELSE}
