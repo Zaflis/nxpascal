@@ -43,8 +43,8 @@ begin
 
   fb:=TFrameBuffer.Create(512, 512, true, false);
   fb2:=TFrameBuffer.Create(512, 512, true, false);
-  //err:=glGetError();
-  //if err>0 then ShowMessage(format('FB: glGetError, code: %d',[err]));
+  err:=glGetError();
+  if err>0 then ShowMessage(format('FB: glGetError, code: %d',[err]));
 
   if nx.LastError<>'' then ShowMessage(nx.LastError)
   else timer1.Enabled:=true;
@@ -63,14 +63,19 @@ begin
     // Do glCheckFramebufferStatus
     if not nx.CanRender then exit;
 
+    //err:=glGetError();
+    //if err>0 then ShowMessage(format('Model_before: glGetError, code: %d',[err]));
+
     model:=TGLModel.Create;
     model.LoadFromW3D('cube.w3d');
     model.UseMaterials:=false;
     model.MakeDisplayList(cube);
     model.Free;
+
     //err:=glGetError();
-    //if err>0 then ShowMessage(format('Model: glGetError, code: %d',[err]));
+    //if err>0 then ShowMessage(format('Model_after: glGetError, code: %d',[err]));
     // Seen code 1286 (GL_INVALID_FRAMEBUFFER_OPERATION)
+
     exit;
   end;
 
