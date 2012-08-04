@@ -58,6 +58,7 @@ implementation
 constructor TGameHandler.Create;
 begin
   Initialized:=false;
+  Randomize;
   modPath:='mods\';
   mouseXSpeed:=1; mouseYSpeed:=1;
   mp:=vector2f(-9999, -9999);
