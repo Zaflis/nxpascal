@@ -1,0 +1,13 @@
+#labels Featured,Phase-Deploy
+= SVN installation guide =
+  # Install any SVN manager.
+  I will describe this from TortoiseSVN point of view, which is freely available for Windows.
+
+  # Make new folder (for example name it "nx"), and right click it to open menu
+    * Select "SVN Checkout..."
+      * Set URL to: http://nxpascal.googlecode.com/svn/trunk/
+      * Make sure these are selected: "Fully recursive", "HEAD revision"
+      * Click OK
+
+  # Congratulations, you are all set!
+  You can now go into demos\ folders, to try and learn from different projects.
