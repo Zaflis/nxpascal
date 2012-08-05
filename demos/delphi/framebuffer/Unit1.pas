@@ -16,8 +16,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
-    fb,fb2: TFrameBuffer;
-    cube: TDisplayList;
+    fb, fb2: TFrameBuffer;
+    model: TGLModel;
   public
   end;
 
@@ -31,23 +31,25 @@ implementation
 { TForm1 }
 
 procedure TForm1.FormCreate(Sender: TObject);
-var model: TGLModel; err: GLenum;
-begin                        
+var err: GLenum;
+begin
   nx.CreateGlWindow(self);
-  nx.rs.DepthTest:=true; nx.rs.CullBack:=false;
+
+  nx.rs.DepthTest:=true; // Test depth-property in framebuffer
+  //nx.rs.CullBack:=true; // Use culling when not use depth
+
   nx.DefaultLights;
   nx.SetSpecular(true, 0.5,0.5,0.5, 10);
 
-  fb:=TFrameBuffer.Create(512, 512, false, true);
-  fb2:=TFrameBuffer.Create(512, 512, false, false);
+  fb:=TFrameBuffer.Create(512, 512, true, true);
+  fb2:=TFrameBuffer.Create(512, 512, true, true);
+
   model:=TGLModel.Create;
   model.LoadFromW3D('cube.w3d');
   model.UseMaterials:=false;
-  model.MakeDisplayList(cube);
-  model.Free;
 
   err:=glGetError();
-  if err>0 then showmessage(format('glGetError code: %d',[err]));
+  if err>0 then ShowMessage(format('glGetError, code: %d',[err]));
 
   if nx.LastError<>'' then ShowMessage(nx.LastError)
   else timer1.Enabled:=true;
@@ -56,6 +58,7 @@ end;
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   timer1.Enabled:=false;
+  model.Free;
   nx.KillGLWindow;
 end;
 
@@ -70,7 +73,7 @@ begin
   glRotatef(nx.GetTick2(360,0.02),0.2,1,0.4);
   tex.SetTex(fb2.texture);
   nx.SetColor(0.3,0.3,0.6);
-  cube.Draw;
+  model.Render;
   fb.UnBind;
 
   // Draw framebuffer on framebuffer2
@@ -90,7 +93,7 @@ begin
   nx.SetColor(0.6,0.6,0.6);
   glRotatef(nx.GetTick2(360,0.01),0.2,1,0.4);
   tex.SetTex(fb2.texture);
-  cube.Draw;
+  model.Render;
 
   nx.Flip;
 end;

@@ -19,8 +19,7 @@ type
     procedure FormMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure Timer1Timer(Sender: TObject);
   private
-    ship, arrow: TDisplayList;
-    model: TGLModel;
+    ship, arrow: TGLModel;
     mx, my, mb: integer;
     pt: TParticleEngine;
   public
@@ -34,6 +33,41 @@ implementation
 {$R *.dfm}
 
 { TForm1 }
+
+procedure TForm1.FormCreate(Sender: TObject);
+var c: TfRGBA; err: GLenum;
+begin
+  ClientWidth:=800; ClientHeight:=600;
+  nx.CreateGlWindow(self);
+  nx.DefaultLights;
+  c.r:=0; c.g:=c.r; c.b:=c.r; c.a:=1;
+  glLightfv(GL_LIGHT1, GL_AMBIENT, @c);
+  nx.rs.DepthTest:=true;
+
+  pt:=TParticleEngine.Create;
+
+  // Load particle texture and set it to new particle type
+  pt.AddPType(tex.AddTexture('glow','textures\glow.png'), 0.5, -0.01, 0.0001);
+
+  // Load arrow model
+  arrow:=TGLModel.Create;
+  arrow.LoadFromW3D('objects\arrow.w3d');
+  arrow.Scale(0.5,0.5,0.5); // Make arrow smaller
+  arrow.LoadTextures('textures');
+
+  // Load ship model
+  ship:=TGLModel.Create;
+  ship:=TGLModel.Create;
+  ship.LoadFromFile('objects\ship.w3d');
+  ship.LoadTextures('textures');
+  ship.UseColors:=false; // Can ignore color materials from file (optional)
+
+  err:=glGetError();
+  if err>0 then ShowMessage(format('glGetError, code: %d',[err]));
+
+  if nx.LastError<>'' then showmessage(nx.LastError)
+  else timer1.Enabled:=true;
+end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
 var cam,arrM: TMatrix; mp,dir,intersect,normal: TVector;
@@ -62,12 +96,12 @@ begin
   glRotatef(nx.GetTick2(360, 0.0131), 0, 0, 1);
   glColor3f(0.4, 0.4, 1.0); // Use blue color
   // Render ship
-  ship.Draw;
+  ship.Render;
 
   nx.GetMouseRay(mx, nx.Height-1-my, @mp, @dir);
 
   // Find mouse-ray - model intersection point
-  n:=model.rayIntersect(mp, dir, true, @intersect, @normal);
+  n:=ship.rayIntersect(mp, dir, true, @intersect, @normal);
   if n>=0 then begin
     // Create rotation+position matrix for arrow
     arrM:=MatrixOnPlane(intersect, normal, nx.GetTick2(360, 0.01));
@@ -75,7 +109,7 @@ begin
     // Render arrow
     glPushMatrix;
     glMultMatrixf(@arrM);
-    arrow.Draw;
+    arrow.Render;
     glPopMatrix;
 
     // Create particle when mouse is held down
@@ -106,40 +140,11 @@ begin
   caption:=format('Model demo - FPS: %d, Particles: %d',[nx.FPS, pt.pCount]);
 end;
 
-procedure TForm1.FormCreate(Sender: TObject);
-var c: TfRGBA;
+procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
-  ClientWidth:=800; ClientHeight:=600;
-  nx.CreateGlWindow(self);
-  nx.DefaultLights;
-  c.r:=0; c.g:=c.r; c.b:=c.r; c.a:=1;
-  glLightfv(GL_LIGHT1, GL_AMBIENT, @c);
-  nx.rs.DepthTest:=true;
-
-  pt:=TParticleEngine.Create;
-
-  // Load particle texture and set it to new particle type
-  pt.AddPType(tex.AddTexture('glow','textures\glow.png'), 0.5, -0.01, 0.0001);
-
-  model:=TGLModel.Create;
-
-  // Load arrow model
-  model.LoadFromW3D('objects\arrow.w3d');
-  model.Scale(0.5,0.5,0.5); // Make arrow smaller
-  model.LoadTextures('textures');
-  model.MakeDisplayList(arrow);
-  model.Free;
-
-  // Load ship model
-  model:=TGLModel.Create;
-  model.LoadFromW3D('objects\ship.w3d');
-  model.LoadTextures('textures');
-  model.UseColors:=false; // Can ignore color materials from file (optional)
-  model.MakeDisplayList(ship);
-  // Leave ship model loaded for mouse picking
-
-  if nx.LastError<>'' then showmessage(nx.LastError)
-  else timer1.Enabled:=true;
+  timer1.Enabled:=false;
+  pt.Free; ship.Free; arrow.Free;
+  nx.KillGLWindow;
 end;
 
 procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -149,20 +154,13 @@ end;
 
 procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
 begin
-  mx:=X; my:=Y;                  
+  mx:=X; my:=Y;
   if ssLeft in Shift then mb:=1;
 end;
 
 procedure TForm1.FormMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   mb:=0;
-end;
-
-procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-begin
-  timer1.Enabled:=false;
-  pt.Free; model.Free; ship.Free; arrow.Free;
-  nx.KillGLWindow;
 end;
 
 end.

@@ -54,7 +54,7 @@ begin
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
-var b: TBitmap; i,j: integer;
+var b: TBitmap; i,j: integer; err: GLenum;
 begin
   ClientWidth:=800; ClientHeight:=600;
   if nx.CreateGlWindow(self) then begin
@@ -97,6 +97,9 @@ begin
       for i:=0 to W-1 do
         nx.Draw(i*32,j*32,cMap[i+j*W]);
     back.EndList;
+
+    err:=glGetError();
+    if err>0 then ShowMessage(format('glGetError, code: %d',[err]));
 
     if nx.LastError<>'' then showmessage(nx.LastError)
     else begin
