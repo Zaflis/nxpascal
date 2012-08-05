@@ -35,6 +35,7 @@ type
   TTextureSet = class
     texture: array of TTexture;
     count, TextureQuality: integer;
+    scaleX, scaleY: single;
     Options: TTextureLoadOptions;
     TransparentColor: TRGB;
     LastTexIndex,cols3D,rows3D: integer;
@@ -353,6 +354,12 @@ begin
   end else if toScale in Options then begin
     UseScale:=Pow2Near(tex^.sizeX,tex^.sizeY,sx,sy);
     tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
+  end else if (toCustomScale in Options) and (scaleX*scaleY>0) then begin
+    UseScale:=true;
+    sx:=1/scaleX; sy:=1/scaleY;
+    tex^.sizeX:=trunc(tex^.sizeX*scaleX);
+    tex^.sizeY:=trunc(tex^.sizeY*scaleY);
+    tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
   end else begin
     UseScale:=false; sx:=1; sy:=1;
   end;
@@ -477,6 +484,12 @@ begin
   end else if toScale in Options then begin
     UseScale:=Pow2Near(tex^.sizeX,tex^.sizeY,sx,sy);
     tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
+  end else if (toCustomScale in Options) and (scaleX*scaleY>0) then begin
+    UseScale:=true;
+    sx:=1/scaleX; sy:=1/scaleY;
+    tex^.sizeX:=trunc(tex^.sizeX*scaleX);
+    tex^.sizeY:=trunc(tex^.sizeY*scaleY);
+    tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
   end else begin
     UseScale:=false; sx:=1; sy:=1;
   end;
@@ -533,6 +546,12 @@ begin
     sx:=1; sy:=1;
   end else if toScale in Options then begin
     UseScale:=Pow2Near(tex^.sizeX,tex^.sizeY,sx,sy);
+    tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
+  end else if (toCustomScale in Options) and (scaleX*scaleY>0) then begin
+    UseScale:=true;
+    sx:=1/scaleX; sy:=1/scaleY;
+    tex^.sizeX:=trunc(tex^.sizeX*scaleX);
+    tex^.sizeY:=trunc(tex^.sizeY*scaleY);
     tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
   end else begin
     UseScale:=false; sx:=1; sy:=1;

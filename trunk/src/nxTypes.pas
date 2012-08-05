@@ -41,7 +41,7 @@ type
   TMatrix = TMatrix4f;
 
   TTextureLoadOptions = set of (toMipMap, toAlphaColor, toKeepData,
-    toScale, toFitScale, toColorKey, toFileName, toNoLoad);
+    toScale, toFitScale, toCustomScale, toColorKey, toFileName, toNoLoad);
 
   TTexturePart = record
     r: TRecti; center: TVector2f; name: string;

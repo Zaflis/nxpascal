@@ -18,8 +18,8 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
-    fb,fb2: TFrameBuffer;
-    cube: TDisplayList;
+    fb, fb2: TFrameBuffer;
+    model: TGLModel;
   public
   end; 
 
@@ -33,18 +33,25 @@ implementation
 { TForm1 }
 
 procedure TForm1.FormCreate(Sender: TObject);
-var model: TGLModel; err: GLenum;
+var err: GLenum;
 begin
   nx.CreateGlWindow(self);
-  nx.rs.CullBack:=true;
-  //nx.rs.DepthTest:=true;
+
+  nx.rs.DepthTest:=true; // Test depth-property in framebuffer
+  //nx.rs.CullBack:=true; // Use culling when not use depth
+
   nx.DefaultLights;
   nx.SetSpecular(true, 0.5,0.5,0.5, 10);
 
-  fb:=TFrameBuffer.Create(512, 512, true, false);
-  fb2:=TFrameBuffer.Create(512, 512, true, false);
+  fb:=TFrameBuffer.Create(512, 512, true, true);
+  fb2:=TFrameBuffer.Create(512, 512, true, true);
+
+  model:=TGLModel.Create;
+  model.LoadFromW3D('cube.w3d');
+  model.UseMaterials:=false;
+
   err:=glGetError();
-  if err>0 then ShowMessage(format('FB: glGetError, code: %d',[err]));
+  if err>0 then ShowMessage(format('glGetError, code: %d',[err]));
 
   if nx.LastError<>'' then ShowMessage(nx.LastError)
   else timer1.Enabled:=true;
@@ -53,32 +60,12 @@ end;
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   timer1.Enabled:=false;
+  model.Free;
   nx.KillGLWindow;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
-var model: TGLModel; err: GLenum;
 begin
-  if cube=nil then begin
-    // Do glCheckFramebufferStatus
-    if not nx.CanRender then exit;
-
-    //err:=glGetError();
-    //if err>0 then ShowMessage(format('Model_before: glGetError, code: %d',[err]));
-
-    model:=TGLModel.Create;
-    model.LoadFromW3D('cube.w3d');
-    model.UseMaterials:=false;
-    model.MakeDisplayList(cube);
-    model.Free;
-
-    //err:=glGetError();
-    //if err>0 then ShowMessage(format('Model_after: glGetError, code: %d',[err]));
-    // Seen code 1286 (GL_INVALID_FRAMEBUFFER_OPERATION)
-
-    exit;
-  end;
-
   // Draw cube to framebuffer, using framebuffer2 as texture
   fb.Bind;
   glClearColor(0.2,0.4,1,1);
@@ -88,7 +75,7 @@ begin
   glRotatef(nx.GetTick2(360,0.02),0.2,1,0.4);
   tex.SetTex(fb2.texture);
   nx.SetColor(0.3,0.3,0.6);
-  cube.Draw;
+  model.Render;
   fb.UnBind;
 
   // Draw framebuffer on framebuffer2
@@ -108,7 +95,7 @@ begin
   nx.SetColor(0.6,0.6,0.6);
   glRotatef(nx.GetTick2(360,0.01),0.2,1,0.4);
   tex.SetTex(fb2.texture);
-  cube.Draw;
+  model.Render;
 
   nx.Flip;
 end;

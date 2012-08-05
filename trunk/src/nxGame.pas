@@ -10,9 +10,8 @@ unit nxGame;
 
 interface
 
-uses SysUtils, Classes, Forms,
-  {$IFDEF fpc}mouseandkeyinput{$ELSE}windows{$ENDIF},
-  Controls, nxGraph, nxTypes;
+uses {$IFDEF fpc}mouseandkeyinput,{$ELSE}windows,{$ENDIF}
+  SysUtils, Classes, Forms, Controls, nxGraph, nxTypes;
 
 type
 

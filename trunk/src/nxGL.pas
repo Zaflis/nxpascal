@@ -1234,6 +1234,9 @@ begin
   nxLoadModelTextures(self, path);
 end;
 
+// Shouldn't be using this function.
+// Clientstate changes are not allowed in displaylists,
+// which themselves are almost deprecated.
 procedure TGLModel.MakeDisplayList(var list: TDisplayList);
 var i: integer;
 begin
@@ -1266,7 +1269,7 @@ begin
           if UseColors then glColor4ubv(@color);
         end;
       glDrawElements(GL_TRIANGLES, Count*3, GL_UNSIGNED_SHORT,
-        @fa[first])
+        @fa[first]);
     end;
   nx.rs.Pop;
   if Initialize then DisableStates;
