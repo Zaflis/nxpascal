@@ -109,10 +109,10 @@ begin
     if threading then
       if forced then begin
         repeat
-          application.ProcessMessages; sleep(1);
+          application.ProcessMessages;sleep(1);
         until not threading;
       end else exit;
-    if (not forced) or (nxDataThreadCount>=100) then begin
+    if forced or (nxDataThreadCount>=100) then begin
       if data<>nil then begin
         if compressed<>nil then compressed.Clear
         else begin
@@ -125,9 +125,8 @@ begin
           freemem(data); data:=nil;
         end;
       end;
-    end else begin
+    end else
       TCompressThread.Create(@block[n], blocksize, level, leaveData);
-    end;
   end;
 end;
 
@@ -142,7 +141,7 @@ begin
           application.ProcessMessages; sleep(1);
         until not threading;
       end else exit;
-    if (not forced) or (nxDataThreadCount>=100) then begin
+    if forced or (nxDataThreadCount>=100) then begin
       if compressed<>nil then begin
         compressed.Position:=0;
         ds:=TDeCompressionStream.create(compressed);
@@ -152,9 +151,8 @@ begin
         if not leaveCompressed then FreeAndNil(compressed);
         UseTime:=tick;
       end;
-    end else begin
+    end else
       TDeCompressThread.Create(@block[n], blocksize, leaveCompressed);
-    end;
   end;
 end;
 
@@ -166,7 +164,7 @@ begin
     if threading then
       if forced then begin
         repeat
-          application.ProcessMessages; sleep(1);
+          application.ProcessMessages;sleep(1);
         until not threading;
       end else exit;
     if data=nil then
@@ -249,7 +247,12 @@ begin
         bVar:=1;
         dest.Write(bVar, sizeof(bVar));
         HasComp:=compressed<>nil;
-        if data<>nil then Compress(i, true, true);
+        if data<>nil then begin
+          while threading do begin
+            application.ProcessMessages; sleep(1);
+          end;
+          Compress(i, true, true);
+        end;
         intVar:=compressed.Size;
         dest.Write(intVar, sizeof(intVar));
         compressed.Position:=0;
@@ -278,6 +281,9 @@ end;
 procedure TDataStore.SetSize(n: integer);
 var i: integer;
 begin
+  while nxDataThreadCount>0 do begin
+    application.ProcessMessages; sleep(1);
+  end;
   // Free left out blocks
   for i:=n to FCount-1 do
     with block[i] do begin
