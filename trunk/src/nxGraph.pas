@@ -21,12 +21,8 @@ type
     Width, Height, PatternWidth, PatternHeight, SkipWidth, SkipHeight: word;
     values: byte;  // values 3 or 4
     Enabled, tex3D: boolean;
-    index, format, intFormat: cardinal; // GL_RGB, GL_RGBA, etc
-    {$IFDEF fpc}
-    Data: PByte; // size = sizeX*sizeY*values
-    {$ELSE}
-    Data: PByteArray;
-    {$ENDIF}
+    index, format, intFormat: cardinal; // GL_RGB, GL_RGBA
+    Data: PointerArrayType; // size = sizeX*sizeY*values
   end;
   PTexture = ^TTexture;
 
@@ -38,7 +34,7 @@ type
     scaleX, scaleY: single;
     Options: TTextureLoadOptions;
     TransparentColor: TRGB;
-    LastTexIndex,cols3D,rows3D: integer;
+    LastTexIndex, cols3D, rows3D: integer;
     enable3Dtex: boolean;
   private
     count2: integer;
@@ -456,7 +452,7 @@ begin
     freeandnil(png); exit;
   end;
   tex^.Width:=png.Width; tex^.Height:=png.Height;
-  LoadRaw(tex,png.RawImage);
+  LoadRaw(tex, png.RawImage);
   png.Free; LoadPNGData:=true;
 end;
 {$ELSE}

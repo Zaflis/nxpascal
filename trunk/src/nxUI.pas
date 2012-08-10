@@ -627,7 +627,7 @@ procedure HandleWheel(e: TUIElement);
   end;
 
 begin
-  scroll:=scroll div abs(scroll);
+  if scroll<>0 then scroll:=scroll div abs(scroll);
   if (not isMouseDown) and (mouseFocus<>nil) then HandleWheel(mouseFocus)
   else if (focus<>nil) and (not focus.Enabled) then HandleWheel(focus);
 end;

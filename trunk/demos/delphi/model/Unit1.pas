@@ -4,7 +4,7 @@ interface
 
 uses
   Classes, Forms, Controls, SysUtils, ExtCtrls, Dialogs,
-  dglOpenGL, nxGL, nxTypes, nxMath3D, nxGLExtra;
+  dglOpenGL, nxGL, nxTypes, nxMath3D, nxGLExtra, nxData;
 
 type
 

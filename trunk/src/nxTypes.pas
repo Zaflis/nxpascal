@@ -13,6 +13,9 @@ const ToRad = 0.0174532925199433;  //  PI / 180 = Deg To Rad
       {$ELSE}PathChar = PathDelim;{$ENDIF}
 
 type
+  {$IFDEF fpc}PointerArrayType = PByte;
+  {$ELSE}PointerArrayType = PByteArray;
+  {$ENDIF}
   TRGB = packed record r,g,b: byte; end;
   TRGBA = packed record r,g,b,a: byte; end;
   TfRGBA = record r,g,b,a: single; end;
@@ -57,7 +60,7 @@ type
   function vector3i(const x, y, z: integer): TVector3i;
   function vector4f(const x, y, z: single; const w: single = 1): TVector4f;
   function RGB(const r, g, b: byte): TRGB;
-  function RGBA(const r, g, b, a: byte): TRGBA;
+  function RGBA(const r, g, b: byte; const a: byte = 255): TRGBA;
   function fRGBA(const r, g, b, a: single): TfRGBA;
   procedure FixPath(var path: string);
   function getFixPath(const path: string): string;
@@ -168,7 +171,7 @@ begin
   result.r:=r; result.g:=g; result.b:=b;
 end;
 
-function RGBA(const r, g, b, a: byte): TRGBA;
+function RGBA(const r, g, b: byte; const a: byte): TRGBA;
 begin
   result.r:=r; result.g:=g; result.b:=b; result.a:=a;
 end;
