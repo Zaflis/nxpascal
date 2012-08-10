@@ -23,6 +23,7 @@ type
   protected
     procedure ResetTick;
   public
+    FrameSkips: integer;
     Initialized, isMouseCentered: boolean;
     keys: array[0..255] of boolean;
     mb: array[1..5] of boolean;
@@ -101,7 +102,7 @@ begin
 end;
 
 procedure TGameHandler.Idle;
-var frameSkips: integer; _mp, center: TPoint;
+var _mp, center: TPoint;
 begin
   if not initialized then exit;
   t:=nxEngine.GetTick;
@@ -124,12 +125,12 @@ begin
       else if mp.y>=nxEngine.Height then mp.y:=nxEngine.Height-1;
     end;
 
-    frameSkips:=0;
+    FrameSkips:=-1;
     repeat
+      inc(FrameSkips);
       nextTick:=nextTick+FrameInterval;
       GameLoop;
-      inc(frameSkips);
-    until (nextTick>t) or (frameSkips=10);
+    until (nextTick>t) or (FrameSkips>=10);
     Draw;
     mDelta.x:=0; mDelta.y:=0;
   end;

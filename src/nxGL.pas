@@ -34,7 +34,7 @@ type
     destructor Destroy; override;
     constructor Create;
     function AddEmptyTexture(name: string; width, height: word; transparency: boolean = false): integer;
-    function AddTexture(name,filename: string; transparency: boolean = false): integer;
+    function AddTexture(name, filename: string; transparency: boolean = false): integer;
     function Add3DTexture(name,filename: string; cols,rows: integer; transparency: boolean = false): integer;
     procedure Clear;
     procedure Disable;
@@ -47,7 +47,7 @@ type
     procedure Restore(tex: integer); overload;
     procedure Restore3D(tex: integer); overload;
     procedure SetByName(name: string; force: boolean = false);
-    procedure SetClamp(x_repeat,y_repeat: boolean);
+    procedure SetClamp(x_repeat, y_repeat: boolean);
     procedure SetTex(n: integer; force: boolean = false);
   end;
 
@@ -214,6 +214,10 @@ type
     procedure SetWireframe(enable: boolean = true);
   end;
 
+  TNXGLShaders = class(TNXGL)
+
+  end;
+
   { TVertexArray }
 
   TVertexArray = class
@@ -262,7 +266,7 @@ var
   nxNEARZ: single = 0.1;
   nxFov: single = 45;
   nxAspectRatio: single = 1.33;
-  nx: TNXGL;
+  nx: TNXGLShaders;
   tex: TGLTextureSet;
   va_states_set, va_pointers_set: boolean;
 
@@ -1104,20 +1108,20 @@ end;
 procedure TNXGL.RectT(x1,y1,x2,y2: single);
 begin
   glBegin(GL_QUADS);
-    glTexCoord2f(0,0); glVertex2f(x1, y1);
-    glTexCoord2f(0,1); glVertex2f(x1, y2);
-    glTexCoord2f(1,1); glVertex2f(x2, y2);
-    glTexCoord2f(1,0); glVertex2f(x2, y1);
+    glTexCoord2f(0, 0); glVertex2f(x1, y1);
+    glTexCoord2f(0, 1); glVertex2f(x1, y2);
+    glTexCoord2f(1, 1); glVertex2f(x2, y2);
+    glTexCoord2f(1, 0); glVertex2f(x2, y1);
   glEnd;
 end;
 
 procedure TNXGL.RectZT(x1, z1, x2, z2, y: single);
 begin
   glBegin(GL_QUADS);
-    glTexCoord2f(0,0); glVertex3f(x1, y, z1);
-    glTexCoord2f(0,1); glVertex3f(x1, y, z2);
-    glTexCoord2f(1,1); glVertex3f(x2, y, z2);
-    glTexCoord2f(1,0); glVertex3f(x2, y, z1);
+    glTexCoord2f(0, 0); glVertex3f(x1, y, z1);
+    glTexCoord2f(0, 1); glVertex3f(x1, y, z2);
+    glTexCoord2f(1, 1); glVertex3f(x2, y, z2);
+    glTexCoord2f(1, 0); glVertex3f(x2, y, z1);
   glEnd;
 end;
 
@@ -1370,13 +1374,13 @@ end;
 function TGLTextureSet.AddTexture(name,filename: string; transparency: boolean): integer;
 begin
   FixPath(filename);
-  result:=AddTexture2(name,filename,transparency);
+  result:=AddTexture2(name, filename, transparency);
   if result>=0 then begin
     inc(texture[result].RefCount);
     if texture[result].index=0 then
       glGenTextures(1,@texture[result].index);
     ChangeTexMode3D(false);
-    ReloadTexture(result,filename,transparency);
+    ReloadTexture(result, filename, transparency);
   end;
 end;
 
@@ -1556,7 +1560,7 @@ begin
       finally
         freemem(temp.data);
       end;
-      _SetTex(tex^.index,tex^.tex3D);
+      _SetTex(tex^.index, tex^.tex3D);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, TextureQuality);
       glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1590,16 +1594,16 @@ begin
 end;
 
 procedure TGLTextureSet.SetClamp(x_repeat, y_repeat: boolean);
-var x,y,x2,y2: TGLint; target: TGLenum;
+var x, y, x2, y2: TGLint; target: TGLenum;
 begin
   if x_repeat then x:=GL_REPEAT else x:=GL_CLAMP;
   if y_repeat then y:=GL_REPEAT else y:=GL_CLAMP;
   if not enable3Dtex then target:=GL_TEXTURE_2D
   else target:=GL_TEXTURE_3D;
-  glGetTexParameteriv(target,GL_TEXTURE_WRAP_S,@x2);
-  glGetTexParameteriv(target,GL_TEXTURE_WRAP_T,@y2);
-  if x<>x2 then glTexParameteri(target,GL_TEXTURE_WRAP_S,x);
-  if y<>y2 then glTexParameteri(target,GL_TEXTURE_WRAP_T,y);
+  glGetTexParameteriv(target, GL_TEXTURE_WRAP_S, @x2);
+  glGetTexParameteriv(target, GL_TEXTURE_WRAP_T, @y2);
+  if x<>x2 then glTexParameteri(target, GL_TEXTURE_WRAP_S, x);
+  if y<>y2 then glTexParameteri(target, GL_TEXTURE_WRAP_T, y);
 end;
 
 procedure TGLTextureSet.Restore3D(tex: integer);
@@ -1928,7 +1932,7 @@ end;
 
 initialization
 
-  nx:=TNXGL.Create; nxGraph.nxEngine:=nx;
+  nx:=TNXGLShaders.Create; nxGraph.nxEngine:=nx;
   tex:=TGLTextureSet.Create; nxGraph.nxTex:=tex;
 
 finalization
