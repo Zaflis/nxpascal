@@ -66,6 +66,7 @@ type
     procedure DeCompress(n: integer; leaveCompressed, forced: boolean);
     function GetBlock(n: integer; forced: boolean): PointerArrayType;
     procedure Initialize(newBlockSize: integer); overload;
+    function IsLoaded(n: integer): boolean;
     procedure LoadFromFile(filename: string; CanCreate: boolean = false);
     procedure Save;
     procedure SetCompressionlevel(_level: TCompressionlevel);
@@ -164,12 +165,12 @@ begin
     if threading then
       if forced then begin
         repeat
-          application.ProcessMessages;sleep(1);
+          application.ProcessMessages; sleep(1);
         until not threading;
       end else exit;
     if data=nil then
       if compressed<>nil then begin
-        DeCompress(n, false, not forced);
+        DeCompress(n, false, forced);
       end else begin
         data:=allocmem(blockSize);
       end;
@@ -180,6 +181,13 @@ end;
 procedure TDataStore.Initialize(newBlockSize: integer);
 begin
   SetSize(0); blockSize:=newBlockSize; FFilename:='';
+end;
+
+function TDataStore.IsLoaded(n: integer): boolean;
+begin
+  if (n>=0) and (n<count) then
+    result:=(block[n].data<>nil) and (not block[n].threading)
+  else result:=false;
 end;
 
 procedure TDataStore.LoadFromFile(filename: string; CanCreate: boolean = false);
