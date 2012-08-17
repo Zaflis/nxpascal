@@ -61,7 +61,6 @@ begin
 
   // Load ship model
   ship:=TGLModel.Create;
-  ship:=TGLModel.Create;
   ship.LoadFromFile('objects\ship.w3d');
   ship.LoadTextures('textures');
   ship.UseColors:=false; // Can ignore color materials from file (optional)
