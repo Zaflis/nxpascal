@@ -57,7 +57,7 @@ type
   TGLShader = class
   private
     FProgram, FVertexShader, FFragmentShader: GLHandleARB;
-    FUseVertex, FUseFragment, FLinked: boolean;
+    FUseVertex, FUseFragment: boolean;
   public
     LastUniformValid: boolean;
     constructor Create(UseVertex, UseFragment: boolean);
@@ -1962,7 +1962,6 @@ end;
 
 constructor TGLShader.Create(UseVertex, UseFragment: boolean);
 begin
-  FLinked:=false;
   if UseVertex and (not nx.GLInfo('GL_ARB_fragment_shader')) then begin
     nxSetError('GL_ARB_fragment_shader not supported'); exit;
   end;
@@ -1971,10 +1970,6 @@ begin
   end;
   FUseVertex:=UseVertex; FUseFragment:=UseFragment;
   MakeProgram;
-  if FUseVertex then
-    FVertexShader:=glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-  if FUseFragment then
-    FFragmentShader:=glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 end;
 
 destructor TGLShader.Destroy;
@@ -1993,16 +1988,15 @@ begin
   if FUseFragment then glDeleteObjectARB(FFragmentShader);
   param:=0;
   glGetObjectParameterivARB(FProgram, GL_OBJECT_LINK_STATUS_ARB, @param);
-  FLinked:=param=1;
-  if not FLinked then nxSetError('GLSL program: linking failed!');
-  result:=FLinked;
+  result:=param=1;
+  if not result then nxSetError('GLSL program: linking failed!');
 end;
 
 procedure TGLShader.DeleteProgram;
 begin
   if FProgram=0 then exit;
   glDeleteObjectARB(FProgram);
-  FProgram:=0; FLinked:=false;
+  FProgram:=0;
 end;
 
 procedure TGLShader.Disable;
@@ -2044,7 +2038,12 @@ end;
 
 procedure TGLShader.MakeProgram;
 begin
+  if FProgram<>0 then exit;
   FProgram:=glCreateProgramObjectARB();
+  if FUseVertex then
+    FVertexShader:=glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+  if FUseFragment then
+    FFragmentShader:=glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 end;
 
 procedure TGLShader.SetFragmentSource(s: string);

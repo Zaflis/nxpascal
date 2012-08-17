@@ -4,7 +4,7 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="14">
+    <Units Count="15">
       <Unit0>
         <Filename Value="GLSLTest.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -21,7 +21,7 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="54"/>
+        <TopLine Value="1"/>
         <CursorPos X="55" Y="58"/>
         <UsageCount Value="33"/>
         <Bookmarks Count="1">
@@ -123,11 +123,19 @@
         <CursorPos X="3" Y="1203"/>
         <UsageCount Value="10"/>
       </Unit13>
+      <Unit14>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <UnitName Value="nxGL"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1968"/>
+        <CursorPos X="60" Y="1988"/>
+        <UsageCount Value="10"/>
+      </Unit14>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="14" HistoryIndex="13">
+    <JumpHistory Count="15" HistoryIndex="14">
       <Position1>
         <Filename Value="MainUnit.pas"/>
         <Caret Line="84" Column="33" TopLine="73"/>
@@ -184,6 +192,10 @@
         <Filename Value="MainUnit.pas"/>
         <Caret Line="85" Column="18" TopLine="72"/>
       </Position14>
+      <Position15>
+        <Filename Value="MainUnit.pas"/>
+        <Caret Line="58" Column="55" TopLine="1"/>
+      </Position15>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>
