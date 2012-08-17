@@ -290,7 +290,7 @@ end;
 // Returns texture coordinates for pattern
 procedure TTextureSet.GetPatternCoords(var x, y, w, h: single;
   pattern: integer);
-var cols,rows,mult: integer; sx,sy: single;
+var cols, rows, mult: integer; sx, sy: single;
     pTex: PTexture;
 begin
   if LastTexIndex>=0 then begin
@@ -318,9 +318,8 @@ end;
 function TTextureSet.IndexOf(name: string): integer;
 var i: integer;
 begin
-  // Last added textures are maybe more likely to be searched
-  for i:=count-1 downto 0 do
-    if name=texture[i].name then begin
+  for i:=0 to count-1 do
+    if AnsiCompareStr(name, texture[i].name)=0 then begin
       IndexOf:=i; exit;
     end;
   IndexOf:=-1;
@@ -328,13 +327,13 @@ end;
 
 function TTextureSet.LoadBMPData(tex: integer; bmp: TBitmap): boolean;
 begin
-  if tex>=0 then LoadBMPData:=LoadBMPData(@texture[tex],bmp)
+  if tex>=0 then LoadBMPData:=LoadBMPData(@texture[tex], bmp)
   else LoadBMPData:=false;
 end;
 
 function TTextureSet.LoadBMPData(tex: PTexture; bmp: TBitmap): boolean;
-var sx,sy: single; n,x1,y1: integer;
-    x,y: word; UseScale: boolean;
+var sx, sy: single; n, x1, y1: integer;
+    x, y: word; UseScale: boolean;
 begin
   result:=false;
   if (tex=nil) or (bmp=nil) then exit;
@@ -345,10 +344,10 @@ begin
 
   if toFitScale in Options then begin
     UseScale:=false;
-    Pow2Fit(tex^.sizeX,tex^.sizeY,sx,sy);
+    Pow2Fit(tex^.sizeX, tex^.sizeY, sx, sy);
     sx:=1; sy:=1;
   end else if toScale in Options then begin
-    UseScale:=Pow2Near(tex^.sizeX,tex^.sizeY,sx,sy);
+    UseScale:=Pow2Near(tex^.sizeX, tex^.sizeY, sx, sy);
     tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
   end else if (toCustomScale in Options) and (scaleX*scaleY>0) then begin
     UseScale:=true;
@@ -369,13 +368,13 @@ begin
     for x:=0 to tex^.Width-1 do begin
       if UseScale then x1:=trunc(x*sx) else x1:=x;
       {$IFDEF fpc}
-      tex^.Data[n]:=bmp.Canvas.Colors[x1,y1].red;
-      tex^.Data[n+1]:=bmp.Canvas.Colors[x1,y1].green;
-      tex^.Data[n+2]:=bmp.Canvas.Colors[x1,y1].blue;
+      tex^.Data[n]:=bmp.Canvas.Colors[x1, y1].red;
+      tex^.Data[n+1]:=bmp.Canvas.Colors[x1, y1].green;
+      tex^.Data[n+2]:=bmp.Canvas.Colors[x1, y1].blue;
       {$ELSE}
-      tex^.Data[n]:=GetRValue(bmp.Canvas.Pixels[x1,y1]);
-      tex^.Data[n+1]:=GetGValue(bmp.Canvas.Pixels[x1,y1]);
-      tex^.Data[n+2]:=GetBValue(bmp.Canvas.Pixels[x1,y1]);
+      tex^.Data[n]:=GetRValue(bmp.Canvas.Pixels[x1, y1]);
+      tex^.Data[n+1]:=GetGValue(bmp.Canvas.Pixels[x1, y1]);
+      tex^.Data[n+2]:=GetBValue(bmp.Canvas.Pixels[x1, y1]);
       {$ENDIF}
       if tex^.values=4 then
         if toAlphaColor in Options then
@@ -391,7 +390,7 @@ begin
       inc(n,tex^.values);
     end;
     if not UseScale then
-      inc(n,tex^.values*(tex^.sizeX-tex^.Width));
+      inc(n, tex^.values*(tex^.sizeX-tex^.Width));
   end;
   LoadBMPData:=true;
 end;
@@ -409,7 +408,7 @@ begin
     nxSetError(format('[LoadBMPDataFile] Error "%s"',[filename]));
     freeandnil(temp); exit;
   end;
-  LoadBMPData(tex,temp);
+  LoadBMPData(tex, temp);
   temp.Free; result:=true;
 end;
 
@@ -430,7 +429,7 @@ begin
   LoadRaw(tex,jpg.RawImage);
   {$ELSE}
   bmp:=TBitmap.Create; bmp.Assign(jpg);
-  self.LoadBMPData(tex,bmp);
+  self.LoadBMPData(tex, bmp);
   bmp.Free;
   {$ENDIF}
   jpg.Free;
@@ -475,10 +474,10 @@ begin
   tex^.sizeX:=tex^.Width; tex^.sizeY:=tex^.Height;
   if toFitScale in Options then begin
     UseScale:=false;
-    Pow2Fit(tex^.sizeX,tex^.sizeY,sx,sy);
+    Pow2Fit(tex^.sizeX, tex^.sizeY, sx, sy);
     sx:=1; sy:=1;
   end else if toScale in Options then begin
-    UseScale:=Pow2Near(tex^.sizeX,tex^.sizeY,sx,sy);
+    UseScale:=Pow2Near(tex^.sizeX, tex^.sizeY, sx, sy);
     tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
   end else if (toCustomScale in Options) and (scaleX*scaleY>0) then begin
     UseScale:=true;
@@ -521,7 +520,7 @@ begin
           tex.Data[n]:=0; tex.Data[n+1]:=0; tex.Data[n+2]:=0;
         end;
       end;
-      inc(n,tex.values);
+      inc(n, tex.values);
     end;
   end;
   {$R+}

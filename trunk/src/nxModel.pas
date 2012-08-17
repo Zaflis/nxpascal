@@ -485,6 +485,7 @@ end;
 procedure TPolyModel.LoadFromFile(filename: string);
 var ext: string;
 begin
+  FixPath(filename);
   ext:=lowercase(extractfileext(filename));
   if ext='.w3d' then LoadFromW3D(filename)
   else if ext='.obj' then LoadFromOBJ(filename)
@@ -1199,6 +1200,7 @@ end;
 procedure TTriModel.LoadFromFile(filename: string);
 var ext: string;
 begin
+  FixPath(filename);
   if (filename<>'') and (not FileExistsUTF8(filename)) then begin
     nxSetError(format('[TriModel] File "%s" not found.',[filename]));
     exit;
