@@ -29,18 +29,18 @@ type
   { TTextureSet }
 
   TTextureSet = class
+  protected
+    count2: integer;
+    enable3Dtex: boolean;
+    function Pow2Near(var w,h: word; out sx,sy: single): boolean;
+    function Pow2Fit(var w,h: word; out sx,sy: single): boolean;
+  public
     texture: array of TTexture;
     count, TextureQuality: integer;
     scaleX, scaleY: single;
     Options: TTextureLoadOptions;
     TransparentColor: TRGB;
     LastTexIndex, cols3D, rows3D: integer;
-    enable3Dtex: boolean;
-  private
-    count2: integer;
-    function Pow2Near(var w,h: word; out sx,sy: single): boolean;
-    function Pow2Fit(var w,h: word; out sx,sy: single): boolean;
-  public
     constructor Create;
     destructor Destroy; override;
     function AddTexture2(name,filename: string; transparency: boolean = false): integer;
@@ -81,8 +81,8 @@ type
     name: string;
     textureI: integer;
     charW: array[32..255] of shortint;
-    CenterH,sx,sy: shortint;
-    TexSize,height: word;
+    CenterH, sx, sy: shortint;
+    TexSize, height: word;
     color: TfRGBA;
     constructor Create(_TexSize: integer);
     procedure CreateBMP(fontName: string; fontSize, _TexSize: integer);

@@ -56,22 +56,37 @@ type
 
   TGLShader = class
   private
-    FProgram, FVertexShader, FFragmentShader: GLHandleARB;
+    FProgram, FVertexShader, FFragmentShader: GLhandle;
     FUseVertex, FUseFragment: boolean;
   public
     LastUniformValid: boolean;
     constructor Create(UseVertex, UseFragment: boolean);
     destructor Destroy; override;
-    function Attach: boolean;
     procedure DeleteProgram;
     procedure Disable;
     procedure Enable;
+    procedure GetErrorInfo(source: GLHandle; target: TStrings);
+    procedure GetFragmentShaderInfo(target: TStrings);
+    procedure GetVertexShaderInfo(target: TStrings);
     function GetUniform(name: string): GLint;
-    procedure LoadFragmentSource(filename: string);
-    procedure LoadVertexSource(filename: string);
-    procedure MakeProgram;
-    procedure SetFragmentSource(s: string);
-    procedure SetVertexSource(s: string);
+    function Link: boolean;
+    function LoadFragmentSource(filename: string): boolean;
+    function LoadVertexSource(filename: string): boolean;
+    procedure MakeProgram(UseVertex, UseFragment: boolean);
+    function SetFragmentSource(s: string): boolean;
+    function SetVertexSource(s: string): boolean;
+  end;
+
+  { TGLRenderer }
+
+  TGLRenderer = class
+  public
+    ShaderCount: integer;
+    shader: array of TGLShader;
+    constructor Create;
+    destructor Destroy; override;
+    function AddShader(UseVertex, UseFragment: boolean): integer;
+    procedure DeleteShader(n: integer);
   end;
 
   { TDisplayList }
@@ -1648,7 +1663,7 @@ end;
 
 procedure TGLTextureSet.SetTextureUnit(n: integer);
 begin
-  glActiveTexture(GL_TEXTURE0+n);
+  if n>=0 then glActiveTexture(GL_TEXTURE0+n);
 end;
 
 { TVertexArray }
@@ -1962,14 +1977,7 @@ end;
 
 constructor TGLShader.Create(UseVertex, UseFragment: boolean);
 begin
-  if UseVertex and (not nx.GLInfo('GL_ARB_fragment_shader')) then begin
-    nxSetError('GL_ARB_fragment_shader not supported'); exit;
-  end;
-  if UseFragment and (not nx.GLInfo('GL_ARB_fragment_shader')) then begin
-    nxSetError('GL_ARB_fragment_shader not supported'); exit;
-  end;
-  FUseVertex:=UseVertex; FUseFragment:=UseFragment;
-  MakeProgram;
+  MakeProgram(UseVertex, UseFragment);
 end;
 
 destructor TGLShader.Destroy;
@@ -1978,35 +1986,50 @@ begin
   inherited Destroy;
 end;
 
-function TGLShader.Attach: boolean;
-var param: GLint;
-begin
-  if FUseVertex then glAttachObjectARB(FProgram, FVertexShader);
-  if FUseFragment then glAttachObjectARB(FProgram, FFragmentShader);
-  glLinkProgramARB(FProgram);
-  if FUseVertex then glDeleteObjectARB(FVertexShader);
-  if FUseFragment then glDeleteObjectARB(FFragmentShader);
-  param:=0;
-  glGetObjectParameterivARB(FProgram, GL_OBJECT_LINK_STATUS_ARB, @param);
-  result:=param=1;
-  if not result then nxSetError('GLSL program: linking failed!');
-end;
-
 procedure TGLShader.DeleteProgram;
 begin
-  if FProgram=0 then exit;
-  glDeleteObjectARB(FProgram);
-  FProgram:=0;
+  Disable;
+  if FVertexShader<>0 then begin
+    glDetachShader(FProgram, FVertexShader);
+    glDeleteShader(FVertexShader);
+  end;
+  if FFragmentShader<>0 then begin
+    glDetachShader(FProgram, FFragmentShader);
+    glDeleteShader(FFragmentShader);
+  end;
+  if FProgram<>0 then glDeleteProgram(FProgram);
+  FProgram:=0; FVertexShader:=0; FFragmentShader:=0;
 end;
 
 procedure TGLShader.Disable;
 begin
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
 end;
 
 procedure TGLShader.Enable;
 begin
-  glUseProgramObjectARB(FProgram);
+  glUseProgram(FProgram);
+end;
+
+procedure TGLShader.GetErrorInfo(source: GLHandle; target: TStrings);
+begin
+  if (target=nil) or (source=0) then exit;
+  //glGetShaderiv(source, GL_INFO_LOG_LENGTH, &maxLength);
+
+	// The maxLength includes the NULL character
+	//fragmentInfoLog = new char[maxLength];
+
+	//glGetShaderInfoLog(source, maxLength, &maxLength, fragmentInfoLog);
+end;
+
+procedure TGLShader.GetFragmentShaderInfo(target: TStrings);
+begin
+  GetErrorInfo(FFragmentShader, target);
+end;
+
+procedure TGLShader.GetVertexShaderInfo(target: TStrings);
+begin
+  GetErrorInfo(FVertexShader, target);
 end;
 
 function TGLShader.GetUniform(name: string): GLint;
@@ -2016,52 +2039,116 @@ begin
   if not LastUniformValid then nxSetError('Shader uniform '+name+' not found');
 end;
 
-procedure TGLShader.LoadFragmentSource(filename: string);
+function TGLShader.Link: boolean;
+var isCompiled: GLint;
+begin
+  glLinkProgram(FProgram);
+  isCompiled:=0;
+  glGetProgramiv(FProgram, GL_LINK_STATUS, @isCompiled);
+  result:=isCompiled=GL_TRUE;
+  if not result then nxSetError('GLSL program: linking failed!');
+end;
+
+function TGLShader.LoadFragmentSource(filename: string): boolean;
 var sl: TStringList;
 begin
-  FixPath(filename);
   sl:=TStringList.Create;
+  FixPath(filename);
   sl.LoadFromFile(filename);
-  SetFragmentSource(sl.Text);
+  result:=SetFragmentSource(sl.Text);
   sl.Free;
 end;
 
-procedure TGLShader.LoadVertexSource(filename: string);
+function TGLShader.LoadVertexSource(filename: string): boolean;
 var sl: TStringList;
 begin
-  FixPath(filename);
   sl:=TStringList.Create;
+  FixPath(filename);
   sl.LoadFromFile(filename);
-  SetVertexSource(sl.Text);
+  result:=SetVertexSource(sl.Text);
   sl.Free;
 end;
 
-procedure TGLShader.MakeProgram;
+procedure TGLShader.MakeProgram(UseVertex, UseFragment: boolean);
 begin
-  if FProgram<>0 then exit;
-  FProgram:=glCreateProgramObjectARB();
-  if FUseVertex then
-    FVertexShader:=glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-  if FUseFragment then
-    FFragmentShader:=glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+  DeleteProgram;
+  FProgram:=glCreateProgram();
+  if FProgram=0 then begin
+    nxSetError('Failed to create shader program'); exit;
+  end;
+  if UseVertex then begin
+    FVertexShader:=glCreateShader(GL_VERTEX_SHADER);
+    if FVertexShader=0 then begin
+      nxSetError('Failed to create vertex shader'); exit;
+    end;
+    glAttachShader(FProgram, FVertexShader);
+    FUseVertex:=UseVertex;
+  end;
+  if UseFragment then begin
+    FFragmentShader:=glCreateShader(GL_FRAGMENT_SHADER);
+    if FFragmentShader=0 then begin
+      nxSetError('Failed to create fragment shader'); exit;
+    end;
+    glAttachShader(FProgram, FFragmentShader);
+    FUseFragment:=UseFragment;
+  end;
 end;
 
-procedure TGLShader.SetFragmentSource(s: string);
-var shader_source: PAnsiChar;
+function TGLShader.SetFragmentSource(s: string): boolean;
+var shader_source: PAnsiChar; isCompiled: GLint;
 begin
+  result:=false;
   if not FUseFragment then exit;
   shader_source:=PAnsiChar(s+#0);
-  glShaderSourceARB(FFragmentShader, 1, PPGLCharARB(@shader_source), nil);
-  glCompileShaderARB(FFragmentShader);
+  glShaderSource(FFragmentShader, 1, PPGLChar(@shader_source), nil);
+  glCompileShader(FFragmentShader);
+  isCompiled:=0;
+  glGetShaderiv(FFragmentShader, GL_COMPILE_STATUS, @isCompiled);
+  if isCompiled=GL_FALSE then nxSetError('Fragment shader compilation failed');
+  result:=isCompiled=GL_TRUE;
 end;
 
-procedure TGLShader.SetVertexSource(s: string);
-var shader_source: PAnsiChar;
+function TGLShader.SetVertexSource(s: string): boolean;
+var shader_source: PAnsiChar; isCompiled: GLint;
 begin
+  result:=false;
   if not FUseVertex then exit;
   shader_source:=PAnsiChar(s+#0);
-  glShaderSourceARB(FVertexShader, 1, PPGLCharARB(@shader_source), nil);
-  glCompileShaderARB(FVertexShader);
+  glShaderSource(FVertexShader, 1, PPGLChar(@shader_source), nil);
+  glCompileShader(FVertexShader);
+  isCompiled:=0;
+  glGetShaderiv(FVertexShader, GL_COMPILE_STATUS, @isCompiled);
+  if isCompiled=GL_FALSE then nxSetError('Vertex shader compilation failed');
+  result:=isCompiled=GL_TRUE;
+end;
+
+{ TGLRenderer }
+
+constructor TGLRenderer.Create;
+begin
+  //
+end;
+
+destructor TGLRenderer.Destroy;
+var i: integer;
+begin
+  for i:=0 to ShaderCount-1 do shader[i].Free;
+  inherited Destroy;
+end;
+
+function TGLRenderer.AddShader(UseVertex, UseFragment: boolean): integer;
+//var n: integer;
+begin
+  result:=-1;
+  //for n:=0 to ShaderCount-1 do
+  
+end;
+
+procedure TGLRenderer.DeleteShader(n: integer);
+begin
+  if (n>=0) and (n<ShaderCount) then begin
+
+  end;
 end;
 
 initialization
