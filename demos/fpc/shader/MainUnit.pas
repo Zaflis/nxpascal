@@ -48,6 +48,7 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 var v4: TVector4f; //bmp: TBitmap;
+    errorStr: TStringList;
 begin
   clientwidth:=800; clientheight:=600;
   if not nx.CreateGlWindow(self) then begin
@@ -61,11 +62,14 @@ begin
   end;
 
   // Load sources
+  errorStr:=TStringList.Create;
   shader.LoadVertexSource('shader\vertex.txt');
   shader.LoadFragmentSource('shader\fragment.txt');
 
-  // Attach and link program
-  if not shader.Attach then begin
+  errorStr.Free;
+
+  // Link shader program
+  if not shader.Link then begin
     showmessage(nx.LastError); exit;
   end;
 
@@ -75,6 +79,7 @@ begin
 
   locNormalMap:=shader.GetUniform('normalMap');
   if not shader.LastUniformValid then showmessage(nx.LastError);
+  nx.ClearError;
 
   // Use shader program
   shader.Enable;
@@ -99,14 +104,12 @@ begin
     showmessage(nx.LastError); exit;
   end;
 
-  tex.SetTextureUnit(0);
-  tex.SetByName('texture');
-  tex.SetTextureUnit(1);
-  tex.SetByName('normalmap');
+  tex.SetTextureUnit(0); tex.SetByName('texture');
+  tex.SetTextureUnit(1); tex.SetByName('normalmap');
 
   // Tell shader that texture-unit 0 is texture, and 1 normalmap
-  glUniform1i(locColorMap, 0);
-  glUniform1i(locNormalMap, 1);
+  if locColorMap>=0 then glUniform1i(locColorMap, 0);
+  if locNormalMap>=0 then glUniform1i(locNormalMap, 1);
 
   Timer1.Enabled:=true;
 end;

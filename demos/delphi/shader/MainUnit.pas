@@ -44,7 +44,7 @@ implementation
 { TForm1 }
 
 procedure TForm1.FormCreate(Sender: TObject);
-var v4: TVector4f; //bmp: TBitmap;
+var v4: TVector4f;
 begin
   clientwidth:=800; clientheight:=600;
   if not nx.CreateGlWindow(self) then begin
@@ -61,8 +61,8 @@ begin
   shader.LoadVertexSource('shader\vertex.txt');
   shader.LoadFragmentSource('shader\fragment.txt');
 
-  // Attach and link program
-  if not shader.Attach then begin
+  // Link program
+  if not shader.Link then begin
     showmessage(nx.LastError); exit;
   end;
 
@@ -72,6 +72,7 @@ begin
 
   locNormalMap:=shader.GetUniform('normalMap');
   if not shader.LastUniformValid then showmessage(nx.LastError);
+  nx.ClearError;
 
   // Use shader program
   shader.Enable;
@@ -96,14 +97,12 @@ begin
     showmessage(nx.LastError); exit;
   end;
 
-  tex.SetTextureUnit(0);
-  tex.SetByName('texture');
-  tex.SetTextureUnit(1);
-  tex.SetByName('normalmap');
+  tex.SetTextureUnit(0); tex.SetByName('texture');
+  tex.SetTextureUnit(1); tex.SetByName('normalmap');
 
   // Tell shader that texture-unit 0 is texture, and 1 normalmap
-  glUniform1i(locColorMap, 0);
-  glUniform1i(locNormalMap, 1);
+  if locColorMap>=0 then glUniform1i(locColorMap, 0);
+  if locNormalMap>=0 then glUniform1i(locNormalMap, 1);
 
   Timer1.Enabled:=true;
 end;
@@ -140,8 +139,7 @@ begin
   nx.Flip;
 end;
 
-// Optional procedure you can use to make
-// normalmap texture
+// Optional procedure you can use to make normalmap texture
 procedure MakeBumpTexture(index: integer; dest: TBitmap);
   function GetBr(x, y: integer): single;
   var d: integer;
