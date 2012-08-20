@@ -55,6 +55,7 @@ type
     property vCount: integer read FvCount write SetvCount;
     procedure Center(_x, _y, _z: boolean);
     procedure Clear;
+    function GetRadius: single;
     procedure Rotate(_angle: single; axis: TVector);
     procedure Scale(x, y, z: single);
     procedure ScaleTo(size: single);
@@ -227,6 +228,16 @@ begin
   vCount:=0; groups:=0; mCount:=0; bCount:=0;
   setlength(va, 0); setlength(na, 0); setlength(ta, 0);
   setlength(mat, 0); setlength(grp, 0); setlength(bone, 0);
+end;
+
+function T3DModel.GetRadius: single;
+var i: integer; d: single;
+begin
+  result:=0;
+  for i:=0 to vCount-1 do begin
+    d:=hypot3f(va[i].x, va[i].y, va[i].z);
+    if d>result then result:=d;
+  end;
 end;
 
 procedure T3DModel.Rotate(_angle: single; axis: TVector);
