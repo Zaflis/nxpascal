@@ -63,6 +63,7 @@ uses nxTypes;
   function GetRotation(const mat: TMatrix): TMatrix;
   function GetVector(const M: TMatrix; const axis: integer): TVector;
   procedure Invert(var M: TMatrix); overload;
+  function Invert2(const M: TMatrix): TMatrix;
   function Determinant(const M: TMatrix): Single;
   function MatrixOnPlane(const cPos,cDir: TVector; const angle: single = 0): TMatrix;
   function Multiply(const A,B: TMatrix): TMatrix;
@@ -627,6 +628,11 @@ begin
    else begin
      AdjointMatrix; Scale(M, 1/det);
    end;
+end;
+
+function Invert2(const M: TMatrix): TMatrix;
+begin
+  result:=M; Invert(result);
 end;
 
 function MatrixOnPlane(const cPos, cDir: TVector; const angle: single): TMatrix;
