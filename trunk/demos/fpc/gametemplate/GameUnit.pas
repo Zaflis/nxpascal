@@ -10,7 +10,7 @@ uses
 
 type
 
-  { TCustomGame }
+  { TGame }
 
   TGame = class(TGameHandler)
   public

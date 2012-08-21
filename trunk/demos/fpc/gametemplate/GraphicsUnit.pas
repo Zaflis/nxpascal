@@ -10,7 +10,7 @@ uses
 
 type
 
-  { TGame }
+  { TGraphicalGame }
 
   TGraphicalGame = class(TGame)
   public

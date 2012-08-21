@@ -83,11 +83,13 @@ type
     procedure SetLauncherColor(l: pParticleLauncher;
       minR,maxR, minG,maxG, minB,maxB: single);
     procedure SetLauncherPos(l: pParticleLauncher;
-      x,y: single; z: single = 0);
+      x,y: single; z: single = 0); overload;
+    procedure SetLauncherPos(l: pParticleLauncher; const v: TVector); overload;
     procedure SetParticleColor(p: pParticle; r,g,b: single);
     procedure SetTrailColor(t: pTrail; r,g,b: single; a: single = 1);
     procedure SetTrailPos(t: pTrail; x, y: single); overload;
     procedure SetTrailPos(t: pTrail; x, y, z: single); overload;
+    procedure SetTrailPos(t: pTrail; const v: TVector); overload;
   end;
 
   { TQuadTexture }
@@ -685,6 +687,11 @@ begin
   l^.x:=x; l^.y:=y; l^.z:=z;
 end;
 
+procedure TParticleEngine.SetLauncherPos(l: pParticleLauncher; const v: TVector);
+begin
+  l^.x:=v.x; l^.y:=v.y; l^.z:=v.z;
+end;
+
 procedure TParticleEngine.SetParticleColor(p: pParticle; r, g, b: single);
 begin
   p^.r:=r; p^.g:=g; p^.b:=b;
@@ -703,6 +710,11 @@ end;
 procedure TParticleEngine.SetTrailPos(t: pTrail; x, y, z: single);
 begin
   t^.x:=x; t^.y:=y; t^.z:=z;
+end;
+
+procedure TParticleEngine.SetTrailPos(t: pTrail; const v: TVector);
+begin
+  t^.x:=v.x; t^.y:=v.y; t^.z:=v.z;
 end;
 
 { TQuadTexture }

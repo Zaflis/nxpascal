@@ -1,0 +1,24 @@
+object Form1: TForm1
+  Left = 312
+  Height = 240
+  Top = 138
+  Width = 320
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
+  Caption = 'Picking demo (incomplete)'
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyUp
+  OnMouseDown = FormMouseDown
+  OnMouseMove = FormMouseMove
+  OnMouseUp = FormMouseUp
+  OnMouseWheel = FormMouseWheel
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object AppProperties: TApplicationProperties
+    OnIdle = AppPropertiesIdle
+    left = 40
+    top = 9
+  end
+end

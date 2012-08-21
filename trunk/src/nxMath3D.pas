@@ -66,6 +66,7 @@ uses nxTypes;
   function Determinant(const M: TMatrix): Single;
   function MatrixOnPlane(const cPos,cDir: TVector; const angle: single = 0): TMatrix;
   function Multiply(const A,B: TMatrix): TMatrix;
+  function MultiplyRotation(const A,B: TMatrix): TMatrix;
   function LookAt(const eye, target, up: TVector): TMatrix;
   procedure Rotate(var M: TMatrix; const axis: TVector; const Angle: Single;
     withPos: boolean = true); overload;
@@ -510,7 +511,10 @@ function CreateMatrix(const axis: TVector; const angle: Single): TMatrix;
 var cosine, sine, one_minus_cosine: Single;
 begin
 
-//  !!! Doesn't work? !!!
+{ ! Is it bugged? More testing may be needed !
+  Some testing indicate that rotation matrix may go haywire
+  if the axis is not surely normalized before. Otherwise seems ok.
+}
 
   sine:=sin(angle); cosine:=cos(angle);
   one_minus_cosine:=1-cosine;
@@ -576,9 +580,12 @@ end;
 function GetRotation(const mat: TMatrix): TMatrix;
 var i,j: integer;
 begin
-  result:=NewMatrix;
-  for j:=0 to 2 do
+  for j:=0 to 2 do begin
     for i:=0 to 2 do result[i,j]:=mat[i,j];
+    result[j, 3]:=0;
+    result[3, j]:=0;
+  end;
+  result[3, 3]:=1;
 end;
 
 function GetVector(const M: TMatrix; const axis: integer): TVector;
@@ -652,6 +659,19 @@ begin
         A[I, 2] * B[2, J] + A[I, 3] * B[3, J];
 end;
 
+function MultiplyRotation(const A, B: TMatrix): TMatrix;
+var I, J: Integer;
+begin
+  for I := 0 to 2 do begin
+    for J := 0 to 2 do
+      Result[I, J] := A[I, 0] * B[0, J] + A[I, 1] * B[1, J] +
+        A[I, 2] * B[2, J];
+    result[3, I]:=0;
+    result[I, 3]:=0;
+  end;
+  result[3, 3]:=1;
+end;
+
 function LookAt(const eye, target, up: TVector): TMatrix;
 var x,y,z: TVector;
 begin
@@ -668,11 +688,11 @@ procedure Rotate(var M: TMatrix; const axis: TVector; const Angle: Single;
 var v: TVector;
 begin
   if not withPos then begin
-    v:=getVector(M,3);
+    v:=getVector(M, 3);
     M[3,0]:=0; M[3,1]:=0; M[3,2]:=0;
   end;
   M:=Multiply(M, CreateMatrix(axis, Angle));
-  if not withPos then SetVector(M,v,3);
+  if not withPos then SetVector(M, v, 3);
 end;
 
 procedure Rotate(var M: TMatrix; const axis: integer; const Angle: Single;
