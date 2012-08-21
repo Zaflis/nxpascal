@@ -89,7 +89,13 @@ type
     procedure LoadFromW3D(filename: string; obj: integer = -1);
     procedure MakeNormals;
     function rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
-      const intersect: PVector=nil; const normal: PVector=nil): integer;
+      const intersect: PVector=nil; const normal: PVector=nil): integer; overload;
+    function rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
+      const position: TVector; const intersect: PVector=nil;
+      const normal: PVector=nil): integer; overload;
+    function rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
+      const position: TVector; rotation: TMatrix;
+      const intersect: PVector=nil; const normal: PVector=nil): integer; overload;
     procedure SaveToFile(filename: string);
   end;
 
@@ -937,7 +943,10 @@ begin
     readln(F, s); k:=ReadStrings(s, ' ', sa);
     mat[i].color.a:=round(strtofloat2(sa[0])*255);
     mat[i].shininess:=strtofloat2(sa[1]);
-    if k>2 then readln(F); // Skip alpha file
+    if k>2 then begin
+      mat[i].transparent:=true;
+      readln(F); // Skip alpha file
+    end;
     readln(F); // Skip ambient
 
     //readln(F, c.r, c.g, c.b);
@@ -1299,6 +1308,29 @@ begin
     intersect^:=vI;
     if normal<>nil then normal^:=vN;
   end;
+end;
+
+// Returns >= 0 if intersects, it is index of the face
+// includes parameter position for model
+function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
+  const position: TVector; const intersect: PVector; const normal: PVector): integer;
+begin
+  result:=rayIntersect(VectorSub2(rayStart, position), rayDir, findClosest, intersect, normal);
+end;
+
+// Returns >= 0 if intersects, it is index of the face
+// includes parameters position and rotation for model
+function TTriModel.rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
+  const position: TVector; rotation: TMatrix; const intersect: PVector;
+  const normal: PVector): integer;
+begin
+
+  // ! Incomplete !
+
+  rayStart:=VectorSub2(rayStart, position);
+  //invert(rotation);
+  //rayDir:=VectorMultiply(rayDir, rotation);
+  result:=rayIntersect(rayStart, rayDir, findClosest, intersect, normal);
 end;
 
 procedure TTriModel.SaveToFile(filename: string);

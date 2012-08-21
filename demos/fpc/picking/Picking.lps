@@ -4,15 +4,15 @@
     <PathDelim Value="\"/>
     <Version Value="9"/>
     <BuildModes Active="Default"/>
-    <Units Count="20">
+    <Units Count="23">
       <Unit0>
-        <Filename Value="GameTemplate.lpr"/>
+        <Filename Value="Picking.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="GameTemplate"/>
+        <UnitName Value="Picking"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="39" Y="12"/>
-        <UsageCount Value="33"/>
+        <UsageCount Value="38"/>
       </Unit0>
       <Unit1>
         <Filename Value="Main.pas"/>
@@ -21,12 +21,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Main"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="33"/>
-        <CursorPos X="13" Y="43"/>
-        <UsageCount Value="33"/>
+        <TopLine Value="27"/>
+        <CursorPos X="40" Y="33"/>
+        <UsageCount Value="38"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -34,22 +33,23 @@
         <Filename Value="GameUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GameUnit"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="5" Y="11"/>
-        <UsageCount Value="32"/>
+        <TopLine Value="39"/>
+        <CursorPos X="19" Y="45"/>
+        <UsageCount Value="37"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
         <Filename Value="GraphicsUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GraphicsUnit"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="5" Y="11"/>
-        <UsageCount Value="31"/>
+        <TopLine Value="94"/>
+        <CursorPos X="35" Y="108"/>
+        <UsageCount Value="36"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
@@ -103,8 +103,8 @@
         <Filename Value="..\..\..\src\nxGame.pas"/>
         <UnitName Value="nxGame"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="2"/>
-        <CursorPos X="30" Y="15"/>
+        <TopLine Value="18"/>
+        <CursorPos X="3" Y="20"/>
         <UsageCount Value="14"/>
       </Unit10>
       <Unit11>
@@ -126,10 +126,12 @@
       <Unit13>
         <Filename Value="..\..\..\src\nxGL.pas"/>
         <UnitName Value="nxGL"/>
+        <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="41" Y="14"/>
-        <UsageCount Value="13"/>
+        <TopLine Value="354"/>
+        <CursorPos X="1" Y="377"/>
+        <UsageCount Value="14"/>
+        <Loaded Value="True"/>
       </Unit13>
       <Unit14>
         <Filename Value="..\..\..\..\fpc\svn\rtl\win\wininc\redef.inc"/>
@@ -178,95 +180,130 @@
         <CursorPos X="1" Y="44"/>
         <UsageCount Value="10"/>
       </Unit19>
+      <Unit20>
+        <Filename Value="..\..\..\src\nxMath3D.pas"/>
+        <UnitName Value="nxMath3D"/>
+        <EditorIndex Value="4"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="727"/>
+        <CursorPos X="3" Y="746"/>
+        <UsageCount Value="13"/>
+        <Loaded Value="True"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="..\..\..\..\fpc\svn\rtl\i386\i386.inc"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1476"/>
+        <CursorPos X="1" Y="1499"/>
+        <UsageCount Value="10"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="..\..\..\src\nxModel.pas"/>
+        <UnitName Value="nxModel"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1285"/>
+        <CursorPos X="5" Y="1331"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit22>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="21" HistoryIndex="20">
+    <JumpHistory Count="23" HistoryIndex="22">
       <Position1>
-        <Filename Value="GraphicsUnit.pas"/>
-        <Caret Line="42" Column="51" TopLine="12"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="1276" Column="1" TopLine="1261"/>
       </Position1>
       <Position2>
-        <Filename Value="GameUnit.pas"/>
-        <Caret Line="27" Column="20" TopLine="13"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="364" Column="1" TopLine="350"/>
       </Position2>
       <Position3>
-        <Filename Value="Main.pas"/>
-        <Caret Line="49" Column="40" TopLine="36"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="365" Column="1" TopLine="350"/>
       </Position3>
       <Position4>
-        <Filename Value="GameUnit.pas"/>
-        <Caret Line="39" Column="30" TopLine="17"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="366" Column="1" TopLine="350"/>
       </Position4>
       <Position5>
-        <Filename Value="Main.pas"/>
-        <Caret Line="77" Column="7" TopLine="61"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="367" Column="1" TopLine="350"/>
       </Position5>
       <Position6>
-        <Filename Value="Main.pas"/>
-        <Caret Line="8" Column="56" TopLine="1"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="369" Column="1" TopLine="350"/>
       </Position6>
       <Position7>
-        <Filename Value="Main.pas"/>
-        <Caret Line="46" Column="18" TopLine="38"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="370" Column="1" TopLine="350"/>
       </Position7>
       <Position8>
-        <Filename Value="GameUnit.pas"/>
-        <Caret Line="34" Column="14" TopLine="20"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="371" Column="1" TopLine="350"/>
       </Position8>
       <Position9>
-        <Filename Value="GameUnit.pas"/>
-        <Caret Line="15" Column="3" TopLine="1"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="372" Column="1" TopLine="350"/>
       </Position9>
       <Position10>
-        <Filename Value="GameUnit.pas"/>
-        <Caret Line="33" Column="10" TopLine="15"/>
+        <Filename Value="..\..\..\src\nxGL.pas"/>
+        <Caret Line="374" Column="1" TopLine="351"/>
       </Position10>
       <Position11>
-        <Filename Value="GameUnit.pas"/>
-        <Caret Line="32" Column="14" TopLine="18"/>
+        <Filename Value="GraphicsUnit.pas"/>
+        <Caret Line="52" Column="29" TopLine="34"/>
       </Position11>
       <Position12>
         <Filename Value="GameUnit.pas"/>
-        <Caret Line="47" Column="3" TopLine="1"/>
+        <Caret Line="131" Column="22" TopLine="107"/>
       </Position12>
       <Position13>
-        <Filename Value="Main.pas"/>
-        <Caret Line="34" Column="25" TopLine="26"/>
+        <Filename Value="..\..\..\src\nxMath3D.pas"/>
+        <Caret Line="702" Column="3" TopLine="683"/>
       </Position13>
       <Position14>
-        <Filename Value="GraphicsUnit.pas"/>
-        <Caret Line="33" Column="52" TopLine="13"/>
+        <Filename Value="Main.pas"/>
+        <Caret Line="45" Column="19" TopLine="39"/>
       </Position14>
       <Position15>
         <Filename Value="GraphicsUnit.pas"/>
-        <Caret Line="29" Column="33" TopLine="15"/>
+        <Caret Line="121" Column="1" TopLine="99"/>
       </Position15>
       <Position16>
-        <Filename Value="Main.pas"/>
-        <Caret Line="45" Column="46" TopLine="1"/>
+        <Filename Value="..\..\..\src\nxModel.pas"/>
+        <Caret Line="1285" Column="3" TopLine="1273"/>
       </Position16>
       <Position17>
-        <Filename Value="GraphicsUnit.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Filename Value="..\..\..\src\nxModel.pas"/>
+        <Caret Line="97" Column="7" TopLine="77"/>
       </Position17>
       <Position18>
-        <Filename Value="GameUnit.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
+        <Filename Value="..\..\..\src\nxModel.pas"/>
+        <Caret Line="1315" Column="3" TopLine="1286"/>
       </Position18>
       <Position19>
-        <Filename Value="Main.pas"/>
-        <Caret Line="46" Column="35" TopLine="1"/>
+        <Filename Value="..\..\..\src\nxModel.pas"/>
+        <Caret Line="1313" Column="20" TopLine="1299"/>
       </Position19>
       <Position20>
-        <Filename Value="Main.pas"/>
-        <Caret Line="9" Column="38" TopLine="4"/>
+        <Filename Value="..\..\..\src\nxMath3D.pas"/>
+        <Caret Line="510" Column="10" TopLine="505"/>
       </Position20>
       <Position21>
-        <Filename Value="Main.pas"/>
-        <Caret Line="53" Column="36" TopLine="33"/>
+        <Filename Value="..\..\..\src\nxModel.pas"/>
+        <Caret Line="1315" Column="33" TopLine="1306"/>
       </Position21>
+      <Position22>
+        <Filename Value="..\..\..\src\nxModel.pas"/>
+        <Caret Line="1317" Column="6" TopLine="1307"/>
+      </Position22>
+      <Position23>
+        <Filename Value="..\..\..\src\nxModel.pas"/>
+        <Caret Line="1323" Column="30" TopLine="1307"/>
+      </Position23>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

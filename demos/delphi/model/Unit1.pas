@@ -120,7 +120,7 @@ begin
 
       launcher:=pt.AddLauncher(0, 1, 0.02,0.07, 0.005,0.006, 25, normal, 500);
       pt.SetLauncherColor(launcher, 1,1, 0,1, 0,0.3);
-      pt.SetLauncherPos(launcher, intersect.x,intersect.y,intersect.z);
+      pt.SetLauncherPos(launcher, intersect);
     end;
   end;
 

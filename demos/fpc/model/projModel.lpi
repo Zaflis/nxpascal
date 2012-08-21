@@ -35,12 +35,12 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="31">
+    <Units Count="32">
       <Unit0>
         <Filename Value="projModel.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="projModel"/>
-        <UsageCount Value="89"/>
+        <UsageCount Value="92"/>
       </Unit0>
       <Unit1>
         <Filename Value="Unit1.pas"/>
@@ -52,9 +52,9 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="18"/>
-        <CursorPos X="30" Y="28"/>
-        <UsageCount Value="89"/>
+        <TopLine Value="109"/>
+        <CursorPos X="47" Y="127"/>
+        <UsageCount Value="92"/>
         <Bookmarks Count="1">
           <Item0 X="5" Y="167" ID="5"/>
         </Bookmarks>
@@ -291,8 +291,16 @@
         <CursorPos X="34" Y="2131"/>
         <UsageCount Value="10"/>
       </Unit30>
+      <Unit31>
+        <Filename Value="..\..\..\src\nxGLExtra.pas"/>
+        <UnitName Value="nxGLExtra"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="700"/>
+        <CursorPos X="33" Y="714"/>
+        <UsageCount Value="11"/>
+      </Unit31>
     </Units>
-    <JumpHistory Count="14" HistoryIndex="13">
+    <JumpHistory Count="15" HistoryIndex="14">
       <Position1>
         <Filename Value="Unit1.pas"/>
         <Caret Line="139" Column="41" TopLine="126"/>
@@ -349,6 +357,10 @@
         <Filename Value="Unit1.pas"/>
         <Caret Line="104" Column="17" TopLine="1"/>
       </Position14>
+      <Position15>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="54" Column="64" TopLine="104"/>
+      </Position15>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
