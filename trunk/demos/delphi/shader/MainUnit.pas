@@ -58,8 +58,10 @@ begin
   end;
 
   // Load sources
-  shader.LoadVertexSource('shader\vertex.txt');
-  shader.LoadFragmentSource('shader\fragment.txt');
+  //shader.LoadVertexSource('shader\vertex.txt');
+  //shader.LoadFragmentSource('shader\fragment.txt');
+  shader.LoadDefaultVShader3D;
+  shader.LoadDefaultFShader3D(true);
 
   // Link program
   if not shader.Link then begin

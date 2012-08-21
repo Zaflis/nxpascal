@@ -30,6 +30,8 @@ type
   TRectf = packed record x1,y1,x2,y2: single; end;
   TVector = TVector3f;
   PVector = ^TVector;
+  pRGB = ^TRGB;
+  pRGBA = ^TRGBA;
 
   TByteArray = array[0..0] of byte;
   PByteArray = ^TByteArray;
