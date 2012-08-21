@@ -1331,8 +1331,8 @@ begin
   nxMath3D.Translate(rotation, position);
   invert(rotation);
   rayStart:=VectorMultiply(rayStart, rotation);
-
   invert(rotation);
+
   result:=rayIntersect(rayStart, rayDir, findClosest, intersect, normal);
 end;
 

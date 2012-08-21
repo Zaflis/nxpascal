@@ -223,7 +223,7 @@ type
     {$ENDIF}
     procedure FontFromImage(TexSize: integer);
     function GetEXT: string;
-    procedure GetMouseRay(const mx, my: single; const p, normal: PVector;
+    procedure GetMouseRay(mx, my: single; const p, normal: PVector;
       rayMove: single = -100);
     function GLInfo(ext: array of string): boolean; overload;
     function GLInfo(ext: string): boolean; overload;
@@ -1002,13 +1002,14 @@ begin
   GetEXT:=glGetString(GL_EXTENSIONS);
 end;
 
-procedure TNXGL.GetMouseRay(const mx, my: single; const p, normal: PVector;
+procedure TNXGL.GetMouseRay(mx, my: single; const p, normal: PVector;
   rayMove: single);
 var viewport: TGLVectori4;
     modelM,projM: TGLMatrixd4;
     x1,y1,z1,x2,y2,z2: double;
     n: TVector;
 begin
+  my:=Height-1-my;
   glGetIntegerv(GL_VIEWPORT,@viewPort);
   glGetDoublev(GL_PROJECTION_MATRIX,@projM);
   glGetDoublev(GL_MODELVIEW_MATRIX,@modelM);
