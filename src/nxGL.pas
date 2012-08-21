@@ -23,7 +23,7 @@ interface
 uses Classes, dglOpenGL, Controls, Forms, ExtCtrls,
   {$IFDEF fpc}LCLtype, LCLIntf, FileUtil, LazUTF8,
     {$IFnDEF NX_CUSTOM_WINDOW}OpenGLContext,{$ENDIF}
-  {$ELSE}Windows,{$ENDIF} nxModel, nxTypes, nxGraph;
+  {$ELSE}Windows,{$ENDIF} nxShaders, nxModel, nxTypes, nxGraph;
 
 type
 
@@ -52,6 +52,52 @@ type
     procedure SetTextureUnit(n: integer);
   end;
 
+  { TCustomVertexArray }
+
+  TCustomVertexArray = class
+  private
+    _textures,_normals,_colors,_AlphaColors,_3Dtextures: boolean;
+  public
+    Count, fCount, vCount: integer;
+    rendermode: TGLenum;
+    fa: array of word; // Faces
+    va, na: array of TVector; // Vertices, Normals
+    ta: array of single; // Textures
+    ca: array of byte; // Colors
+    constructor Create(Faces, Vertices: integer; _rendermode: cardinal;
+      textures, normals, colors: boolean); overload;
+    constructor Create(Faces: integer; _rendermode: cardinal;
+      textures, normals, colors: boolean); overload;
+    destructor Destroy; override;
+    procedure FreeArrays;
+    function GetIndexCount: integer; overload;
+    function GetIndexCount(faceCount: integer): integer; overload;
+    procedure MakeArrays;
+    procedure MakeLinearIndices;
+    procedure Set3DTextures;
+    procedure SetAlphaColors;
+  end;
+
+  { TVertexArray }
+
+  TVertexArray = class(TCustomVertexArray)
+  public
+    procedure DisableStates;
+    procedure EnableStates;
+    procedure Render(first, _count: integer; Indexed: boolean);
+    procedure SetPointers;
+  end;
+
+  { TVBO }
+
+  TVBO = class(TCustomVertexArray)
+  public
+    //procedure DisableStates;
+    //procedure EnableStates;
+    //procedure Render(first, count: integer; Indexed: boolean);
+    //procedure SetPointers;
+  end;
+
   { TGLShader }
 
   TGLShader = class
@@ -62,6 +108,8 @@ type
     LastUniformValid: boolean;
     constructor Create(UseVertex, UseFragment: boolean);
     destructor Destroy; override;
+    procedure AttachFragmentShaderFrom(shader: TGLShader);
+    procedure AttachVertexShaderFrom(shader: TGLShader);
     procedure DeleteProgram;
     procedure Disable;
     procedure Enable;
@@ -70,6 +118,10 @@ type
     procedure GetVertexShaderInfo(target: TStrings);
     function GetUniform(name: string): GLint;
     function Link: boolean;
+    function LoadDefaultFShader2D: boolean;
+    function LoadDefaultVShader2D: boolean;
+    function LoadDefaultFShader3D(bump: boolean): boolean;
+    function LoadDefaultVShader3D: boolean;
     function LoadFragmentSource(filename: string): boolean;
     function LoadVertexSource(filename: string): boolean;
     procedure MakeProgram(UseVertex, UseFragment: boolean);
@@ -252,32 +304,6 @@ type
     procedure SetWireframe(enable: boolean = true);
   end;
 
-  TNXGLShaders = class(TNXGL)
-
-  end;
-
-  { TVertexArray }
-
-  TVertexArray = class
-    fCount,vCount: integer;
-    rendermode: TGLenum;
-    fa: array of word; // Faces
-    va,na: array of TVector; // Vertices, Normals
-    ta,ca: array of single; // Textures, Colors
-  private
-    _textures,_normals,_colors,_AlphaColors,_3Dtextures: boolean;
-  public
-    constructor Create(Faces,Vertices: integer; _rendermode: cardinal; textures,normals,colors: boolean);
-    destructor Destroy; override;
-    procedure DisableStates;
-    procedure EnableStates;
-    procedure MakeDisplayList(var list: TDisplayList; first,count: integer; Indexed: boolean);
-    procedure Render(first,count: integer; Indexed: boolean);
-    procedure Set3DTextures;
-    procedure SetAlphaColors;
-    procedure SetPointers;
-  end;
-
   { TFrameBuffer }
 
   TFrameBuffer = class
@@ -304,7 +330,7 @@ var
   nxNEARZ: single = 0.1;
   nxFov: single = 45;
   nxAspectRatio: single = 1.33;
-  nx: TNXGLShaders;
+  nx: TNXGL;
   tex: TGLTextureSet;
   va_states_set, va_pointers_set: boolean;
 
@@ -1669,36 +1695,6 @@ end;
 
 { TVertexArray }
 
-constructor TVertexArray.Create(Faces,Vertices: integer; _rendermode: cardinal;
-  textures,normals,colors: boolean);
-var n: integer;
-begin
-  fCount:=Faces; vCount:=Vertices;
-  self.rendermode:=_rendermode;
-  _textures:=textures; _normals:=normals; _colors:=colors;
-  if faces>0 then begin
-    if rendermode=GL_QUADS then n:=fCount*4
-    else if rendermode=GL_TRIANGLE_STRIP then n:=fCount+2
-    else if rendermode=GL_TRIANGLE_FAN then n:=fCount+1
-    else n:=fCount*3; // GL_TRIANGLES
-    setlength(fa,n);
-  end;
-  setlength(va,vCount);
-  if textures then setlength(ta,vCount*2);
-  if normals then setlength(na,vCount);
-  if colors then setlength(ca,vCount*3);
-end;
-
-destructor TVertexArray.Destroy;
-begin
-  setlength(va,0);
-  if fCount>0 then setlength(fa,0);
-  if _textures or _3Dtextures then setlength(ta,0);
-  if _normals then setlength(na,0);
-  if _colors or _AlphaColors then setlength(ca,0);
-  inherited;
-end;
-
 procedure TVertexArray.DisableStates;
 begin
   glDisableClientState(GL_VERTEX_ARRAY);
@@ -1717,43 +1713,23 @@ begin
   va_states_set:=true;
 end;
 
-procedure TVertexArray.MakeDisplayList(var list: TDisplayList; first,count: integer; Indexed: boolean);
-begin
-  SetPointers;
-  if (list=nil) or (not assigned(list)) then
-    list:=TDisplayList.Create(true)
-  else list.UpdateList;
-  EnableStates; Render(first,count,indexed);
-  list.EndList;
-end;
-
-procedure TVertexArray.Render(first,count: integer; Indexed: boolean);
+procedure TVertexArray.Render(first, _count: integer; Indexed: boolean);
 begin
   if not va_states_set then EnableStates;
   if not va_pointers_set then SetPointers;
-  if Indexed then glDrawElements(rendermode,count,GL_UNSIGNED_SHORT,@(fa[first]))
-  else glDrawArrays(rendermode,first,count);
+  if Indexed then glDrawElements(rendermode, _count, GL_UNSIGNED_SHORT, @(fa[first]))
+  else glDrawArrays(rendermode, first, _count);
   DisableStates;
-end;
-
-procedure TVertexArray.Set3DTextures;
-begin
-  _3Dtextures:=true; setlength(ta,vCount*3);
-end;
-
-procedure TVertexArray.SetAlphaColors;
-begin
-  _AlphaColors:=true; setlength(ca,vCount*4);
 end;
 
 procedure TVertexArray.SetPointers;
 begin                           
-  glVertexPointer(3,GL_FLOAT,0,@(va[0]));
-  if _normals then glNormalPointer(GL_FLOAT,0,@(na[0]));
-  if _3Dtextures then glTexCoordPointer(3,GL_FLOAT,0,@(ta[0]))
-  else if _textures then glTexCoordPointer(2,GL_FLOAT,0,@(ta[0]));
-  if _AlphaColors then glColorPointer(4,GL_FLOAT,0,@(ca[0]))
-  else if _colors then glColorPointer(3,GL_FLOAT,0,@(ca[0]));
+  glVertexPointer(3, GL_FLOAT, 0, @(va[0]));
+  if _normals then glNormalPointer(GL_FLOAT, 0, @(na[0]));
+  if _3Dtextures then glTexCoordPointer(3, GL_FLOAT, 0, @(ta[0]))
+  else if _textures then glTexCoordPointer(2, GL_FLOAT, 0, @(ta[0]));
+  if _AlphaColors then glColorPointer(4, GL_UNSIGNED_BYTE, 0, @(ca[0]))
+  else if _colors then glColorPointer(3, GL_UNSIGNED_BYTE, 0, @(ca[0]));
   va_pointers_set:=true;
 end;
 
@@ -1987,6 +1963,18 @@ begin
   inherited Destroy;
 end;
 
+procedure TGLShader.AttachFragmentShaderFrom(shader: TGLShader);
+begin
+  if (shader=nil) or (shader.FFragmentShader=0) then exit;
+  glAttachShader(FProgram, shader.FFragmentShader);
+end;
+
+procedure TGLShader.AttachVertexShaderFrom(shader: TGLShader);
+begin
+  if (shader=nil) or (shader.FVertexShader=0) then exit;
+  glAttachShader(FProgram, shader.FVertexShader);
+end;
+
 procedure TGLShader.DeleteProgram;
 begin
   Disable;
@@ -2048,6 +2036,42 @@ begin
   glGetProgramiv(FProgram, GL_LINK_STATUS, @isCompiled);
   result:=isCompiled=GL_TRUE;
   if not result then nxSetError('GLSL program: linking failed!');
+end;
+
+function TGLShader.LoadDefaultFShader2D: boolean;
+var sl: TStringList;
+begin
+  sl:=TStringList.Create;
+  MakeFShader2D(sl);
+  result:=SetFragmentSource(sl.Text);
+  sl.Free;
+end;
+
+function TGLShader.LoadDefaultVShader2D: boolean;
+var sl: TStringList;
+begin
+  sl:=TStringList.Create;
+  MakeVShader2D(sl);
+  result:=SetVertexSource(sl.Text);
+  sl.Free;
+end;
+
+function TGLShader.LoadDefaultFShader3D(bump: boolean): boolean;
+var sl: TStringList;
+begin
+  sl:=TStringList.Create;
+  MakeFShader3D(sl, bump);
+  result:=SetFragmentSource(sl.Text);
+  sl.Free;
+end;
+
+function TGLShader.LoadDefaultVShader3D: boolean;
+var sl: TStringList;
+begin
+  sl:=TStringList.Create;
+  MakeVShader3D(sl);
+  result:=SetVertexSource(sl.Text);
+  sl.Free;
 end;
 
 function TGLShader.LoadFragmentSource(filename: string): boolean;
@@ -2133,28 +2157,120 @@ end;
 destructor TGLRenderer.Destroy;
 var i: integer;
 begin
-  for i:=0 to ShaderCount-1 do shader[i].Free;
+  for i:=0 to ShaderCount-1 do
+    if shader[i]<>nil then shader[i].Free;
   inherited Destroy;
 end;
 
 function TGLRenderer.AddShader(UseVertex, UseFragment: boolean): integer;
-//var n: integer;
+var i: integer;
 begin
   result:=-1;
-  //for n:=0 to ShaderCount-1 do
-  
+  for i:=0 to ShaderCount-1 do
+    if shader[i]=nil then begin
+      result:=i; break;
+    end;
+  if result=-1 then begin
+    result:=ShaderCount;
+    inc(ShaderCount); setlength(shader, ShaderCount);
+  end;
+  shader[result]:=TGLShader.Create(UseVertex, UseFragment);
 end;
 
 procedure TGLRenderer.DeleteShader(n: integer);
+var i: integer; oldCount: integer;
 begin
   if (n>=0) and (n<ShaderCount) then begin
-
+    FreeAndNil(shader[n]);
+    oldCount:=ShaderCount;
+    for i:=ShaderCount-1 downto 0 do
+      if shader[i]=nil then dec(ShaderCount)
+      else break;
+    if ShaderCount<oldCount then setlength(shader, ShaderCount);
   end;
+end;
+
+{ TCustomVertexArray }
+
+constructor TCustomVertexArray.Create(Faces, Vertices: integer;
+  _rendermode: cardinal; textures, normals, colors: boolean);
+begin
+  fCount:=Faces; vCount:=Vertices;
+  rendermode:=_rendermode; Count:=GetIndexCount;
+  _textures:=textures; _normals:=normals; _colors:=colors;
+  MakeArrays;
+end;
+
+constructor TCustomVertexArray.Create(Faces: integer; _rendermode: cardinal;
+  textures, normals, colors: boolean);
+begin
+  rendermode:=_rendermode;
+  Create(Faces, GetIndexCount(Faces), _rendermode, textures, normals, colors);
+end;
+
+destructor TCustomVertexArray.Destroy;
+begin
+  FreeArrays;
+  inherited Destroy;
+end;
+
+procedure TCustomVertexArray.FreeArrays;
+begin
+  setlength(fa, 0); setlength(va, 0);
+  setlength(ta, 0); setlength(na, 0);
+  setlength(ca, 0);
+end;
+
+function TCustomVertexArray.GetIndexCount: integer;
+begin
+  result:=GetIndexCount(fCount);
+end;
+
+function TCustomVertexArray.GetIndexCount(faceCount: integer): integer;
+begin
+  if faceCount>0 then begin
+    if rendermode=GL_TRIANGLES then result:=faceCount*3
+    else if rendermode=GL_QUADS then result:=faceCount*4
+    else if rendermode=GL_TRIANGLE_STRIP then result:=faceCount+2
+    else if rendermode=GL_TRIANGLE_FAN then result:=faceCount+1
+    else if rendermode=GL_LINES then result:=faceCount*2
+    else if rendermode=GL_LINE_LOOP then result:=faceCount
+    else if rendermode=GL_LINE_STRIP then result:=faceCount+1
+    else result:=faceCount; // GL_POINTS
+  end else
+    result:=0;
+end;
+
+procedure TCustomVertexArray.MakeArrays;
+begin
+  setlength(fa, Count);
+  setlength(va, vCount);
+  if _3Dtextures then setlength(ta, vCount*3)
+  else if _textures then setlength(ta, vCount*2);
+  if _normals then setlength(na, vCount);
+  if _AlphaColors then setlength(ca, vCount*4)
+  else if _colors then setlength(ca, vCount*3);
+end;
+
+procedure TCustomVertexArray.MakeLinearIndices;
+var i: integer;
+begin
+  for i:=0 to GetIndexCount-1 do fa[i]:=i;
+end;
+
+procedure TCustomVertexArray.Set3DTextures;
+begin
+  _3Dtextures:=true; setlength(ta, vCount*3);
+end;
+
+procedure TCustomVertexArray.SetAlphaColors;
+begin
+  _AlphaColors:=true; setlength(ca, vCount*4);
 end;
 
 initialization
 
-  nx:=TNXGLShaders.Create; nxGraph.nxEngine:=nx;
+  nx:=TNXGL.Create; nxGraph.nxEngine:=nx;
   tex:=TGLTextureSet.Create; nxGraph.nxTex:=tex;
 
 finalization

@@ -48,7 +48,7 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 var v4: TVector4f; //bmp: TBitmap;
-    errorStr: TStringList;
+    //errorStr: TStringList;
 begin
   clientwidth:=800; clientheight:=600;
   if not nx.CreateGlWindow(self) then begin
@@ -62,11 +62,13 @@ begin
   end;
 
   // Load sources
-  errorStr:=TStringList.Create;
-  shader.LoadVertexSource('shader\vertex.txt');
-  shader.LoadFragmentSource('shader\fragment.txt');
+  //errorStr:=TStringList.Create;
+  //shader.LoadVertexSource('shader\vertex.txt');
+  //shader.LoadFragmentSource('shader\fragment.txt');
+  shader.LoadDefaultVShader3D;
+  shader.LoadDefaultFShader3D(true);
 
-  errorStr.Free;
+  //errorStr.Free;
 
   // Link shader program
   if not shader.Link then begin
