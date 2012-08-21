@@ -1,11 +1,9 @@
 unit GameUnit;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
-  Classes, Dialogs, SysUtils, LCLType, math, nxMath, nxMath3D, nxGL,
+  Windows, Classes, Dialogs, SysUtils, math, nxMath, nxMath3D, nxGL,
   nxGame, nxTypes;
 
 type
@@ -71,7 +69,7 @@ procedure TGame.GameLoop;
 var i: integer;
 begin
   // Accelerate with W-key
-  if keys[VK_W] then begin
+  if keys[ord('W')] then begin
     // Read Z-direction vector from player rotation matrix,
     // scale it down, and interpolate movement vector with it.
     pl.movement:=interpolate(pl.movement, scale(GetVector(pl.rotation, 2),
@@ -79,28 +77,28 @@ begin
       0.01); // Acceleration
   end;
   // Backwards
-  if keys[VK_S] then begin
+  if keys[ord('S')] then begin
     pl.movement:=interpolate(pl.movement, scale(GetVector(pl.rotation, 2),
       -0.1), // Max movement speed
       0.01); // Acceleration
   end;
   // Strafing
-  if keys[VK_A] then begin
+  if keys[ord('A')] then begin
     pl.movement:=interpolate(pl.movement, scale(GetVector(pl.rotation, 0),
       0.05), // Max movement speed
       0.01); // Acceleration
   end;
-  if keys[VK_D] then begin
+  if keys[ord('D')] then begin
     pl.movement:=interpolate(pl.movement, scale(GetVector(pl.rotation, 0),
       -0.05), // Max movement speed
       0.01); // Acceleration
   end;
   // Rolling sideways
-  if keys[VK_Q] then begin
+  if keys[ord('Q')] then begin
     rotate(pl.rotation, norm2(GetVector(pl.rotation, 2)),
       3*toRad, false);
   end;
-  if keys[VK_E] then begin
+  if keys[ord('E')] then begin
     rotate(pl.rotation, norm2(GetVector(pl.rotation, 2)),
       -3*toRad, false);
   end;

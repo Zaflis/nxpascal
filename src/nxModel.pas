@@ -1324,12 +1324,15 @@ function TTriModel.rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
   const position: TVector; rotation: TMatrix; const intersect: PVector;
   const normal: PVector): integer;
 begin
+  // Correct ray
+  rayDir:=VectorMultiply(rayDir, invert2(rotation));
 
-  // ! Incomplete !
+  // Correct position
+  nxMath3D.Translate(rotation, position);
+  invert(rotation);
+  rayStart:=VectorMultiply(rayStart, rotation);
 
-  rayStart:=VectorSub2(rayStart, position);
-  //invert(rotation);
-  //rayDir:=VectorMultiply(rayDir, rotation);
+  invert(rotation);
   result:=rayIntersect(rayStart, rayDir, findClosest, intersect, normal);
 end;
 
