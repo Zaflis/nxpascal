@@ -42,7 +42,7 @@ var i: integer;
 begin
   inherited Create;
   mouseXSpeed:=0.5; mouseYSpeed:=mouseXSpeed;
-  CenterMouse(true);
+  //CenterMouse(true);
 
   pl.rotation:=NewMatrix;
   pl.position:=vector(1, 5, 3);

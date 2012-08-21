@@ -23,7 +23,7 @@
         <UnitName Value="Main"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="27"/>
+        <TopLine Value="17"/>
         <CursorPos X="40" Y="33"/>
         <UsageCount Value="40"/>
         <Loaded Value="True"/>
@@ -33,11 +33,10 @@
         <Filename Value="GameUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GameUnit"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="99"/>
-        <CursorPos X="48" Y="106"/>
+        <TopLine Value="1"/>
+        <CursorPos X="51" Y="112"/>
         <UsageCount Value="39"/>
         <Loaded Value="True"/>
       </Unit2>
@@ -45,10 +44,11 @@
         <Filename Value="GraphicsUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GraphicsUnit"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="94"/>
-        <CursorPos X="25" Y="114"/>
+        <TopLine Value="76"/>
+        <CursorPos X="15" Y="85"/>
         <UsageCount Value="38"/>
         <Loaded Value="True"/>
       </Unit3>
@@ -127,8 +127,8 @@
         <Filename Value="..\..\..\src\nxGL.pas"/>
         <UnitName Value="nxGL"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="354"/>
-        <CursorPos X="1" Y="377"/>
+        <TopLine Value="1"/>
+        <CursorPos X="1" Y="1"/>
         <UsageCount Value="14"/>
       </Unit13>
       <Unit14>
@@ -198,14 +198,14 @@
         <UnitName Value="nxModel"/>
         <WindowIndex Value="0"/>
         <TopLine Value="1316"/>
-        <CursorPos X="17" Y="1327"/>
+        <CursorPos X="41" Y="1329"/>
         <UsageCount Value="11"/>
       </Unit22>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="4" HistoryIndex="3">
+    <JumpHistory Count="5" HistoryIndex="4">
       <Position1>
         <Filename Value="GraphicsUnit.pas"/>
         <Caret Line="52" Column="29" TopLine="34"/>
@@ -222,6 +222,10 @@
         <Filename Value="GraphicsUnit.pas"/>
         <Caret Line="121" Column="1" TopLine="99"/>
       </Position4>
+      <Position5>
+        <Filename Value="GameUnit.pas"/>
+        <Caret Line="112" Column="51" TopLine="1"/>
+      </Position5>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

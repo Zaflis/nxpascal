@@ -97,7 +97,7 @@ begin
   // Render ship
   ship.Render;
 
-  nx.GetMouseRay(mx, nx.Height-1-my, @mp, @dir);
+  nx.GetMouseRay(mx, my, @mp, @dir);
 
   // Find mouse-ray - model intersection point
   n:=ship.rayIntersect(mp, dir, true, @intersect, @normal);

@@ -52,8 +52,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="109"/>
-        <CursorPos X="47" Y="127"/>
+        <TopLine Value="94"/>
+        <CursorPos X="22" Y="104"/>
         <UsageCount Value="92"/>
         <Bookmarks Count="1">
           <Item0 X="5" Y="167" ID="5"/>
@@ -300,7 +300,7 @@
         <UsageCount Value="11"/>
       </Unit31>
     </Units>
-    <JumpHistory Count="15" HistoryIndex="14">
+    <JumpHistory Count="14" HistoryIndex="13">
       <Position1>
         <Filename Value="Unit1.pas"/>
         <Caret Line="139" Column="41" TopLine="126"/>
@@ -357,10 +357,6 @@
         <Filename Value="Unit1.pas"/>
         <Caret Line="104" Column="17" TopLine="1"/>
       </Position14>
-      <Position15>
-        <Filename Value="Unit1.pas"/>
-        <Caret Line="54" Column="64" TopLine="104"/>
-      </Position15>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

@@ -71,10 +71,11 @@ begin
 
   // Set camera
   glLoadIdentity;
-  glTranslatef(0, 0, -3); // Bit further behind
-  glTranslatef(0, -0.5, 0); // bit upwards
+  glTranslatef(0, -0.5, -3); // Bit further behind and upwards
   glMultMatrixf(@cam); // Move and rotate where ship is
 
+  // Get mouse-ray on "Cursor", that is now in the middle of screen.
+  //nx.GetMouseRay(mp.x, mp.y, @rayPos, @rayDir);
   nx.GetMouseRay(nx.Width/2, nx.Height/2, @rayPos, @rayDir);
 
   // Render player ship
@@ -84,7 +85,6 @@ begin
   mdl[0].Render;
   glPopMatrix;
 
-
   // Render floating objects
   for i:=0 to high(obj) do
     with obj[i] do begin
@@ -93,9 +93,10 @@ begin
       // Test mouse-ray intersect with object
       if mdl[model].rayIntersect(rayPos, rayDir, false,
          position, rotation, nil, nil)>=0 then begin
+        // Set glowing transparent red
         nx.SetColor(1, 0, 0, 0.8+0.2*sin(toRad*nx.GetTick2(360, 0.5)));
       end else
-        nx.SetColor(color);
+        nx.SetColor(color); // Use objects own color
 
       with position do glTranslatef(x, y, z);
       glMultMatrixf(@rotation);
@@ -105,12 +106,13 @@ begin
 
   // Don't write in depth-buffer, but we can still use depth-test
   glDepthMask(false);
+  nx.rs.Push;           // Take backup of old render settings
+  nx.rs.AddBlend:=true; // Use additive blending
+  nx.rs.Lighting:=false; // Disable lighting
+
   // Render grid
-  nx.rs.Push;
-  nx.rs.AddBlend:=true;
-  nx.rs.Lighting:=false;
-  tex.Disable;
-  nx.SetColor(0.4, 1, 0.4, 0.2);
+  tex.Disable; // Disable textures
+  nx.SetColor(0.4, 1, 0.4, 0.2); // Transparent light-green
   glBegin(GL_LINES);
   glVertex3f(0, 0, 0); glVertex3f(0, 40, 0);
   for i:=-40 to 40 do begin
@@ -120,18 +122,18 @@ begin
   glEnd;
   tex.Enable;
 
+  // Render cell focus
   d:=RayPlaneIntersect(rayPos, rayDir,
     vector(0,0,0), vector(0,1,0), @intersect);
-
-  // Render cell focus
   if d>=0 then begin
     glPushMatrix;
     with intersect do glTranslatef(floor(x), 0, floor(z));
     mdl[3].Render;
     glPopMatrix;
   end;
-  nx.rs.Pop;
-  glDepthMask(true);
+
+  nx.rs.Pop; // Recall earlier render settings
+  glDepthMask(true); // Write in depth-buffer again
 
   nx.Flip;
 end;
