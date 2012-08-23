@@ -40,18 +40,21 @@ type
   { T3DModel }
 
   T3DModel = class
-    groups, mCount, bCount: integer;
+  private
+    FvCount, FGroups, FmCount, vCount2, fCount2: integer;
+    procedure SetGroups(n: integer);
+    procedure SetmCount(n: integer);
+    procedure SetvCount(n: integer);
+  public
+    bCount: integer;
     va, na: array of TVector; // Vertices, Normals
     ta: array of TVector2f; // Textures
     mat: array of TMaterial;
     grp: array of TFaceGroup;
     bone: array of TBone;
     UseMaterials, UseColors: boolean;
-  private
-    FvCount: integer;
-    vCount2, fCount2: integer;
-    procedure SetvCount(n: integer);
-  public
+    property groups: integer read FGroups write SetGroups;
+    property mCount: integer read FmCount write SetmCount;
     property vCount: integer read FvCount write SetvCount;
     procedure Center(_x, _y, _z: boolean);
     procedure Clear;
@@ -78,6 +81,10 @@ type
     procedure SetfCount(n: integer);
   public
     property fCount: integer read FfCount write SetfCount;
+    constructor Create; overload;
+    constructor Create(filename: string); overload;
+    constructor CreateCube(segments: integer = 1);
+    constructor CreateSphere(cols, rows: integer);
     function AddFace(const gIndex: word): integer;
     procedure AssignTo(poly: TPolyModel);
     procedure Clear;
@@ -232,8 +239,7 @@ uses Classes, SysUtils, math, nxStrings, nxMath3D
 procedure T3DModel.Clear;
 begin
   vCount:=0; groups:=0; mCount:=0; bCount:=0;
-  setlength(va, 0); setlength(na, 0); setlength(ta, 0);
-  setlength(mat, 0); setlength(grp, 0); setlength(bone, 0);
+  setlength(bone, 0);
 end;
 
 function T3DModel.GetRadius: single;
@@ -298,6 +304,18 @@ begin
   for i:=0 to vCount-1 do begin
     va[i].x:=va[i].x+x; va[i].y:=va[i].y+y; va[i].z:=va[i].z+z;
   end;
+end;
+
+procedure T3DModel.SetGroups(n: integer);
+begin
+  FGroups:=n;
+  setlength(grp, FGroups);
+end;
+
+procedure T3DModel.SetmCount(n: integer);
+begin
+  FmCount:=n;
+  setlength(mat, FmCount);
 end;
 
 procedure T3DModel.SetvCount(n: integer);
@@ -456,7 +474,7 @@ var i, j, n: integer;
 begin
   setlength(gIndex, fCount);
   if groups=0 then begin
-    groups:=1; setlength(grp, 1);
+    groups:=1;
     grp[0].first:=0; grp[0].count:=fCount;
     grp[0].matIndex:=0;
   end;
@@ -541,7 +559,7 @@ begin
   Clear; UseMaterials:=false; UseColors:=false;
   assignfile(F, filename); reset(F);
   ttCount:=0; vvCount:=0; nnCount:=0; //curS:=1;
-  groups:=1; setlength(grp, 1); grp[0].count:=0;
+  groups:=1; grp[0].count:=0;
   grp[0].matIndex:=-1;
   repeat
     readln(F, s); s:=trim(s);
@@ -602,7 +620,7 @@ begin
         end;
       end else if (sa[0]='g') and (k>1) then begin
         if grp[groups-1].count>0 then begin
-          inc(groups); setlength(grp, groups);
+          groups:=groups+1;
           grp[groups-1].first:=fCount;
           grp[groups-1].count:=0;
           grp[groups-1].matIndex:=-1;
@@ -610,7 +628,7 @@ begin
       end else if (sa[0]='s') and (k>1) then begin
         {n:=strtointdef(sa[1], 0)-1;
         if (n<>curS) and (grp[groups-1].count>0) then begin
-          inc(groups); setlength(grp, groups);
+          groups:=groups+1;
           grp[groups-1].first:=fCount;
           grp[groups-1].count:=0;
           grp[groups-1].matIndex:=-1;
@@ -621,7 +639,7 @@ begin
       end else if (sa[0]='usemtl') and (k>1) then begin
         // Set material for group
         if grp[groups-1].count>0 then begin
-          inc(groups); setlength(grp, groups);
+          groups:=groups+1;
           grp[groups-1].first:=fCount;
           grp[groups-1].count:=0;
           grp[groups-1].matIndex:=-1;
@@ -874,8 +892,8 @@ begin
   assignfile(F, filename); reset(F);
   readln(F); // Skip version
   readln(F, objCount); // objects
-  readln(F, mCount); // materials
-  setlength(mat, mCount);
+  readln(F, i); // materials
+  mCount:=i;
   vPos:=0; fPos:=0;
   for o:=0 to objCount-1 do begin
     readln(F); // Skip object name
@@ -968,7 +986,7 @@ begin
   if fCount<1 then exit;
 
   // Make groups
-  setlength(gIndex, fCount); groups:=1; setlength(grp, 1);
+  setlength(gIndex, fCount); groups:=1;
   grp[0].first:=0; gIndex[0]:=0;
   for i:=1 to fCount-1 do
     with fa[i] do begin
@@ -979,7 +997,7 @@ begin
           k:=j; break;
         end;
       if k=-1 then begin
-        inc(groups); setlength(grp, groups);
+        groups:=groups+1;
         grp[groups-1].first:=i;
         grp[groups-1].matIndex:=MatIndex;
         gIndex[i]:=groups-1;
@@ -1354,6 +1372,217 @@ begin
   if n>100 then n:=(n div 100+1)*100;
   if n<>fCount2 then begin
     fCount2:=n; setlength(fa, fCount2);
+  end;
+end;
+
+constructor TTriModel.Create;
+begin
+  inherited Create;
+end;
+
+constructor TTriModel.Create(filename: string);
+begin
+  Create;
+  LoadFromFile(filename);
+end;
+
+constructor TTriModel.CreateCube(segments: integer);
+var s: single; v_per_side: integer;
+  procedure _FaceIndices(fn, n: integer);
+  begin
+    fa[fn  , 0]:=n+0; fa[fn  , 1]:=n+1; fa[fn  , 2]:=n+3;
+    fa[fn+1, 0]:=n+3; fa[fn+1, 1]:=n+1; fa[fn+1, 2]:=n+2;
+  end;
+  procedure _Normals(n: integer; x, y, z: single);
+  var i: integer;
+  begin
+    for i:=n to n+v_per_side-1 do begin
+      na[i].x:=x; na[i].y:=y; na[i].z:=z;
+    end;
+  end;
+  procedure _TexCoords(n, i, j: integer);
+  begin
+    ta[n+0].x:=(i+0)*s; ta[n+0].y:=(j+0)*s;
+    ta[n+1].x:=(i+0)*s; ta[n+1].y:=(j+1)*s;
+    ta[n+2].x:=(i+1)*s; ta[n+2].y:=(j+1)*s;
+    ta[n+3].x:=(i+1)*s; ta[n+3].y:=(j+0)*s;
+  end;
+var i, j, f_per_side, n, fn, n2, fn2: integer;
+begin
+  Create;
+  if segments<1 then exit;
+  f_per_side:=segments*segments*2; // 2 triangles per segment
+  v_per_side:=segments*segments*4; // 4 vertex-index per segment
+  fCount:=6*f_per_side; vCount:=6*v_per_side;
+  s:=1/segments; groups:=6;
+  for i:=0 to groups-1 do
+    with grp[i] do begin
+      count:=f_per_side; first:=i*f_per_side; matIndex:=0;
+    end;
+
+  // Front
+  n:=0; fn:=0; _Normals(n, 0, 0, 1);
+  for j:=0 to segments-1 do
+    for i:=0 to segments-1 do begin
+      n2:=n+(i+j*segments)*4; fn2:=fn+(i+j*segments)*2;
+      _FaceIndices(fn2, n2); _TexCoords(n2, i, j);
+      va[n2+0].x:=-0.5+(i+0)*s;
+      va[n2+0].y:= 0.5-(j+0)*s;
+      va[n2+0].z:= 0.5;
+      va[n2+1].x:=-0.5+(i+0)*s;
+      va[n2+1].y:= 0.5-(j+1)*s;
+      va[n2+1].z:= 0.5;
+      va[n2+2].x:=-0.5+(i+1)*s;
+      va[n2+2].y:= 0.5-(j+1)*s;
+      va[n2+2].z:= 0.5;
+      va[n2+3].x:=-0.5+(i+1)*s;
+      va[n2+3].y:= 0.5-(j+0)*s;
+      va[n2+3].z:= 0.5;
+    end;
+
+  // Back
+  n:=n+v_per_side; fn:=fn+f_per_side; _Normals(n, 0, 0, -1);
+  for j:=0 to segments-1 do
+    for i:=0 to segments-1 do begin
+      n2:=n+(i+j*segments)*4; fn2:=fn+(i+j*segments)*2;
+      _FaceIndices(fn2, n2); _TexCoords(n2, i, j);
+      va[n2+0].x:= 0.5-(i+0)*s;
+      va[n2+0].y:= 0.5-(j+0)*s;
+      va[n2+0].z:=-0.5;
+      va[n2+1].x:= 0.5-(i+0)*s;
+      va[n2+1].y:= 0.5-(j+1)*s;
+      va[n2+1].z:=-0.5;
+      va[n2+2].x:= 0.5-(i+1)*s;
+      va[n2+2].y:= 0.5-(j+1)*s;
+      va[n2+2].z:=-0.5;
+      va[n2+3].x:= 0.5-(i+1)*s;
+      va[n2+3].y:= 0.5-(j+0)*s;
+      va[n2+3].z:=-0.5;
+    end;
+
+  // Left
+  n:=n+v_per_side; fn:=fn+f_per_side; _Normals(n, -1, 0, 0);
+  for j:=0 to segments-1 do
+    for i:=0 to segments-1 do begin
+      n2:=n+(i+j*segments)*4; fn2:=fn+(i+j*segments)*2;
+      _FaceIndices(fn2, n2); _TexCoords(n2, i, j);
+      va[n2+0].x:=-0.5;
+      va[n2+0].y:= 0.5-(j+0)*s;
+      va[n2+0].z:=-0.5+(i+0)*s;
+      va[n2+1].x:=-0.5;
+      va[n2+1].y:= 0.5-(j+1)*s;
+      va[n2+1].z:=-0.5+(i+0)*s;
+      va[n2+2].x:=-0.5;
+      va[n2+2].y:= 0.5-(j+1)*s;
+      va[n2+2].z:=-0.5+(i+1)*s;
+      va[n2+3].x:=-0.5;
+      va[n2+3].y:= 0.5-(j+0)*s;
+      va[n2+3].z:=-0.5+(i+1)*s;
+    end;
+
+  // Right
+  n:=n+v_per_side; fn:=fn+f_per_side; _Normals(n, 1, 0, 0);
+  for j:=0 to segments-1 do
+    for i:=0 to segments-1 do begin
+      n2:=n+(i+j*segments)*4; fn2:=fn+(i+j*segments)*2;
+      _FaceIndices(fn2, n2); _TexCoords(n2, i, j);
+      va[n2+0].x:=0.5;
+      va[n2+0].y:=0.5-(j+0)*s;
+      va[n2+0].z:=0.5-(i+0)*s;
+      va[n2+1].x:=0.5;
+      va[n2+1].y:=0.5-(j+1)*s;
+      va[n2+1].z:=0.5-(i+0)*s;
+      va[n2+2].x:=0.5;
+      va[n2+2].y:=0.5-(j+1)*s;
+      va[n2+2].z:=0.5-(i+1)*s;
+      va[n2+3].x:=0.5;
+      va[n2+3].y:=0.5-(j+0)*s;
+      va[n2+3].z:=0.5-(i+1)*s;
+    end;
+
+  // Top
+  n:=n+v_per_side; fn:=fn+f_per_side; _Normals(n, 0, 1, 0);
+  for j:=0 to segments-1 do
+    for i:=0 to segments-1 do begin
+      n2:=n+(i+j*segments)*4; fn2:=fn+(i+j*segments)*2;
+      _FaceIndices(fn2, n2); _TexCoords(n2, i, j);
+      va[n2+0].x:=-0.5+(i+0)*s;
+      va[n2+0].y:= 0.5;
+      va[n2+0].z:=-0.5+(j+0)*s;
+      va[n2+1].x:=-0.5+(i+0)*s;
+      va[n2+1].y:= 0.5;
+      va[n2+1].z:=-0.5+(j+1)*s;
+      va[n2+2].x:=-0.5+(i+1)*s;
+      va[n2+2].y:= 0.5;
+      va[n2+2].z:=-0.5+(j+1)*s;
+      va[n2+3].x:=-0.5+(i+1)*s;
+      va[n2+3].y:= 0.5;
+      va[n2+3].z:=-0.5+(j+0)*s;
+    end;
+
+  // Bottom
+  n:=n+v_per_side; fn:=fn+f_per_side; _Normals(n, 0, -1, 0);
+  for j:=0 to segments-1 do
+    for i:=0 to segments-1 do begin
+      n2:=n+(i+j*segments)*4; fn2:=fn+(i+j*segments)*2;
+      _FaceIndices(fn2, n2); _TexCoords(n2, i, j);
+      va[n2+0].x:=-0.5+(i+0)*s;
+      va[n2+0].y:=-0.5;
+      va[n2+0].z:= 0.5-(j+0)*s;
+      va[n2+1].x:=-0.5+(i+0)*s;
+      va[n2+1].y:=-0.5;
+      va[n2+1].z:= 0.5-(j+1)*s;
+      va[n2+2].x:=-0.5+(i+1)*s;
+      va[n2+2].y:=-0.5;
+      va[n2+2].z:= 0.5-(j+1)*s;
+      va[n2+3].x:=-0.5+(i+1)*s;
+      va[n2+3].y:=-0.5;
+      va[n2+3].z:= 0.5-(j+0)*s;
+    end;
+
+end;
+
+constructor TTriModel.CreateSphere(cols, rows: integer);
+var i, j, n: integer; sx, sy, a, b: single; flip: boolean;
+begin
+  Create;
+  if (cols<2) or (rows<2) then exit;
+  fCount:=2*rows*cols;
+  vCount:=(rows+1)*(cols+1);
+  sx:=1/cols; sy:=1/rows; groups:=1;
+  with grp[0] do begin
+    count:=fCount; first:=0; matIndex:=0;
+  end;
+  for j:=0 to rows do
+    for i:=0 to cols do begin
+      n:=i+j*(cols+1);
+      na[n].x:=sin(j*pi/rows) * cos(i*pi*2/cols);
+      na[n].y:=cos(j*pi/rows);
+      na[n].z:=-sin(j*pi/rows) * sin(i*pi*2/cols);
+      va[n]:=nxMath3D.scale(na[n], 0.5);
+      ta[n].x:=i/cols; ta[n].y:=j/rows;
+    end;
+  for j:=0 to rows-1 do begin
+    flip:=(j mod 2)=0;
+    for i:=0 to cols-1 do begin
+      flip:=not flip;
+      n:=(i+j*cols)*2;
+      if flip then begin
+        fa[n,   0]:=(i+0)+(j+0)*(cols+1);
+        fa[n,   1]:=(i+0)+(j+1)*(cols+1);
+        fa[n,   2]:=(i+1)+(j+0)*(cols+1);
+        fa[n+1, 0]:=(i+1)+(j+0)*(cols+1);
+        fa[n+1, 1]:=(i+0)+(j+1)*(cols+1);
+        fa[n+1, 2]:=(i+1)+(j+1)*(cols+1);
+      end else begin
+        fa[n,   0]:=(i+0)+(j+0)*(cols+1);
+        fa[n,   1]:=(i+1)+(j+1)*(cols+1);
+        fa[n,   2]:=(i+1)+(j+0)*(cols+1);
+        fa[n+1, 0]:=(i+0)+(j+0)*(cols+1);
+        fa[n+1, 1]:=(i+0)+(j+1)*(cols+1);
+        fa[n+1, 2]:=(i+1)+(j+1)*(cols+1);
+      end;
+    end;
   end;
 end;
 
