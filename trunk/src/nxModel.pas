@@ -84,7 +84,9 @@ type
     constructor Create; overload;
     constructor Create(filename: string); overload;
     constructor CreateCube(segments: integer = 1);
+    constructor CreatePlane(cols, rows: integer);
     constructor CreateSphere(cols, rows: integer);
+    constructor CreateTorus(cols, rows: integer; inRadius: single);
     function AddFace(const gIndex: word): integer;
     procedure AssignTo(poly: TPolyModel);
     procedure Clear;
@@ -1112,7 +1114,7 @@ var g, i: integer;
     end else result:=true;
   end;
 
-var t0, t1, t2: TVector2f; UnFinishedFunction: boolean;
+var t0, t1, t2: TVector2f; //UnFinishedFunction: boolean;
 begin
   //EXIT; // This function does fix something, but brake others... or not
 
@@ -1193,7 +1195,7 @@ begin
 end;
 
 procedure TTriModel.DoTextureCorrection;
-var g, i: integer;
+{var g, i: integer;
 
   function BalanceOK(const a, b: single): boolean;
   var j: integer;
@@ -1211,15 +1213,15 @@ var g, i: integer;
     end else result:=true;
   end;
 
-var t0, t1, t2: TVector2f; UnneededFunction: boolean;
+var t0, t1, t2: TVector2f; UnneededFunction: boolean;}
 begin
-  EXIT; // Done in W3D loading, so not needed here
+  {EXIT; // Done in W3D loading, so not needed here
 
   // Go through each face. If texture U or V difference is above 0.5
   // then duplicate vertex
   for g:=groups-1 downto 0 do
     with grp[g] do begin
-      for i:=first+count{%H-}-1 downto first do begin
+      for i:=integer(first)+count-1 downto first do begin
         t0:=ta[fa[i, 0]];
         t1:=ta[fa[i, 1]];
         t2:=ta[fa[i, 2]];
@@ -1227,7 +1229,7 @@ begin
            BalanceOK(t1.x, t2.x) and BalanceOK(t0.y, t1.y) and
            BalanceOK(t0.y, t2.y) then BalanceOK(t1.y, t2.y);
       end;
-    end;
+    end; }
 end;
 
 function TTriModel.GetTangent(const fIndex: word): TVector;
@@ -1410,7 +1412,7 @@ var s: single; v_per_side: integer;
 var i, j, f_per_side, n, fn, n2, fn2: integer;
 begin
   Create;
-  if segments<1 then exit;
+  if segments<1 then segments:=1;
   f_per_side:=segments*segments*2; // 2 triangles per segment
   v_per_side:=segments*segments*4; // 4 vertex-index per segment
   fCount:=6*f_per_side; vCount:=6*v_per_side;
@@ -1539,16 +1541,15 @@ begin
       va[n2+3].y:=-0.5;
       va[n2+3].z:= 0.5-(j+0)*s;
     end;
-
 end;
 
-constructor TTriModel.CreateSphere(cols, rows: integer);
-var i, j, n: integer; sx, sy, a, b: single; flip: boolean;
+constructor TTriModel.CreatePlane(cols, rows: integer);
+var i, j, n: integer; sx, sy: single; flip: boolean;
 begin
   Create;
-  if (cols<2) or (rows<2) then exit;
-  fCount:=2*rows*cols;
-  vCount:=(rows+1)*(cols+1);
+  if cols<1 then cols:=1;
+  if rows<1 then rows:=1;
+  fCount:=2*rows*cols; vCount:=(rows+1)*(cols+1);
   sx:=1/cols; sy:=1/rows; groups:=1;
   with grp[0] do begin
     count:=fCount; first:=0; matIndex:=0;
@@ -1556,11 +1557,104 @@ begin
   for j:=0 to rows do
     for i:=0 to cols do begin
       n:=i+j*(cols+1);
-      na[n].x:=sin(j*pi/rows) * cos(i*pi*2/cols);
-      na[n].y:=cos(j*pi/rows);
-      na[n].z:=-sin(j*pi/rows) * sin(i*pi*2/cols);
+      na[n].x:=0; na[n].y:=1; na[n].z:=0;
+      va[n].x:=-0.5+sx*i;
+      va[n].y:=0;
+      va[n].z:=-0.5+sy*j;
+      ta[n].x:=i/cols; ta[n].y:=j/rows;
+    end;
+  for j:=0 to rows-1 do begin
+    flip:=(j mod 2)=0;
+    for i:=0 to cols-1 do begin
+      flip:=not flip;
+      n:=(i+j*cols)*2;
+      if flip then begin
+        fa[n,   0]:=(i+0)+(j+0)*(cols+1);
+        fa[n,   1]:=(i+0)+(j+1)*(cols+1);
+        fa[n,   2]:=(i+1)+(j+0)*(cols+1);
+        fa[n+1, 0]:=(i+1)+(j+0)*(cols+1);
+        fa[n+1, 1]:=(i+0)+(j+1)*(cols+1);
+        fa[n+1, 2]:=(i+1)+(j+1)*(cols+1);
+      end else begin
+        fa[n,   0]:=(i+0)+(j+0)*(cols+1);
+        fa[n,   1]:=(i+1)+(j+1)*(cols+1);
+        fa[n,   2]:=(i+1)+(j+0)*(cols+1);
+        fa[n+1, 0]:=(i+0)+(j+0)*(cols+1);
+        fa[n+1, 1]:=(i+0)+(j+1)*(cols+1);
+        fa[n+1, 2]:=(i+1)+(j+1)*(cols+1);
+      end;
+    end;
+  end;
+end;
+
+constructor TTriModel.CreateSphere(cols, rows: integer);
+var i, j, n: integer; flip: boolean; ax, ay: single;
+begin
+  Create;
+  if cols<3 then cols:=3;
+  if rows<2 then rows:=2;
+  fCount:=2*rows*cols; vCount:=(rows+1)*(cols+1);
+  groups:=1;
+  with grp[0] do begin
+    count:=fCount; first:=0; matIndex:=0;
+  end;
+  ax:=pi*2/cols; ay:=pi/rows;
+  for j:=0 to rows do
+    for i:=0 to cols do begin
+      n:=i+j*(cols+1);
+      na[n].x:=sin(j*ay) * cos(i*ax);
+      na[n].y:=cos(j*ay);
+      na[n].z:=-sin(j*ay) * sin(i*ax);
       va[n]:=nxMath3D.scale(na[n], 0.5);
       ta[n].x:=i/cols; ta[n].y:=j/rows;
+    end;
+  for j:=0 to rows-1 do begin
+    flip:=(j mod 2)=0;
+    for i:=0 to cols-1 do begin
+      flip:=not flip;
+      n:=(i+j*cols)*2;
+      if flip then begin
+        fa[n,   0]:=(i+0)+(j+0)*(cols+1);
+        fa[n,   1]:=(i+0)+(j+1)*(cols+1);
+        fa[n,   2]:=(i+1)+(j+0)*(cols+1);
+        fa[n+1, 0]:=(i+1)+(j+0)*(cols+1);
+        fa[n+1, 1]:=(i+0)+(j+1)*(cols+1);
+        fa[n+1, 2]:=(i+1)+(j+1)*(cols+1);
+      end else begin
+        fa[n,   0]:=(i+0)+(j+0)*(cols+1);
+        fa[n,   1]:=(i+1)+(j+1)*(cols+1);
+        fa[n,   2]:=(i+1)+(j+0)*(cols+1);
+        fa[n+1, 0]:=(i+0)+(j+0)*(cols+1);
+        fa[n+1, 1]:=(i+0)+(j+1)*(cols+1);
+        fa[n+1, 2]:=(i+1)+(j+1)*(cols+1);
+      end;
+    end;
+  end;
+end;
+
+constructor TTriModel.CreateTorus(cols, rows: integer; inRadius: single);
+var i, j, n: integer; flip: boolean; radius, a1, a2: single;
+begin
+  Create;
+  if cols<3 then cols:=3;
+  if rows<3 then rows:=3;
+  radius:=0.5-abs(inRadius);
+  fCount:=2*rows*cols; vCount:=(rows+1)*(cols+1);
+  groups:=1;
+  with grp[0] do begin
+    count:=fCount; first:=0; matIndex:=0;
+  end;
+  a1:=pi*2/rows; a2:=pi*2/cols;
+  for j:=0 to rows do
+    for i:=0 to cols do begin
+      n:=i+j*(cols+1);
+      va[n].x:=(radius+inRadius*cos(j*a2))*cos(i*a1);
+      va[n].y:=inRadius*sin(j*a2);
+      va[n].z:=(radius+inRadius*cos(j*a2))*sin(i*a1);
+      na[n].x:=cos(j*a2)*cos(i*a1);
+      na[n].y:=sin(j*a2);
+      na[n].z:=cos(j*a2)*sin(i*a1);
+      ta[n].x:=0.5-i/cols; ta[n].y:=0.5-j/rows;
     end;
   for j:=0 to rows-1 do begin
     flip:=(j mod 2)=0;
