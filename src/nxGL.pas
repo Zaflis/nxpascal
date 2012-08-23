@@ -84,7 +84,8 @@ type
   public
     procedure DisableStates;
     procedure EnableStates;
-    procedure Render(first, _count: integer; Indexed: boolean);
+    procedure Render(Indexed: boolean = true);
+    procedure Render(first, _count: integer; Indexed: boolean = true);
     procedure SetPointers;
   end;
 
@@ -207,6 +208,8 @@ type
   TGLModel = class(TTriModel)
   public
     destructor Destroy; override;
+    procedure Assign(_va: TCustomVertexArray);
+    procedure AssignTo(_va: TCustomVertexArray);
     procedure EnableStates;
     procedure CopyToFrame(index: integer);
     procedure DisableStates;
@@ -1291,6 +1294,44 @@ begin
   inherited Destroy;
 end;
 
+procedure TGLModel.Assign(_va: TCustomVertexArray);
+var i, j: integer;
+begin
+  if (_va=nil) or (_va.rendermode<>GL_TRIANGLES) then exit;
+  vCount:=_va.vCount;
+  fCount:=_va.fCount div 3;
+  for i:=0 to fCount-1 do
+    for j:=0 to 2 do
+      fa[i, j]:=_va.fa[i*3+j];
+  for i:=0 to vCount-1 do begin
+    va[i]:=_va.va[i]; na[i]:=_va.na[i];
+    ta[i].x:=_va.ta[i*2]; ta[i].y:=_va.ta[i*2+1];
+  end;
+  groups:=1;
+  with grp[0] do begin
+    first:=0; Count:=fCount; MatIndex:=0;
+  end;
+end;
+
+procedure TGLModel.AssignTo(_va: TCustomVertexArray);
+var i, j: integer;
+begin
+  if _va=nil then exit;
+  _va.rendermode:=GL_TRIANGLES;
+  _va._textures:=true; _va._normals:=true; _va._colors:=false;
+  _va._3Dtextures:=false; _va._AlphaColors:=false;
+  _va.vCount:=vCount; _va.fCount:=fCount*3;
+  _va.Count:=_va.GetIndexCount;
+  _va.MakeArrays;
+  for i:=0 to fCount*3-1 do
+    for j:=0 to 2 do
+      _va.fa[i*3+j]:=fa[i, j];
+  for i:=0 to vCount-1 do begin
+    _va.va[i]:=va[i]; _va.na[i]:=na[i];
+    _va.ta[i*2]:=ta[i].x; _va.ta[i*2+1]:=ta[i].y;
+  end;
+end;
+
 procedure TGLModel.EnableStates;
 begin
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -1711,6 +1752,11 @@ begin
   if _textures or _3Dtextures then glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   if _colors or _AlphaColors then glEnableClientState(GL_COLOR_ARRAY);
   va_states_set:=true;
+end;
+
+procedure TVertexArray.Render(Indexed: boolean);
+begin
+  Render(0, fCount, Indexed);
 end;
 
 procedure TVertexArray.Render(first, _count: integer; Indexed: boolean);
