@@ -95,9 +95,7 @@ begin
   tex.AddTexture('texture', 'data\shiphull.png');
   tex.AddTexture('normalmap', 'data\shiphull_n.png');
 
-  model:=TGLModel.Create;
-  model.LoadFromFile('data\cube.w3d');
-  model.UseMaterials:=false;
+  model:=TGLModel.CreateCube;
 
   v4:=vector4f(0.4, 0.6, 0.8);
   glMaterialfv(GL_FRONT, GL_SPECULAR, @v4);

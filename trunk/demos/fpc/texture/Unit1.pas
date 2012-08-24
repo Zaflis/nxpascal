@@ -83,7 +83,6 @@ begin
   glTranslatef(nx.Width/2, nx.Height/2, 0);
   glRotatef(turnAngle, 0, 0, 1);
   nx.DrawScaled(-r, -r, r*2, r*2);
-  nx.DrawRotateS();
 
   // Rotated and scaled drawing:
   // (x, y, pattern, angle, centerX,centerY, sizeX,sizeY)

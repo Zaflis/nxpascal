@@ -46,9 +46,7 @@ begin
   fb:=TFrameBuffer.Create(512, 512, true, true);
   fb2:=TFrameBuffer.Create(512, 512, true, true);
 
-  model:=TGLModel.Create;
-  model.LoadFromW3D('cube.w3d');
-  model.UseMaterials:=false;
+  model:=TGLModel.CreateCube;
 
   err:=glGetError();
   if err>0 then ShowMessage(format('glGetError, code: %d',[err]));

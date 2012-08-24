@@ -14,7 +14,7 @@ type
 
   TGraphicalGame = class(TGame)
   protected
-    mdl: array[0..3] of TGLModel;
+    mdl: array[0..5] of TGLModel;
   public
     constructor Create;
     destructor Destroy; override;
@@ -38,18 +38,25 @@ begin
   mdl[0].LoadTextures('textures');
 
   mdl[1]:=TGLModel.Create;
-  mdl[1].LoadFromFile(GetPath('objects\cube.w3d'));
+  mdl[1].LoadFromFile(GetPath('objects\cell.w3d'));
   mdl[1].LoadTextures('textures');
-  mdl[1].UseColors:=false;
 
   mdl[2]:=TGLModel.Create;
   mdl[2].LoadFromFile(GetPath('objects\object.w3d'));
   mdl[2].LoadTextures('textures');
   mdl[2].UseColors:=false;
 
-  mdl[3]:=TGLModel.Create;
-  mdl[3].LoadFromFile(GetPath('objects\cell.w3d'));
-  mdl[3].LoadTextures('textures');
+  mdl[3]:=TGLModel.CreateCube;
+  mdl[3].NewMaterial(mdl[2].mat[0].texIndex);
+
+  mdl[4]:=TGLModel.CreateSphere(20, 20);
+  mdl[4].NewMaterial(mdl[0].mat[0].texIndex);
+  mdl[4].Scale(2, 2, 2);
+
+  mdl[5]:=TGLModel.CreateTorus(20, 20, 0.15);
+  mdl[5].NewMaterial(mdl[2].mat[0].texIndex);
+  mdl[5].Scale(3, 2, 2);
+  mdl[5].ScaleUV(3, 3);
 
   // Last operations
   if nx.LastError<>'' then ShowMessage(nx.LastError);
@@ -68,6 +75,9 @@ var i: integer; rayPos, rayDir, intersect: TVector;
     d: single;
 begin
   nx.Clear(true, true);
+
+  // Make torus "spinning", by moving UV-map
+  mdl[5].TranslateUV(0.05, 0);
 
   // Set camera
   glLoadIdentity;
@@ -128,7 +138,7 @@ begin
   if d>=0 then begin
     glPushMatrix;
     with intersect do glTranslatef(floor(x), 0, floor(z));
-    mdl[3].Render;
+    mdl[1].Render;
     glPopMatrix;
   end;
 

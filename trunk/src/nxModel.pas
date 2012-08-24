@@ -62,7 +62,9 @@ type
     procedure Rotate(_angle: single; axis: TVector);
     procedure Scale(x, y, z: single);
     procedure ScaleTo(size: single);
+    procedure ScaleUV(x, y: single);
     procedure Translate(x, y, z: single);
+    procedure TranslateUV(x, y: single);
   end;
 
   TModelW3D = class;
@@ -300,11 +302,27 @@ begin
   end;
 end;
 
+procedure T3DModel.ScaleUV(x, y: single);
+var i: integer;
+begin
+  for i:=0 to vCount-1 do begin
+    ta[i].x:=ta[i].x*x; ta[i].y:=ta[i].y*y;
+  end;
+end;
+
 procedure T3DModel.Translate(x, y, z: single);
 var i: integer;
 begin
   for i:=0 to vCount-1 do begin
     va[i].x:=va[i].x+x; va[i].y:=va[i].y+y; va[i].z:=va[i].z+z;
+  end;
+end;
+
+procedure T3DModel.TranslateUV(x, y: single);
+var i: integer;
+begin
+  for i:=0 to vCount-1 do begin
+    ta[i].x:=ta[i].x+x; ta[i].y:=ta[i].y+y;
   end;
 end;
 
