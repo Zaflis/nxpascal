@@ -21,10 +21,9 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Main"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="38"/>
+        <TopLine Value="37"/>
         <CursorPos X="40" Y="33"/>
         <UsageCount Value="41"/>
         <Loaded Value="True"/>
@@ -36,8 +35,8 @@
         <UnitName Value="GameUnit"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="40"/>
-        <CursorPos X="51" Y="112"/>
+        <TopLine Value="48"/>
+        <CursorPos X="26" Y="56"/>
         <UsageCount Value="40"/>
         <Loaded Value="True"/>
       </Unit2>
@@ -45,10 +44,11 @@
         <Filename Value="GraphicsUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GraphicsUnit"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="60"/>
-        <CursorPos X="15" Y="85"/>
+        <TopLine Value="45"/>
+        <CursorPos X="24" Y="59"/>
         <UsageCount Value="39"/>
         <Loaded Value="True"/>
       </Unit3>

@@ -84,8 +84,8 @@ type
   public
     procedure DisableStates;
     procedure EnableStates;
-    procedure Render(Indexed: boolean = true);
-    procedure Render(first, _count: integer; Indexed: boolean = true);
+    procedure Render(Indexed: boolean = true); overload;
+    procedure Render(first, _count: integer; Indexed: boolean = true); overload;
     procedure SetPointers;
   end;
 
@@ -216,6 +216,7 @@ type
     procedure FreeTextures;
     procedure LoadTextures(path: string);
     procedure MakeDisplayList(var list: TDisplayList);
+    function NewMaterial(_texIndex: integer): integer;
     procedure Render(Initialize: boolean = true);
     procedure SetFrames(count: integer);
     procedure SetFrame(t: single; fStart,fEnd: integer; loop: boolean);
@@ -1732,6 +1733,17 @@ end;
 procedure TGLTextureSet.SetTextureUnit(n: integer);
 begin
   if n>=0 then glActiveTexture(GL_TEXTURE0+n);
+end;
+
+function TGLModel.NewMaterial(_texIndex: integer): integer;
+begin
+  mCount:=mCount+1; result:=mCount-1;
+  with mat[result] do begin
+    texIndex:=_texIndex;
+    if texIndex>=0 then inc(tex.texture[texIndex].RefCount);
+    shininess:=20; specular:=0.8;
+  end;
+  if (mCount=1) and (UseMaterials=false) then UseMaterials:=true;
 end;
 
 { TVertexArray }

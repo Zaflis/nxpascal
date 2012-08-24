@@ -53,7 +53,7 @@ begin
 
   for i:=0 to high(obj) do
     with obj[i] do begin
-      model:=random(2)+1;
+      model:=random(4)+2;
       position.x:=random*40-20;
       position.y:=random*40-20;
       position.z:=random*40-20;

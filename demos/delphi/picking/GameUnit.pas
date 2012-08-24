@@ -42,7 +42,7 @@ var i: integer;
 begin
   inherited Create;
   mouseXSpeed:=0.5; mouseYSpeed:=mouseXSpeed;
-  //CenterMouse(true);
+  CenterMouse(true);
 
   pl.rotation:=NewMatrix;
   pl.position:=vector(1, 5, 3);
@@ -51,7 +51,7 @@ begin
 
   for i:=0 to high(obj) do
     with obj[i] do begin
-      model:=random(2)+1;
+      model:=random(4)+2;
       position.x:=random*40-20;
       position.y:=random*40-20;
       position.z:=random*40-20;
