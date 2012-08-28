@@ -20,6 +20,7 @@ type
   TGameHandler = class
   private
     FrameInterval, nextTick: cardinal;
+    FNoFrameSkipping: boolean;
   protected
     procedure ResetTick;
   public
@@ -45,6 +46,7 @@ type
     procedure MouseUp(button: TMouseButton; _Shift: TShiftState);
     procedure SetCursorPos(x, y: integer);
     procedure SetFrameInterval(interval: cardinal);
+    procedure SetFrameSkipping(enable: boolean);
 
     // Override these
     procedure Draw; virtual; abstract;
@@ -130,7 +132,7 @@ begin
       inc(FrameSkips);
       nextTick:=nextTick+FrameInterval;
       GameLoop;
-    until (nextTick>t) or (FrameSkips>=10);
+    until (nextTick>t) or (FrameSkips>=10) or FNoFrameSkipping;
     Draw;
     mDelta.x:=0; mDelta.y:=0;
   end;
@@ -205,6 +207,11 @@ procedure TGameHandler.SetFrameInterval(interval: cardinal);
 begin
   FrameInterval:=interval;
   mpt:=FrameInterval/1000.0;
+end;
+
+procedure TGameHandler.SetFrameSkipping(enable: boolean);
+begin
+  FNoFrameSkipping:=not enable;
 end;
 
 end.

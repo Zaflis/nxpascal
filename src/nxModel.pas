@@ -93,6 +93,7 @@ type
     procedure AssignTo(poly: TPolyModel);
     procedure Clear;
     procedure DoTextureCorrection;
+    procedure FlipFaces;
     function GetTangent(const fIndex: word): TVector;
     procedure LoadFromFile(filename: string);
     procedure LoadFromMS3D(filename: string);
@@ -1248,6 +1249,15 @@ begin
            BalanceOK(t0.y, t2.y) then BalanceOK(t1.y, t2.y);
       end;
     end; }
+end;
+
+procedure TTriModel.FlipFaces;
+var f, temp, i: integer;
+begin
+  for f:=0 to fCount-1 do begin
+    temp:=fa[f, 1]; fa[f, 1]:=fa[f, 2]; fa[f, 2]:=temp;
+  end;
+  for i:=0 to vCount-1 do na[i]:=invert(na[i]);
 end;
 
 function TTriModel.GetTangent(const fIndex: word): TVector;
