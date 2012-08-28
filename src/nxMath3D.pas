@@ -33,7 +33,7 @@ uses nxTypes;
   function PointInSphere(const p,sphere: TVector; const radius: single): boolean;
   function RayPlaneIntersect(const rayOrigin, rayDirection,
     planeOrigin, planeNormal: TVector; intersection: PVector): single;
-  function RaySphereIntersect(const rayStart, rayDirection: TVector;
+  function RaySphereIntersect(const rayStart: TVector; rayDirection: TVector;
     const sphereCenter: TVector; const sphereRadius: Single;
     const i1, i2: PVector): Integer;
   function RayTriangleIntersect(const rayStart, rayDirection: TVector;
@@ -50,6 +50,7 @@ uses nxTypes;
   procedure VectorDiv(var a: TVector; s: single);
   function VectorMatch(const a, b: TVector; delta: single=0.01): boolean; overload;
   function VectorMatch(const a, b: TVector2f; delta: single=0.01): boolean; overload;
+  function VectorLen(const v: TVector): single;
   procedure VectorSub(var a: TVector; const b: TVector); overload;
   function VectorSub2(const a, b: TVector): TVector;
 
@@ -59,12 +60,12 @@ uses nxTypes;
   function CreateMatrix(const x,y,z: TVector): TMatrix; overload;
   function CreateMatrix2(const x,y,z: TVector): TMatrix;
   function CreateTranslateMatrix(const p: TVector): TMatrix;
+  function Determinant(const M: TMatrix): Single;
   function GetAngle(const M: TMatrix; const axis: integer): single;
   function GetRotation(const mat: TMatrix): TMatrix;
   function GetVector(const M: TMatrix; const axis: integer): TVector;
   procedure Invert(var M: TMatrix); overload;
   function Invert2(const M: TMatrix): TMatrix;
-  function Determinant(const M: TMatrix): Single;
   function MatrixOnPlane(const cPos,cDir: TVector; const angle: single = 0): TMatrix;
   function Multiply(const A,B: TMatrix): TMatrix;
   function MultiplyRotation(const A,B: TMatrix): TMatrix;
@@ -342,37 +343,29 @@ end;
   Returns 0 if no intersection is found (i1 and i2 untouched),
   1 if one intersection was found (i1 defined, i2 untouched),
   2 is two intersections were found (i1 and i2 defined).
-  Doesn't look ray backwards.}
-function RaySphereIntersect(const rayStart, rayDirection: TVector;
+
+  Doesn't look ray backwards. (old note, untested) }
+function RaySphereIntersect(const rayStart: TVector; rayDirection: TVector;
   const sphereCenter: TVector; const sphereRadius: Single; const i1,
   i2: PVector): Integer;
-var proj, d2: Single;
-    id2: Integer;
-    projPoint: TVector;
+var lf, s: single; h: TVector;
 begin
-  proj:=PointProject(sphereCenter, rayStart, rayDirection);
-  projPoint:=VectorCombine(rayStart, rayDirection, proj);
-  d2:=sphereRadius*sphereRadius-VectorDistance2(sphereCenter, projPoint);
-  id2:=PInteger(@d2)^;
-  if id2>=0 then begin
-    if id2=0 then begin
-      if PInteger(@proj)^>0 then begin
-        i1^:=VectorCombine(rayStart, rayDirection, proj);
-        Result:=1; Exit;
-      end;
-    end else if id2>0 then begin
-      d2:=Sqrt(d2);
-      if proj>=d2 then begin
-        i1^:=VectorCombine(rayStart, rayDirection, proj-d2);
-        i2^:=VectorCombine(rayStart, rayDirection, proj+d2);
-        Result:=2; Exit;
-      end else if proj+d2>=0 then begin
-        i1^:=VectorCombine(rayStart, rayDirection, proj+d2);
-        Result:=1; Exit;
-      end;
+  result:=0;
+  // http://www.openprocessing.org/sketch/45539
+  norm(rayDirection);
+  h := VectorSub2(sphereCenter, rayStart);   // h=r.o-c.M
+  lf := dot(rayDirection, h);                      // lf=e.h
+  s := sqr(sphereRadius)-dot(h, h)+sqr(lf);  // s=r^2-h^2+lf^2
+  if s < 0.0 then exit;                    // no intersection points ?
+  s := sqrt(s);                              // s=sqrt(r^2-h^2+lf^2)
+  if lf < s then begin                       // S1 behind A ?
+    if lf+s >= 0 then begin                  // S2 before A ?}
+      s := -s;                               // swap S1 <-> S2}
+      result := 1;                           // one intersection point
     end;
-  end;
-  Result:=0;
+  end else result := 2;                      // 2 intersection points
+  if i1<>nil then i1^:=VectorCombine(rayStart, rayDirection, lf-s);
+  if i2<>nil then i2^:=VectorCombine(rayStart, rayDirection, lf+s);
 end;
 
 function RayTriangleIntersect(const rayStart, rayDirection: TVector; const p1, p2,
@@ -494,6 +487,11 @@ begin
   result:=(abs(a.x-b.x)<delta) and (abs(a.y-b.y)<delta);
 end;
 
+function VectorLen(const v: TVector): single;
+begin
+  result:=hypot3d(v.x, v.y, v.z);
+end;
+
 // Returns V1 - V2
 procedure VectorSub(var a: TVector; const b: TVector);
 begin
@@ -537,14 +535,6 @@ begin
   Result[3, 3]:=1;
 end;
 
-function Determinant(const M: TMatrix): Single;
-begin
-  Result:= M[0, 0]*MatrixDet(M[1, 1], M[2, 1], M[3, 1], M[1, 2], M[2, 2], M[3, 2], M[1, 3], M[2, 3], M[3, 3])
-          -M[0, 1]*MatrixDet(M[1, 0], M[2, 0], M[3, 0], M[1, 2], M[2, 2], M[3, 2], M[1, 3], M[2, 3], M[3, 3])
-          +M[0, 2]*MatrixDet(M[1, 0], M[2, 0], M[3, 0], M[1, 1], M[2, 1], M[3, 1], M[1, 3], M[2, 3], M[3, 3])
-          -M[0, 3]*MatrixDet(M[1, 0], M[2, 0], M[3, 0], M[1, 1], M[2, 1], M[3, 1], M[1, 2], M[2, 2], M[3, 2]);
-end;
-
 // Create a rotation matrix
 function CreateMatrix(const x, y, z: TVector): TMatrix;
 begin
@@ -567,6 +557,14 @@ function CreateTranslateMatrix(const p: TVector): TMatrix;
 begin
   result:=NewMatrix;
   result[3,0]:=p.x; result[3,1]:=p.y; result[3,2]:=p.z;
+end;
+
+function Determinant(const M: TMatrix): Single;
+begin
+  Result:= M[0, 0]*MatrixDet(M[1, 1], M[2, 1], M[3, 1], M[1, 2], M[2, 2], M[3, 2], M[1, 3], M[2, 3], M[3, 3])
+          -M[0, 1]*MatrixDet(M[1, 0], M[2, 0], M[3, 0], M[1, 2], M[2, 2], M[3, 2], M[1, 3], M[2, 3], M[3, 3])
+          +M[0, 2]*MatrixDet(M[1, 0], M[2, 0], M[3, 0], M[1, 1], M[2, 1], M[3, 1], M[1, 3], M[2, 3], M[3, 3])
+          -M[0, 3]*MatrixDet(M[1, 0], M[2, 0], M[3, 0], M[1, 1], M[2, 1], M[3, 1], M[1, 2], M[2, 2], M[3, 2]);
 end;
 
 function GetAngle(const M: TMatrix; const axis: integer): single;
