@@ -104,7 +104,7 @@ begin
       if mdl[model].rayIntersect(rayPos, rayDir, false,
          position, rotation, nil, nil)>=0 then begin
         // Set glowing transparent red
-        nx.SetColor(1, 0, 0, 0.8+0.2*sin(toRad*nx.GetTick2(360, 0.5)));
+        nx.SetColor(1, 0, 0, 0.8+0.2*sin(toRad*nx.GetTick(360, 0.5)));
       end else
         nx.SetColor(color); // Use objects own color
 

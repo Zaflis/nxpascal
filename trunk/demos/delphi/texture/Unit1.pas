@@ -86,7 +86,7 @@ begin
   // Find r that makes circle fit window
   r:=min(nx.Width, nx.Height) * 0.5;
 
-  turnAngle:= -nx.GetTick2(360,0.02);
+  turnAngle:= -nx.GetTick(360,0.02);
 
   glTranslatef(nx.Width/2, nx.Height/2, 0);
   glRotatef(turnAngle, 0, 0, 1);
@@ -119,12 +119,12 @@ begin
   nx.rs.AddBlend:=true;
   for i:=0 to 10 do begin
     nx.SetColor(i/10, i/20, i/30);
-    x:=70+20*sin((nx.GetTick2(360, 0.1)+i*10)*toRad);
+    x:=70+20*sin((nx.GetTick(360, 0.1)+i*10)*toRad);
     glPushMatrix;
     sc:=1+i*0.1;
     glScalef(sc, sc, sc);
     glTranslatef(x, 20+i*3, 0);
-    glRotatef(80*sin((nx.GetTick2(360, 0.1)+i*10+90)*toRad), 0,0,1);
+    glRotatef(80*sin((nx.GetTick(360, 0.1)+i*10+90)*toRad), 0,0,1);
     nx.Font[0].DrawC(0, 0, 'Texture demo');
     glPopMatrix;
   end;

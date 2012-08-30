@@ -62,7 +62,7 @@ begin
 
   // Draw yellow rotating rectangle
   nx.SetColor(1, 1, 0);
-  glrotatef(nx.GetTick2(360,0.05), 0, 1, 0);
+  glrotatef(nx.GetTick(360,0.05), 0, 1, 0);
   nx.RectT(-1, 1, 1, -1);
 
   window.SwapBuffers;

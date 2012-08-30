@@ -116,8 +116,8 @@ type
     FontCount: integer;
     function CheckFile(const filename: string): boolean;
     procedure ClearError;
-    function GetTick: cardinal;
-    function GetTick2(range: integer; scale: single = 1): single;
+    function GetTick: cardinal; overload;
+    function GetTick(range: integer; scale: single = 1): single; overload;
     function LastError: string;
     function IndexOfFont(name: string): integer;
   end;
@@ -880,7 +880,7 @@ end;
 
 // Return tick value 0..range-1
 // Call with range >= 1 and scale >0
-function TNXCustomEngine.GetTick2(range: integer; scale: single): single;
+function TNXCustomEngine.GetTick(range: integer; scale: single): single;
 begin
   result:=(GetTickCount mod round(range/scale))*scale;
 end;

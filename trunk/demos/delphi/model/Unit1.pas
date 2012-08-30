@@ -76,11 +76,11 @@ begin
   nx.Clear(true, true);
 
   // Rotate camera around Y-axis
-  camA:=nx.GetTick2(360, 0.02)*toRad;
+  camA:=nx.GetTick(360, 0.02)*toRad;
   cam:=LookAt(vector(2*cos(camA),-3,2*sin(camA)), vector(0,0,0), vector(0,1,0));
 
   // Add blue trail
-  d:=(180-nx.GetTick2(360,0.043))*toRad;
+  d:=(180-nx.GetTick(360,0.043))*toRad;
   if pt.tCount>0 then
     pt.SetTrailPos(@pt.trail[0], 1.5*cos(d), 1.0*sin(d), 0.3*sin(camA))
   else
@@ -92,7 +92,7 @@ begin
   glMultMatrixf(@cam);
 
   // Rotate ship around Z-axis
-  glRotatef(nx.GetTick2(360, 0.0131), 0, 0, 1);
+  glRotatef(nx.GetTick(360, 0.0131), 0, 0, 1);
   glColor3f(0.4, 0.4, 1.0); // Use blue color
   // Render ship
   ship.Render;
@@ -103,11 +103,11 @@ begin
   n:=ship.rayIntersect(mp, dir, true, @intersect, @normal);
   if n>=0 then begin
     // Create rotation+position matrix for arrow
-    arrM:=MatrixOnPlane(intersect, normal, nx.GetTick2(360, 0.01));
+    arrM:=MatrixOnPlane(intersect, normal, nx.GetTick(360, 0.01));
 
     // Render arrow
     glPushMatrix;
-    glMultMatrixf(@arrM);
+    glMultMatrixf(@arrM);                     
     arrow.Render;
     glPopMatrix;
 

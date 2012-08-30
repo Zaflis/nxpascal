@@ -97,39 +97,40 @@ begin
   end;
   // Rolling sideways
   if keys[VK_Q] then begin
-    rotate(pl.rotation, norm2(GetVector(pl.rotation, 2)),
-      3*toRad, false);
+    pl.rotation:=rotate(pl.rotation, norm(GetVector(pl.rotation, 2)),
+      -3*toRad, false);
   end;
   if keys[VK_E] then begin
-    rotate(pl.rotation, norm2(GetVector(pl.rotation, 2)),
-      -3*toRad, false);
+    pl.rotation:=rotate(pl.rotation, norm(GetVector(pl.rotation, 2)),
+      3*toRad, false);
   end;
 
   // Rotate ship with mouse
   if abs(mDelta.x)>50 then mDelta.x:=0;
   if abs(mDelta.y)>50 then mDelta.y:=0;
-  pl.xRot:=pl.xRot+mDelta.x*0.05;
-  pl.yRot:=pl.yRot+mDelta.y*0.05;
+  pl.xRot:=pl.xRot-mDelta.x*0.05;
+  pl.yRot:=pl.yRot-mDelta.y*0.05;
   pl.xRot:=interpolate(pl.xRot, 0, 0.05);
   pl.yRot:=interpolate(pl.yRot, 0, 0.05);
   if pl.xRot<>0 then begin
-    rotate(pl.rotation, norm2(GetVector(pl.rotation, 1)),
+    pl.rotation:=rotate(pl.rotation, norm(GetVector(pl.rotation, 1)),
       2*pl.xRot*toRad, false);
   end;
   if pl.yRot<>0 then begin
-    rotate(pl.rotation, norm2(GetVector(pl.rotation, 0)),
+    pl.rotation:=rotate(pl.rotation, norm(GetVector(pl.rotation, 0)),
       -2*pl.yRot*toRad, false);
   end;
 
   // Move ship
-  VectorAdd(pl.position, pl.movement);
+  pl.position:=pl.position + pl.movement; // Operator overloading
+  //pl.position:=VectorAdd(pl.position, pl.movement);
 
   SetCamBehind;
 
   // Rotate floating objects
   for i:=0 to high(obj) do
     with obj[i] do begin
-      Rotate(rotation, rotAxis, 0.1*toRad, false);
+      rotation:=Rotate(rotation, rotAxis, 0.1*toRad, false);
     end;
 end;
 
@@ -137,8 +138,8 @@ procedure TGame.SetCamBehind;
 begin
   cam:=pl.rotation;
   SetVector(cam, pl.position, 3);
-  Invert(cam);
-  Rotate(cam, 0, PI); // Rotate 180 degrees to ship behind
+  cam:=Invert(cam);
+  cam:=Rotate(cam, 0, PI); // Rotate 180 degrees to ship behind
 end;
 
 end.

@@ -96,11 +96,11 @@ begin
   pt.AddPType(tex.IndexOf('snow'), 1,-0.01, 0);
   pt.AddPType(tex.IndexOf('glow'), 1,-0.02, 0.2);
 
-  launcher:=pt.AddLauncher(1, 5, 8,9, 4.5,5.0, 6, norm2(vector(1,-1)), -1);
+  launcher:=pt.AddLauncher(1, 5, 8,9, 4.5,5.0, 6, norm(vector(1,-1)), -1);
   pt.SetLauncherColor(launcher, 1,1, 0.5,1,0.2,0.7);
   pt.SetLauncherPos(launcher, 0, ClientHeight-1);
 
-  pt.CloneLauncher(launcher, norm2(vector(-1,-1)), ClientWidth-1, ClientHeight-1);
+  pt.CloneLauncher(launcher, norm(vector(-1,-1)), ClientWidth-1, ClientHeight-1);
 
   for i:=0 to 2 do
     with follower[i] do begin
@@ -215,14 +215,14 @@ begin
         x1:=i*ClientWidth/GS;
 
         // Bend towards blue trail[2]
-        vec:=VectorSub2(vector(x1, y1), vector(pt.trail[2].x, pt.trail[2].y));
+        vec:=vector(x1, y1) - vector(pt.trail[2].x, pt.trail[2].y);
 
         h:=hypot(vec.x, vec.y);
         d:=5-h*0.02;
         d:=d*abs(d);
         if d<=0 then d:=0
         else if d>h then d:=h;
-        vec:=norm2(vec);
+        vec:=norm(vec);
         x:=x1 -vec.x*d;
         y:=y1 -vec.y*d;
       end;
