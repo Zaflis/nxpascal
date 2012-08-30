@@ -530,10 +530,10 @@ function TPolyModel.GetTangent(const fIndex: word): TVector;
 begin
   with fa[fIndex] do
     if count>2 then
-      result:=Norm2(Tangent(va[index[0]], va[index[(count-1) div 2]],
+      result:=Norm(Tangent(va[index[0]], va[index[(count-1) div 2]],
         va[index[count-1]]))
     else if count=2 then
-      result:=Norm2(CrossProduct(va[index[0]], va[index[1]]))
+      result:=Norm(CrossProduct(va[index[0]], va[index[1]]))
     else
       result:=Vector(1,0,0);
 end;
@@ -691,7 +691,7 @@ var preTangent: array of TVector;
     for f:=integer(grp[gIndex].first + grp[gIndex].count)-1 downto
            grp[gIndex].first do
       for i:=0 to fa[f].count-1 do
-        VectorAdd(na[fa[f].index[i]], preTangent[f]);
+        na[fa[f].index[i]]:=VectorAdd(na[fa[f].index[i]], preTangent[f]);
   end;
 
 var i: integer;
@@ -937,7 +937,7 @@ begin
         va[i].x:=va[i].x*0.01;
         va[i].y:=va[i].y*0.01;
         va[i].z:=va[i].z*0.01;
-        if obj<0 then VectorAdd(va[i], oPos);
+        if obj<0 then va[i]:=VectorAdd(va[i], oPos);
       end else readln(F);
 
     for i:=0 to _nCount-1 do
@@ -1062,7 +1062,7 @@ begin
   // *** TEST CODE ***
   //for i:=0 to fCount-1 do
   //  for j:=0 to fa[i].Count-1 do
-  //    VectorAdd(va[fa[i].v[j]], nxMath3D.scale(fa[i].n[j], 0.05));
+  //    va[fa[i].v[j]]:=VectorAdd(va[fa[i].v[j]], nxMath3D.scale(fa[i].n[j], 0.05));
 
 end;
 
@@ -1318,7 +1318,7 @@ var preTangent: array of TVector;
     for f:=integer(grp[gIndex].first)+grp[gIndex].count-1 downto
            grp[gIndex].first do
       for i:=0 to 2 do
-        VectorAdd(na[fa[f, i]], preTangent[f]);
+        na[fa[f, i]]:=VectorAdd(na[fa[f, i]], preTangent[f]);
   end;
 
 var i: integer;
@@ -1363,7 +1363,7 @@ end;
 function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
   const position: TVector; const intersect: PVector; const normal: PVector): integer;
 begin
-  result:=rayIntersect(VectorSub2(rayStart, position), rayDir, findClosest, intersect, normal);
+  result:=rayIntersect(VectorSub(rayStart, position), rayDir, findClosest, intersect, normal);
 end;
 
 // Returns >= 0 if intersects, it is index of the face
@@ -1373,13 +1373,13 @@ function TTriModel.rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
   const normal: PVector): integer;
 begin
   // Correct ray
-  rayDir:=VectorMultiply(rayDir, invert2(rotation));
+  rayDir:=Multiply(rayDir, Invert(rotation));
 
   // Correct position
   nxMath3D.Translate(rotation, position);
-  invert(rotation);
-  rayStart:=VectorMultiply(rayStart, rotation);
-  invert(rotation);
+  rotation:=invert(rotation);
+  rayStart:=Multiply(rayStart, rotation);
+  rotation:=invert(rotation);
 
   result:=rayIntersect(rayStart, rayDir, findClosest, intersect, normal);
 end;

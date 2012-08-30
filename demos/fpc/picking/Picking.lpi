@@ -74,7 +74,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\..\src;..\..\..\..\synapse"/>
+      <OtherUnitFiles Value="..\..\..\src"/>
       <UnitOutputDirectory Value="lib"/>
     </SearchPaths>
     <CodeGeneration>

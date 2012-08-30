@@ -68,7 +68,7 @@ begin
   nx.Clear(true,true);
   glLoadIdentity;
   glTranslatef(0,0,-2.5);
-  glRotatef(nx.GetTick2(360,0.02),0.2,1,0.4);
+  glRotatef(nx.GetTick(360,0.02),0.2,1,0.4);
   tex.SetTex(fb2.texture);
   nx.SetColor(0.3,0.3,0.6);
   model.Render;
@@ -89,7 +89,7 @@ begin
   nx.Clear(true,true);
   glTranslatef(0,0,-2.5);
   nx.SetColor(0.6,0.6,0.6);
-  glRotatef(nx.GetTick2(360,0.01),0.2,1,0.4);
+  glRotatef(nx.GetTick(360,0.01),0.2,1,0.4);
   tex.SetTex(fb2.texture);
   model.Render;
 

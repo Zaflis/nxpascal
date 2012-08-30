@@ -6,7 +6,7 @@ interface
 
 uses dglOpenGL, nxGraph, nxGL, nxTypes;
 
-type
+type                     
   TParticleType = record
     a,ia, irad: single;
     texture: integer;
@@ -662,7 +662,7 @@ var modelM: TMatrix;
 begin
   glGetFloatv(GL_MODELVIEW_MATRIX,@modelM);
   mat:=GetRotation(modelM);
-  Invert(mat);
+  mat:=Invert(mat);
 end;
 
 procedure TParticleEngine.RemoveParticle(const index: integer);

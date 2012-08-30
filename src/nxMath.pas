@@ -1,9 +1,7 @@
 unit nxMath;
 
-{
-TODO:
- - Check out Distance2()
-
+{ TODO:
+- Recheck Distance2
 }
 
 interface
@@ -27,7 +25,7 @@ uses nxTypes, math;
   function Mod2(a,b: integer): integer;
   function Norm(const v: TVector2f; const h: PSingle = nil): TVector2f; overload;
   procedure Norm(var x,y: single; const h: PSingle = nil); overload;
-  procedure dNorm(var x,y: double; const h: PDouble);
+  procedure Norm(var x,y: double; const h: PDouble); overload;
   function PointInCircle(const p,circle: TVector2f; const radius: single): boolean; overload;
   function PointInCircle(const pX,pY,circleX,circleY,radius: single): boolean; overload;
   function PointInRect(const x, y: integer; rect: TRecti): boolean; overload;
@@ -37,12 +35,21 @@ uses nxTypes, math;
   function Reflect(const rayStart, rayDir, wallPoint: TVector2f): TVector2f; overload;
   function Reflect(const rayDir, wallNormal: TVector2f): TVector2f; overload;
   function Rotate(const pt,center: TVector2f; const _angle: single): TVector2f; overload;
-  procedure Rotate(var px,py: single; const _angle,cx,cy: single); overload;
+  procedure Rotate(var x,y: single; const _angle,centerX,centerY: single); overload;
   function Smoothen(n: single): single;
   function Tangent(const p1, p2: TVector2f): TVector2f;
   function Vector2f(const x, y: single): TVector2f;
   function VectorAdd(const v1, v2: TVector2f): TVector2f; overload;
   function VectorSub(const v1, v2: TVector2f): TVector2f; overload;
+
+// Operator overloading
+{$IFDEF fpc}
+  operator +(const a, b: TVector2f): TVector2f;
+  operator -(const a, b: TVector2f): TVector2f;
+  operator *(const a, b: TVector2f): TVector2f;
+  operator *(const a: TVector2f; n: single): TVector2f;
+  operator /(const a: TVector2f; n: single): TVector2f;
+{$ENDIF}
 
 implementation
 
@@ -189,7 +196,7 @@ begin
   end;
 end;
 
-procedure dNorm(var x, y: double; const h: PDouble);
+procedure Norm(var x, y: double; const h: PDouble);
 var _h: double;
 begin
   _h:=hypot(x,y);
@@ -293,12 +300,12 @@ begin
   result.y:=center.y+sin(a)*d;
 end;
 
-procedure Rotate(var px,py: single; const _angle,cx,cy: single);
+procedure Rotate(var x,y: single; const _angle,centerX,centerY: single);
 var d,a: single;
 begin
-  d:=hypot(py-cy,px-cx);
-  a:=arctan2(py-cy,px-cx)+_angle*ToRad;
-  px:=cx+cos(a)*d; py:=cy+sin(a)*d;
+  d:=hypot(x-centerX, y-centerY);
+  a:=arctan2(y-centerY, x-centerX)+_angle*ToRad;
+  x:=centerX+cos(a)*d; y:=centerY+sin(a)*d;
 end;
 
 function Smoothen(n: single): single;
@@ -330,5 +337,33 @@ begin
   result.x:=v1.x-v2.x;
   result.y:=v1.y-v2.y;
 end;
+
+// Operator overloading
+{$IFDEF fpc}
+operator +(const a, b: TVector2f): TVector2f;
+begin
+  result.x:=a.x+b.x; result.y:=a.y+b.y;
+end;
+
+operator-(const a, b: TVector2f): TVector2f;
+begin
+  result.x:=a.x-b.x; result.y:=a.y-b.y;
+end;
+
+operator*(const a, b: TVector2f): TVector2f;
+begin
+  result:=tangent(a, b);
+end;
+
+operator*(const a: TVector2f; n: single): TVector2f;
+begin
+  result.x:=a.x*n; result.y:=a.y*n;
+end;
+
+operator/(const a: TVector2f; n: single): TVector2f;
+begin
+  result.x:=a.x/n; result.y:=a.y/n;
+end;
+{$ENDIF}
 
 end.

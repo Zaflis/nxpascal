@@ -25,6 +25,7 @@ type
   TVector3d = packed record x,y,z: double; end;
   TVector3i = packed record x,y,z: integer; end;
   TVector4f = packed record x,y,z,w: single; end;
+  TQuaternion = TVector4f;
   TRecti = packed record x1,y1,x2,y2: integer; end;
   TBoundsRect = record x,y,w,h: integer; end;
   TRectf = packed record x1,y1,x2,y2: single; end;
