@@ -268,7 +268,6 @@ begin
 end;
 
 procedure TBassSound.SetUse3D(enable: boolean);
-var mode: integer;
 begin
   FUse3D:=enable;
   Set3DAttributes(0, 100, 360, 360, 0);
@@ -384,11 +383,12 @@ end;
 procedure TBassSound.Set3DAttributes(min, max: FLOAT; iangle, oangle, outvol: LongInt);
 var mode: integer;
 begin
-  if FUse3D then mode:=BASS_3DMODE_NORMAL
-  else mode:=BASS_3DMODE_OFF;
-  if not BASS_ChannelSet3DAttributes(channel, mode, min, max, iangle, oangle, outvol) then
-    nxSetError(format('Error - BASS_ChannelSet3DAttributes #%d',
-      [BASS_ErrorGetCode]));
+  if FUse3D then begin
+    mode:=BASS_3DMODE_NORMAL;
+    if not BASS_ChannelSet3DAttributes(channel, mode, min, max, iangle, oangle, outvol) then
+      nxSetError(format('Error - BASS_ChannelSet3DAttributes #%d',
+        [BASS_ErrorGetCode]));
+  end;
 end;
 
 procedure TBassSound.SetLocation(const _loc: TVector);

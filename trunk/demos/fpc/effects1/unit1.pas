@@ -112,10 +112,10 @@ begin
   pt.SetTrailColor(@pt.trail[1], 0, 1, 0);
   pt.SetTrailColor(@pt.trail[2], 0, 0, 1);
 
-  bassSound:=TBassEngine.Create(handle);
+  bassSound:=TBassEngine.Create(handle, false);
   if not bassSound.CheckErrors then begin
     bassSound.Add('music', '..'+PathChar+'..'+PathChar+'..'+PathChar+'media'+PathChar+
-      'test.s3m').Play;
+      'test.s3m', false).Play;
     bassSound.sound[0].looped:=true;
   end;
 
