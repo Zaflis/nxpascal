@@ -1371,7 +1371,7 @@ begin
   end;
   nx.rs.Push;
   for i:=0 to groups-1 do
-    with grp[i] do begin
+    if grp[i].visible then with grp[i] do begin
       if UseMaterials and (matIndex>-1) and (mCount>0) then
         with mat[matIndex] do begin
           tex.SetTex(texIndex);

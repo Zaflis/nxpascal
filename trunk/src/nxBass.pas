@@ -23,12 +23,12 @@ type
 
   TBassSound = class
     name: string;
-    location, velocity, orientation: TVector;
-    loaded, looped: boolean;
+    loaded, looped, FUse3D: boolean;
     index, ChannelCount: integer;
     Handle: DWORD;
     soundType: TBassSoundType;
   private
+    location, velocity, orientation: TVector;
     ChannelIndex: integer;
     FChannel: array of DWORD;
     FPlaying: boolean;
@@ -37,23 +37,29 @@ type
     procedure SetPosition(p: QWORD);
     function GetTimePos: TTime;
     procedure SetTimePos(p: TTime);
+    procedure SetUse3D(enable: boolean);
   public
+    property Use3D: boolean read FUse3D write SetUse3D;
     property Channel: QWORD read GetChannel;
     property Position: QWORD read GetPosition write SetPosition;
     property TimePos: TTime read GetTimePos write SetTimePos;
-    constructor Create(const filename: string; channels: integer);
+    constructor Create(const filename: string; _3D: boolean; channels: integer);
     destructor Destroy; override;
     procedure FadeFreq(freq: single; ms: cardinal);
     procedure FadePan(pan: single; ms: cardinal);
     procedure FadeVolume(vol: single; ms: cardinal);
     function GetVolume: single;
     function Length: QWORD;
-    procedure Load(const filename: string);
+    procedure Load(const filename: string; _3d: boolean = false);
     procedure Pause;
     function Play: boolean;
     function Playing: boolean;
-    procedure SetVolume(vol: single);
+    procedure Set3DAttributes(min, max: FLOAT; iangle, oangle, outvol: LongInt);
+    procedure SetLocation(const _loc: TVector);
+    procedure SetOrientation(const _front: TVector);
     procedure SetPanning(pan: single);
+    procedure SetVelocity(const vel: TVector; fps: single);
+    procedure SetVolume(vol: single);
     procedure Stop;
     function TimeLength: TTime;
     procedure Unload;
@@ -72,6 +78,9 @@ type
   public
     constructor Create;
     procedure DoMove;
+    procedure SetLocation(const _loc: TVector);
+    procedure SetOrientation(const _front, _up: TVector);
+    procedure SetVelocity(const vel: TVector; fps: single);
     procedure Update;
   end;
 
@@ -83,9 +92,10 @@ type
   private
   public
     listener: TNXSoundListener;
-    constructor Create(winHandle: HWND; freq: DWORD = 44100);
+    Use3D: boolean;
+    constructor Create(winHandle: HWND; _3D: boolean; freq: DWORD = 44100);
     destructor Destroy; override;
-    function Add(const name, filename: string; channels: integer=1): TBassSound;
+    function Add(const name, filename: string; _3D: boolean; channels: integer=1): TBassSound;
     function CheckErrors: boolean;
     procedure Clear;
     function CPU: single;
@@ -93,6 +103,7 @@ type
     function Find(const name: string): TBassSound;
     function IndexOf(const name: string): integer;
     procedure Resume;
+    procedure Set3DFactors(distf, rollf, doppf: single);
     procedure Stop;
     procedure Update;
   end;
@@ -114,15 +125,19 @@ end;
 
 { TBassEngine }
 
-constructor TBassEngine.Create(winHandle: HWND; freq: DWORD);
+constructor TBassEngine.Create(winHandle: HWND; _3D: boolean; freq: DWORD);
+var flag3D: integer;
 begin
   if not VerCheck then begin
     nxSetError('Wrong BASS dll version!'); exit;
   end;
-  if not BASS_Init(-1, freq, 0, winHandle, nil) then
+  if _3D then flag3D:=BASS_DEVICE_3D
+  else flag3D:=0;
+  if not BASS_Init(-1, freq, flag3D, winHandle, nil) then
     nxSetError('Error initializing BASS audio!')
   else begin
     listener:=TNXSoundListener.Create;
+    Use3D:=_3D; Set3DFactors(1.0, 0.1, 1.0);
   end;
 end;
 
@@ -134,12 +149,12 @@ begin
   inherited Destroy;
 end;
 
-function TBassEngine.Add(const name, filename: string; channels: integer): TBassSound;
+function TBassEngine.Add(const name, filename: string; _3D: boolean; channels: integer): TBassSound;
 begin
   result:=nil;
   if not VerCheck then exit;
   inc(Count); setlength(sound, Count);
-  sound[Count-1]:=TBassSound.Create(filename, channels);
+  sound[Count-1]:=TBassSound.Create(filename, _3D, channels);
   sound[Count-1].index:=Count-1;
   sound[Count-1].name:=name;
   result:=sound[Count-1];
@@ -196,6 +211,11 @@ begin
   BASS_Start;
 end;
 
+procedure TBassEngine.Set3DFactors(distf, rollf, doppf: single);
+begin
+  if Use3D then BASS_Set3DFactors(distf, rollf, doppf);
+end;
+
 procedure TBassEngine.Stop;
 begin
   BASS_Pause;
@@ -213,6 +233,7 @@ begin
         else FPlaying:=false;
       Update;
     end;
+  if Use3D then BASS_Apply3D;
 end;
 
 { TBassSound }
@@ -246,12 +267,19 @@ begin
   SetPosition(BASS_ChannelSeconds2Bytes(channel, p*86400));
 end;
 
-constructor TBassSound.Create(const filename: string; channels: integer);
+procedure TBassSound.SetUse3D(enable: boolean);
+var mode: integer;
+begin
+  FUse3D:=enable;
+  Set3DAttributes(0, 100, 360, 360, 0);
+end;
+
+constructor TBassSound.Create(const filename: string; _3D: boolean; channels: integer);
 begin
   ChannelCount:=channels; ChannelIndex:=0;
   setlength(FChannel, ChannelCount);
   orientation:=vector(0,1,0);
-  if filename<>'' then Load(filename);
+  if filename<>'' then Load(filename, _3D);
 end;
 
 destructor TBassSound.Destroy;
@@ -295,9 +323,11 @@ begin
   result:=BASS_ChannelGetLength(channel, BASS_POS_BYTE);
 end;
 
-procedure TBassSound.Load(const filename: string);
-var ext: string; i: integer;
+procedure TBassSound.Load(const filename: string; _3d: boolean);
+var ext: string; i, flag3D: integer;
 begin
+  if _3d then flag3D:=BASS_SAMPLE_3D
+  else flag3D:=0;
   if loaded then Unload;
   if (filename<>'') and (not FileExistsUTF8(filename)) then begin
     nxSetError(format('[BassSound] File "%s" not found.',[filename]));
@@ -306,7 +336,7 @@ begin
   ext:=lowercase(extractFileExt(filename));
   if ext='.wav' then begin
     Handle:=BASS_SampleLoad(FALSE, PChar(filename), 0, 0, ChannelCount,
-      BASS_SAMPLE_OVER_POS {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF});
+      BASS_SAMPLE_OVER_POS {$IFDEF UNICODE}or BASS_UNICODE{$ENDIF} or flag3D);
     for i:=0 to ChannelCount-1 do
       FChannel[i]:=BASS_SampleGetChannel(Handle, true);
     loaded:=true; SoundType:=stSample;
@@ -314,15 +344,16 @@ begin
               (ext='.it') or (ext='.mtm') then begin
     ChannelCount:=1; setlength(FChannel, 1);
     Handle:=BASS_MusicLoad(False, PChar(filename), 0, 0,
-      BASS_MUSIC_RAMP {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF} or
-      BASS_MUSIC_PRESCAN, 0);
+      BASS_MUSIC_RAMP {$IFDEF UNICODE}or BASS_UNICODE{$ENDIF} or
+      BASS_MUSIC_PRESCAN or flag3D, 0);
     FChannel[0]:=Handle; loaded:=true; SoundType:=stMusic;
   end else begin // mp3, ogg
     ChannelCount:=1; setlength(FChannel, 1);
     Handle:=BASS_StreamCreateFile(False, PChar(filename), 0, 0,
-      0 {$IFDEF UNICODE} or BASS_UNICODE {$ENDIF});
+      0 {$IFDEF UNICODE}or BASS_UNICODE{$ENDIF} or flag3D);
     FChannel[0]:=Handle; loaded:=true; SoundType:=stStream;
   end;
+  Use3D:=_3d;
 end;
 
 procedure TBassSound.Pause;
@@ -350,12 +381,28 @@ begin
   result:=BASS_ChannelIsActive(channel)=BASS_ACTIVE_PLAYING;
 end;
 
-// Volume 0..1 from silence to max
-procedure TBassSound.SetVolume(vol: single);
-var i: integer;
+procedure TBassSound.Set3DAttributes(min, max: FLOAT; iangle, oangle, outvol: LongInt);
+var mode: integer;
 begin
-  for i:=0 to ChannelCount-1 do
-    BASS_ChannelSetAttribute(FChannel[i], BASS_ATTRIB_VOL, vol);
+  if FUse3D then mode:=BASS_3DMODE_NORMAL
+  else mode:=BASS_3DMODE_OFF;
+  if not BASS_ChannelSet3DAttributes(channel, mode, min, max, iangle, oangle, outvol) then
+    nxSetError(format('Error - BASS_ChannelSet3DAttributes #%d',
+      [BASS_ErrorGetCode]));
+end;
+
+procedure TBassSound.SetLocation(const _loc: TVector);
+begin
+  location.x:=_loc.x;
+  location.y:=_loc.y;
+  location.z:=-_loc.z;
+end;
+
+procedure TBassSound.SetOrientation(const _front: TVector);
+begin
+  orientation.x:=_front.x;
+  orientation.y:=_front.y;
+  orientation.z:=-_front.z;
 end;
 
 // Panning -1..1 from left to right
@@ -364,6 +411,21 @@ var i: integer;
 begin
   for i:=0 to ChannelCount-1 do
     BASS_ChannelSetAttribute(FChannel[i], BASS_ATTRIB_PAN, pan);
+end;
+
+procedure TBassSound.SetVelocity(const vel: TVector; fps: single);
+begin
+  velocity.x:=vel.x*fps;
+  velocity.y:=vel.y*fps;
+  velocity.z:=-vel.z*fps;
+end;
+
+// Volume 0..1 from silence to max
+procedure TBassSound.SetVolume(vol: single);
+var i: integer;
+begin
+  for i:=0 to ChannelCount-1 do
+    BASS_ChannelSetAttribute(FChannel[i], BASS_ATTRIB_VOL, vol);
 end;
 
 procedure TBassSound.Stop;
@@ -396,14 +458,19 @@ end;
 
 procedure TBassSound.Update;
 begin
-  //BASS_ChannelSet3DPosition(channel, BASS_3DVECTOR(location),
-  //  BASS_3DVECTOR(orientation), BASS_3DVECTOR(velocity));
+  if Use3D then begin
+    if not BASS_ChannelSet3DPosition(channel, BASS_3DVECTOR(location),
+      BASS_3DVECTOR(orientation), BASS_3DVECTOR(velocity)) then
+      nxSetError('Error - BASS_ChannelSet3DPosition');
+  end;
 end;
 
 { TNXSoundListener }
 
 constructor TNXSoundListener.Create;
 begin
+  orientation.front:=vector(0, 0, 1);
+  orientation.up:=vector(0, 1, 0);
   Update;
 end;
 
@@ -414,10 +481,34 @@ begin
   location.z:=location.z+velocity.z;
 end;
 
+procedure TNXSoundListener.SetLocation(const _loc: TVector);
+begin
+  location.x:=_loc.x;
+  location.y:=_loc.y;
+  location.z:=-_loc.z;
+end;
+
+procedure TNXSoundListener.SetOrientation(const _front, _up: TVector);
+begin
+  orientation.front.x:=_front.x;
+  orientation.front.y:=_front.y;
+  orientation.front.z:=-_front.z;
+  orientation.up.x:=_up.x;
+  orientation.up.y:=_up.y;
+  orientation.up.z:=-_up.z;
+end;
+
+procedure TNXSoundListener.SetVelocity(const vel: TVector; fps: single);
+begin
+  velocity.x:=vel.x*fps;
+  velocity.y:=vel.y*fps;
+  velocity.z:=-vel.z*fps;
+end;
+
 procedure TNXSoundListener.Update;
 begin
-  //BASS_Set3DPosition(BASS_3DVECTOR(location), BASS_3DVECTOR(velocity),
-  //  BASS_3DVECTOR(orientation.front), BASS_3DVECTOR(orientation.up));
+  BASS_Set3DPosition(BASS_3DVECTOR(location), BASS_3DVECTOR(velocity),
+    BASS_3DVECTOR(orientation.front), BASS_3DVECTOR(orientation.up));
 end;
 
 { TNXSoundEngine }
