@@ -24,6 +24,7 @@ type
   TFaceGroup = record
     first, count: word;
     matIndex: shortint;
+    visible: boolean;
   end;
   TVertexFrame = record
     va, na: array of TVector; // Vertices, Normals
@@ -329,8 +330,7 @@ end;
 
 procedure T3DModel.SetGroups(n: integer);
 begin
-  FGroups:=n;
-  setlength(grp, FGroups);
+  FGroups:=n; setlength(grp, FGroups);
 end;
 
 procedure T3DModel.SetmCount(n: integer);
@@ -423,12 +423,9 @@ begin
     for j:=0 to 2 do
       if j<fa[i].count then tri.fa[i,j]:=fa[i].index[j]
       else tri.fa[i,j]:=fa[i].index[0];
-  for i:=0 to mCount-1 do
-    tri.mat[i]:=mat[i];
-  for i:=0 to groups-1 do
-    tri.grp[i]:=grp[i];
-  for i:=0 to bCount-1 do
-    tri.bone[i]:=bone[i];
+  for i:=0 to mCount-1 do tri.mat[i]:=mat[i];
+  for i:=0 to groups-1 do tri.grp[i]:=grp[i];
+  for i:=0 to bCount-1 do tri.bone[i]:=bone[i];
 end;
 
 procedure TPolyModel.AssignTo(w3d: TModelW3D);
@@ -441,8 +438,7 @@ begin
   setlength(w3d.mat, w3d.mCount);
   setlength(w3d.grp, groups);
   setlength(w3d.bone, bCount);
-  for i:=0 to vCount-1 do
-    w3d.va[i]:=va[i];
+  for i:=0 to vCount-1 do w3d.va[i]:=va[i];
   for i:=0 to fCount-1 do begin
     setlength(w3d.fa[i].v, fa[i].count);
     setlength(w3d.fa[i].n, fa[i].count);
@@ -454,8 +450,7 @@ begin
       w3d.fa[i].uv[j]:=ta[fa[i].index[j]];
     end;
   end;
-  for i:=0 to mCount-1 do
-    w3d.mat[i]:=mat[i];
+  for i:=0 to mCount-1 do w3d.mat[i]:=mat[i];
   for i:=0 to groups-1 do begin
     w3d.grp[i]:=grp[i];
     for j:=grp[i].first to integer(grp[i].first)+grp[i].count-1 do begin
@@ -463,8 +458,7 @@ begin
       w3d.fa[j].MatIndex:=grp[i].matIndex;
     end;
   end;
-  for i:=0 to bCount-1 do
-    w3d.bone[i]:=bone[i];
+  for i:=0 to bCount-1 do w3d.bone[i]:=bone[i];
 end;
 
 procedure TPolyModel.Clear;
@@ -497,7 +491,7 @@ begin
   if groups=0 then begin
     groups:=1;
     grp[0].first:=0; grp[0].count:=fCount;
-    grp[0].matIndex:=0;
+    grp[0].matIndex:=0; grp[0].visible:=true;
   end;
   for j:=0 to groups-1 do
     for i:=grp[j].first to integer(grp[j].first+grp[j].count)-1 do
@@ -645,6 +639,7 @@ begin
           grp[groups-1].first:=fCount;
           grp[groups-1].count:=0;
           grp[groups-1].matIndex:=-1;
+          grp[groups-1].visible:=true;
         end;
       end else if (sa[0]='s') and (k>1) then begin
         {n:=strtointdef(sa[1], 0)-1;
@@ -664,6 +659,7 @@ begin
           grp[groups-1].first:=fCount;
           grp[groups-1].count:=0;
           grp[groups-1].matIndex:=-1;
+          grp[groups-1].visible:=true;
         end;
       end;
     end;
@@ -863,6 +859,7 @@ begin
     tri.grp[g].first:=faceN;
     tri.grp[g].count:=grp[g].numtriangles;
     tri.grp[g].matIndex:=grp[g].materialIndex;
+    tri.grp[g].visible:=true;
     for k:=0 to grp[g].numtriangles-1 do begin
       for j:=0 to 2 do begin
         i:=grp[g].triangleIndices[k];
@@ -1009,6 +1006,7 @@ begin
   // Make groups
   setlength(gIndex, fCount); groups:=1;
   grp[0].first:=0; gIndex[0]:=0;
+  grp[0].visible:=true;
   for i:=1 to fCount-1 do
     with fa[i] do begin
       k:=-1;
@@ -1021,6 +1019,7 @@ begin
         groups:=groups+1;
         grp[groups-1].first:=i;
         grp[groups-1].matIndex:=MatIndex;
+        grp[groups-1].visible:=true;
         gIndex[i]:=groups-1;
       end else
         gIndex[i]:=k;
@@ -1085,26 +1084,19 @@ begin
   setlength(poly.mat, mCount);
   setlength(poly.grp, groups);
   setlength(poly.bone, bCount);
-  for i:=0 to vCount-1 do begin
-    poly.va[i]:=va[i];
-    //poly.na[i]:=na[i]; poly.ta[i]:=ta[i];
-  end;
+  for i:=0 to vCount-1 do poly.va[i]:=va[i];
   for i:=0 to fCount-1 do begin
     poly.fa[i].count:=fa[i].Count;
     setlength(poly.fa[i].index, fa[i].Count);
     for j:=0 to fa[i].Count-1 do begin
       poly.fa[i].index[j]:=fa[i].v[j];
-      //poly.va[fa[i].v[j]]:=va[fa[i].v[j]];
       poly.na[fa[i].v[j]]:=fa[i].n[j];
       poly.ta[fa[i].v[j]]:=fa[i].uv[j];
     end;
   end;
-  for i:=0 to mCount-1 do
-    poly.mat[i]:=mat[i];
-  for i:=0 to groups-1 do
-    poly.grp[i]:=grp[i];
-  for i:=0 to bCount-1 do
-    poly.bone[i]:=bone[i];
+  for i:=0 to mCount-1 do poly.mat[i]:=mat[i];
+  for i:=0 to groups-1 do poly.grp[i]:=grp[i];
+  for i:=0 to bCount-1 do poly.bone[i]:=bone[i];
 end;
 
 procedure TModelW3D.AssignTo(const tri: TTriModel);
@@ -1333,25 +1325,27 @@ end;
 // Returns >= 0 if intersects, it is index of the face
 function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
   const intersect: PVector; const normal: PVector): integer;
-var i: integer; d: single; nearest: single;
+var g, i: integer; d: single; nearest: single;
     vI,vN: TVector;
 begin
   result:=-1; nearest:=-2;
-  for i:=0 to fCount-1 do
-    if RayTriangleIntersect(rayStart, RayDir,
-       va[fa[i][0]], va[fa[i][1]], va[fa[i][2]],
-       intersect, normal) then begin
-      if (not findClosest) or (intersect=nil) then begin
-        result:=i; exit;
-      end else begin
-        d:=VectorDist(rayStart, intersect^);
-        if (d<nearest) or (nearest<-1) then begin
-          nearest:=d; vI:=intersect^;
-          if normal<>nil then vN:=normal^;
-          result:=i;
+  for g:=0 to groups-1 do
+    if grp[g].visible then with grp[g] do
+      for i:=first to integer(first)+Count-1 do
+        if RayTriangleIntersect(rayStart, RayDir,
+           va[fa[i][0]], va[fa[i][1]], va[fa[i][2]],
+           intersect, normal) then begin
+          if (not findClosest) or (intersect=nil) then begin
+            result:=i; exit;
+          end else begin
+            d:=VectorDist(rayStart, intersect^);
+            if (d<nearest) or (nearest<-1) then begin
+              nearest:=d; vI:=intersect^;
+              if normal<>nil then vN:=normal^;
+              result:=i;
+            end;
+          end;
         end;
-      end;
-    end;
   if nearest>-1 then begin
     intersect^:=vI;
     if normal<>nil then normal^:=vN;
@@ -1448,6 +1442,7 @@ begin
   for i:=0 to groups-1 do
     with grp[i] do begin
       count:=f_per_side; first:=i*f_per_side; matIndex:=0;
+      visible:=true;
     end;
 
   // Front
@@ -1580,7 +1575,7 @@ begin
   fCount:=2*rows*cols; vCount:=(rows+1)*(cols+1);
   sx:=1/cols; sy:=1/rows; groups:=1;
   with grp[0] do begin
-    count:=fCount; first:=0; matIndex:=0;
+    count:=fCount; first:=0; matIndex:=0; visible:=true;
   end;
   for j:=0 to rows do
     for i:=0 to cols do begin
@@ -1624,7 +1619,7 @@ begin
   fCount:=2*rows*cols; vCount:=(rows+1)*(cols+1);
   groups:=1;
   with grp[0] do begin
-    count:=fCount; first:=0; matIndex:=0;
+    count:=fCount; first:=0; matIndex:=0; visible:=true;
   end;
   ax:=pi*2/cols; ay:=pi/rows;
   for j:=0 to rows do
@@ -1670,7 +1665,7 @@ begin
   fCount:=2*rows*cols; vCount:=(rows+1)*(cols+1);
   groups:=1;
   with grp[0] do begin
-    count:=fCount; first:=0; matIndex:=0;
+    count:=fCount; first:=0; matIndex:=0; visible:=true;
   end;
   a1:=pi*2/rows; a2:=pi*2/cols;
   for j:=0 to rows do
@@ -1742,17 +1737,12 @@ begin
     poly.va[i]:=va[i]; poly.na[i]:=na[i]; poly.ta[i]:=ta[i];
   end;
   for i:=0 to fCount-1 do begin
-    poly.fa[i].count:=3;
-    setlength(poly.fa[i].index, 3);
-    for j:=0 to 2 do
-      poly.fa[i].index[j]:=fa[i, j];
+    poly.fa[i].count:=3; setlength(poly.fa[i].index, 3);
+    for j:=0 to 2 do poly.fa[i].index[j]:=fa[i, j];
   end;
-  for i:=0 to mCount-1 do
-    poly.mat[i]:=mat[i];
-  for i:=0 to groups-1 do
-    poly.grp[i]:=grp[i];
-  for i:=0 to bCount-1 do
-    poly.bone[i]:=bone[i];
+  for i:=0 to mCount-1 do poly.mat[i]:=mat[i];
+  for i:=0 to groups-1 do poly.grp[i]:=grp[i];
+  for i:=0 to bCount-1 do poly.bone[i]:=bone[i];
 end;
 
 initialization

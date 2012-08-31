@@ -399,6 +399,7 @@ begin
   if i2<>nil then i2^:=VectorCombine(rayStart, rayDirection, lf+s);
 end;
 
+// Tests both-sided intersection for line and triangle
 function RayTriangleIntersect(const rayStart, rayDirection: TVector; const p1, p2,
   p3: TVector; intersect: PVector; intersectNormal: PVector): Boolean;
 var pvec, v1, v2, qvec, tvec: TVector;
