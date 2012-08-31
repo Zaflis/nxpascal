@@ -382,19 +382,18 @@ function RaySphereIntersect(const rayStart: TVector; rayDirection: TVector;
 var lf, s: single; h: TVector;
 begin
   result:=0;
-  // http://www.openprocessing.org/sketch/45539
-  norm(rayDirection);
-  h := VectorSub(sphereCenter, rayStart);   // h=r.o-c.M
-  lf := dot(rayDirection, h);                      // lf=e.h
-  s := sqr(sphereRadius)-dot(h, h)+sqr(lf);  // s=r^2-h^2+lf^2
-  if s < 0.0 then exit;                    // no intersection points ?
-  s := sqrt(s);                              // s=sqrt(r^2-h^2+lf^2)
-  if lf < s then begin                       // S1 behind A ?
-    if lf+s >= 0 then begin                  // S2 before A ?}
-      s := -s;                               // swap S1 <-> S2}
-      result := 1;                           // one intersection point
+  rayDirection:=norm(rayDirection);
+  h := VectorSub(sphereCenter, rayStart);
+  lf := dot(rayDirection, h);
+  s := sqr(sphereRadius)-dot(h, h)+sqr(lf);
+  if s < 0.0 then exit;
+  s := sqrt(s);
+  if lf < s then begin
+    if lf+s >= 0 then begin
+      s := -s;
+      result := 1;
     end;
-  end else result := 2;                      // 2 intersection points
+  end else result := 2;
   if i1<>nil then i1^:=VectorCombine(rayStart, rayDirection, lf-s);
   if i2<>nil then i2^:=VectorCombine(rayStart, rayDirection, lf+s);
 end;
