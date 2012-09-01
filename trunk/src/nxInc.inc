@@ -1,0 +1,10 @@
+{$IFDEF fpc}{$DEFINE CanInline}{$ENDIF}
+
+// Delphi versions
+{$IFDEF VER170}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER180}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER185}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER200}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER210}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER220}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER230}{$DEFINE CanInline}{$ENDIF}

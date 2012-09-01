@@ -1,10 +1,12 @@
 unit nxMath;
 
+{$I nxInc.inc}
+
+interface
+
 { TODO:
 - Recheck Distance2
 }
-
-interface
 
 uses nxTypes, math;
 
@@ -17,9 +19,9 @@ uses nxTypes, math;
   function dmod(a, b: double): double;
   function Dot(const a,b: TVector2f): single;
   function fmod(a, b: single): single;
-  function Interpolate(const v1,v2,s: single): single; overload;
+  function Interpolate(const v1,v2,s: single): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Interpolatei(const v1,v2: integer; s: single): integer;
-  function Interpolate(const v1,v2: TVector2f; const s: single): TVector2f; overload;
+  function Interpolate(const v1,v2: TVector2f; const s: single): TVector2f; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Invert(const v: TVector2f): TVector2f; overload;
   function LinesCross(const x0, y0, x1, y1, x2, y2, x3, y3: Integer): Boolean;
   function Mod2(a,b: integer): integer;
@@ -37,9 +39,10 @@ uses nxTypes, math;
   function Rotate(const pt,center: TVector2f; const _angle: single): TVector2f; overload;
   procedure Rotate(var x,y: single; const _angle,centerX,centerY: single); overload;
   function Smoothen(n: single): single;
-  function Tangent(const p1, p2: TVector2f): TVector2f;
+  function Tangent(const p1, p2: TVector2f): TVector2f; overload;
   function Vector2f(const x, y: single): TVector2f;
   function VectorAdd(const v1, v2: TVector2f): TVector2f; overload;
+  function VectorMatch(const a, b: TVector2f; delta: single=0.01): boolean; overload;
   function VectorSub(const v1, v2: TVector2f): TVector2f; overload;
 
 // Operator overloading
@@ -123,7 +126,7 @@ begin
   result:=a-int(a/b)*b;
 end;
 
-function Interpolate(const v1,v2,s: single): single;
+function Interpolate(const v1,v2,s: single): single;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result:=v1+s*(v2-v1);
 end;
@@ -133,7 +136,7 @@ begin
   result:=round(v1+s*(v2-v1));
 end;
 
-function Interpolate(const v1,v2: TVector2f; const s: single): TVector2f;
+function Interpolate(const v1,v2: TVector2f; const s: single): TVector2f;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result.x:=v1.x+s*(v2.x-v1.x);
   result.y:=v1.y+s*(v2.y-v1.y);
@@ -330,6 +333,11 @@ function VectorAdd(const v1, v2: TVector2f): TVector2f;
 begin
   result.x:=v1.x+v2.x;
   result.y:=v1.y+v2.y;
+end;
+
+function VectorMatch(const a, b: TVector2f; delta: single): boolean;
+begin
+  result:=(abs(a.x-b.x)<delta) and (abs(a.y-b.y)<delta);
 end;
 
 function VectorSub(const v1, v2: TVector2f): TVector2f;
