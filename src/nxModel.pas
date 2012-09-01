@@ -102,13 +102,13 @@ type
     procedure LoadFromW3D(filename: string; obj: integer = -1);
     procedure MakeNormals;
     function rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
-      const intersect: PVector=nil; const normal: PVector=nil): integer; overload;
+      const intersect: PVector=nil; const normal: PVector=nil): integer; overload; stdcall;
     function rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
       const position: TVector; const intersect: PVector=nil;
-      const normal: PVector=nil): integer; overload;
+      const normal: PVector=nil): integer; overload; stdcall;
     function rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
       const position: TVector; rotation: TMatrix;
-      const intersect: PVector=nil; const normal: PVector=nil): integer; overload;
+      const intersect: PVector=nil; const normal: PVector=nil): integer; overload; stdcall;
     procedure SaveToFile(filename: string);
   end;
 
@@ -237,7 +237,7 @@ type
 
 implementation
 
-uses Classes, SysUtils, math, nxStrings, nxMath3D
+uses Classes, SysUtils, math, nxStrings, nxMath3D, nxMath
   {$IFDEF fpc}, FileUtil{$ENDIF};
 
 { T3DModel }
@@ -641,8 +641,11 @@ begin
           grp[groups-1].matIndex:=-1;
           grp[groups-1].visible:=true;
         end;
-      end else if (sa[0]='s') and (k>1) then begin
-        {n:=strtointdef(sa[1], 0)-1;
+      {end else if (sa[0]='s') and (k>1) then begin
+        // Smoothing groups. Not used if normals are read from file,
+        // but more important if autogenerating them.
+        // Messes up grouping in other cases.
+        n:=strtointdef(sa[1], 0)-1;
         if (n<>curS) and (grp[groups-1].count>0) then begin
           groups:=groups+1;
           grp[groups-1].first:=fCount;
@@ -650,8 +653,10 @@ begin
           grp[groups-1].matIndex:=-1;
         end;
         curS:=n;}
+
       //end else if sa[0]='mtllib' then begin
-        // Load material file
+        // Load material file...
+
       end else if (sa[0]='usemtl') and (k>1) then begin
         // Set material for group
         if grp[groups-1].count>0 then begin
@@ -666,7 +671,7 @@ begin
   until eof(F);
   closefile(F);
   setlength(tt, 0); setlength(vv, 0);
-  //MakeNormals; // Skipping all 'vn' and autogenerating normals
+  //MakeNormals; // If skip all 'vn', then autogenerate normals
 end;
 
 procedure TPolyModel.LoadFromW3D(filename: string; obj: integer);
@@ -680,7 +685,6 @@ end;
 
 procedure TPolyModel.MakeNormals;
 var preTangent: array of TVector;
-
   procedure MakeGrpNormals(const gIndex: word);
   var f, i: integer;
   begin
@@ -689,14 +693,13 @@ var preTangent: array of TVector;
       for i:=0 to fa[f].count-1 do
         na[fa[f].index[i]]:=VectorAdd(na[fa[f].index[i]], preTangent[f]);
   end;
-
 var i: integer;
 begin
   setlength(preTangent, fCount);
   for i:=0 to fCount-1 do preTangent[i]:=GetTangent(i);
   fillchar(na[0], vCount*sizeof(na[0]), 0);
   for i:=0 to groups-1 do MakeGrpNormals(i);
-  for i:=0 to vCount-1 do Norm(na[i]);
+  for i:=0 to vCount-1 do na[i]:=Norm(na[i]);
 end;
 
 procedure TPolyModel.SaveToOBJ(filename: string);
@@ -1319,7 +1322,7 @@ begin
   fillchar(na[0], vCount*sizeof(na[0]), 0);
   for i:=0 to fCount-1 do preTangent[i]:=GetTangent(i);
   for i:=0 to groups-1 do MakeGrpNormals(i);
-  for i:=0 to vCount-1 do Norm(na[i]);
+  for i:=0 to vCount-1 do na[i]:=Norm(na[i]);
 end;
 
 // Returns >= 0 if intersects, it is index of the face
@@ -1355,7 +1358,7 @@ end;
 // Returns >= 0 if intersects, it is index of the face
 // includes parameter position for model
 function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
-  const position: TVector; const intersect: PVector; const normal: PVector): integer;
+  const position: TVector; const intersect: PVector; const normal: PVector): integer; stdcall;
 begin
   result:=rayIntersect(VectorSub(rayStart, position), rayDir, findClosest, intersect, normal);
 end;
@@ -1364,7 +1367,7 @@ end;
 // includes parameters position and rotation for model
 function TTriModel.rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
   const position: TVector; rotation: TMatrix; const intersect: PVector;
-  const normal: PVector): integer;
+  const normal: PVector): integer; stdcall;
 begin
   // Correct ray
   rayDir:=Multiply(rayDir, Invert(rotation));

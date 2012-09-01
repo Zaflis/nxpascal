@@ -56,7 +56,7 @@ begin
       position.y:=random*40-20;
       position.z:=random*40-20;
       rotAxis:=vector(random*2-1, random*2-1, random*2-1);
-      norm(rotAxis);
+      rotAxis:=norm(rotAxis);
       rotation:=NewMatrix;
       rotation:=multiply(
         CreateMatrix(vector(0, 1, 0), random*2*pi),

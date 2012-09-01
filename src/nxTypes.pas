@@ -1,6 +1,7 @@
 unit nxTypes;
 
 {$H+}
+{$I nxInc.inc}
 
 interface
 
@@ -58,10 +59,10 @@ type
   function recti(const x1, y1, x2, y2: integer): TRecti;
   function bRect(const x, y, w, h: integer): TBoundsRect;
   procedure switchVar(const p1, p2: Pointer; const Size: integer);
-  function vector(const x, y: single; const z: single = 0): TVector;
+  function vector(const x, y: single; const z: single = 0): TVector;{$IFDEF CanInline}inline;{$ENDIF}
   function vector2f(const x, y: single): TVector2f;
   function vector3i(const x, y, z: integer): TVector3i;
-  function vector4f(const x, y, z: single; const w: single = 1): TVector4f;
+  function vector4f(const x, y, z: single; const w: single = 1): TVector4f;{$IFDEF CanInline}inline;{$ENDIF}
   function RGB(const r, g, b: byte): TRGB;
   function RGBA(const r, g, b: byte; const a: byte = 255): TRGBA;
   function fRGBA(const r, g, b, a: single): TfRGBA;
@@ -149,7 +150,7 @@ begin
   freemem(temp);
 end;
 
-function vector(const x, y: single; const z: single): TVector;
+function vector(const x, y: single; const z: single): TVector;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result.x:=x; result.y:=y; result.z:=z;
 end;
@@ -164,7 +165,7 @@ begin
   result.x:=x; result.y:=y; result.z:=z;
 end;
 
-function vector4f(const x, y, z, w: single): TVector4f;
+function vector4f(const x, y, z, w: single): TVector4f;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result.x:=x; result.y:=y; result.z:=z; result.w:=w;
 end;

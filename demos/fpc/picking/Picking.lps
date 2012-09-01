@@ -33,11 +33,10 @@
         <Filename Value="GameUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GameUnit"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="82"/>
-        <CursorPos X="43" Y="8"/>
+        <TopLine Value="1"/>
+        <CursorPos X="37" Y="47"/>
         <UsageCount Value="40"/>
         <Loaded Value="True"/>
       </Unit2>
@@ -45,6 +44,7 @@
         <Filename Value="GraphicsUnit.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="GraphicsUnit"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="93"/>
