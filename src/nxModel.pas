@@ -14,6 +14,8 @@ interface
 uses nxTypes;
 
 type
+  TIndexArray = array of word;
+
   TMaterial = record
     name, texture: string;
     texIndex: smallint;
@@ -61,11 +63,12 @@ type
     procedure Clear;
     function GetRadius: single;
     procedure Rotate(_angle: single; axis: TVector);
+    procedure RotateUV(_angle, centerX, centerY: single); overload;
     procedure Scale(x, y, z: single);
     procedure ScaleTo(size: single);
-    procedure ScaleUV(x, y: single);
+    procedure ScaleUV(x, y: single); overload;
     procedure Translate(x, y, z: single);
-    procedure TranslateUV(x, y: single);
+    procedure TranslateUV(x, y: single); overload;
   end;
 
   TModelW3D = class;
@@ -81,6 +84,7 @@ type
     frame: array of TVertexFrame;
   private
     FfCount: integer;
+    procedure GetGrpVertices(out vi: TIndexArray; out vc: integer; group: integer);
     procedure SetfCount(n: integer);
   public
     property fCount: integer read FfCount write SetfCount;
@@ -109,7 +113,10 @@ type
     function rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
       const position: TVector; rotation: TMatrix;
       const intersect: PVector=nil; const normal: PVector=nil): integer; overload; stdcall;
+    procedure RotateUV(_angle, centerX, centerY: single; group: integer); overload;
+    procedure ScaleUV(x, y: single; group: integer); overload;
     procedure SaveToFile(filename: string);
+    procedure TranslateUV(x, y: single; group: integer); overload;
   end;
 
   TPolyFaceIndices = packed record
@@ -261,11 +268,17 @@ end;
 procedure T3DModel.Rotate(_angle: single; axis: TVector);
 var i: integer;
 begin
-  _angle:=_angle*toRad;
   for i:=0 to vCount-1 do begin
     va[i]:=nxMath3D.Rotate(va[i], _angle, axis);
     na[i]:=nxMath3D.Rotate(na[i], _angle, axis);
   end;
+end;
+
+procedure T3DModel.RotateUV(_angle, centerX, centerY: single);
+var i: integer;
+begin
+  for i:=0 to vCount-1 do
+    nxMath.Rotate(ta[i].x, ta[i].y, _angle, centerX, centerY);
 end;
 
 procedure T3DModel.Scale(x, y, z: single);
@@ -1136,7 +1149,7 @@ begin
   // if tex-coords loop over boundaries
   for g:=groups-1 downto 0 do
     with grp[g] do begin
-      for i:=first+count{%H-}-1 downto first do begin
+      for i:=integer(first)+count-1 downto first do begin
         t0:=fa[i].uv[0];
         t1:=fa[i].uv[1];
         t2:=fa[i].uv[2];
@@ -1326,8 +1339,7 @@ begin
 end;
 
 // Returns >= 0 if intersects, it is index of the face
-function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
-  const intersect: PVector; const normal: PVector): integer;
+function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean; const intersect: PVector; const normal: PVector): integer; stdcall;
 var g, i: integer; d: single; nearest: single;
     vI,vN: TVector;
 begin
@@ -1371,14 +1383,32 @@ function TTriModel.rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
 begin
   // Correct ray
   rayDir:=Multiply(rayDir, Invert(rotation));
-
   // Correct position
   nxMath3D.Translate(rotation, position);
   rotation:=invert(rotation);
   rayStart:=Multiply(rayStart, rotation);
   rotation:=invert(rotation);
-
   result:=rayIntersect(rayStart, rayDir, findClosest, intersect, normal);
+end;
+
+procedure TTriModel.RotateUV(_angle, centerX, centerY: single; group: integer);
+var i, vc: integer; vi: array of word;
+begin
+  GetGrpVertices(vi, vc, group);
+  for i:=0 to vc-1 do
+    nxMath.Rotate(ta[vi[i]].x, ta[vi[i]].y, _angle, centerX, centerY);
+  setlength(vi, 0);
+end;
+
+procedure TTriModel.ScaleUV(x, y: single; group: integer);
+var i, vc: integer; vi: array of word;
+begin
+  GetGrpVertices(vi, vc, group);
+  for i:=0 to vc-1 do begin
+    ta[vi[i]].x:=ta[vi[i]].x*x;
+    ta[vi[i]].y:=ta[vi[i]].y*y;
+  end;
+  setlength(vi, 0);
 end;
 
 procedure TTriModel.SaveToFile(filename: string);
@@ -1391,6 +1421,39 @@ begin
   else if ext='.obj' then poly.SaveToOBJ(filename);
   //else if ext='.ms3d' then poly.SaveToMS3D(filename);
   poly.Free;
+end;
+
+procedure TTriModel.TranslateUV(x, y: single; group: integer);
+var i, vc: integer; vi: array of word;
+begin
+  GetGrpVertices(vi, vc, group);
+  for i:=0 to vc-1 do begin
+    ta[vi[i]].x:=ta[vi[i]].x+x;
+    ta[vi[i]].y:=ta[vi[i]].y+y;
+  end;
+  setlength(vi, 0);
+end;
+
+procedure TTriModel.GetGrpVertices(out vi: TIndexArray; out vc: integer; group: integer);
+var i, j, k, vc2: integer; exist: boolean;
+begin
+  vc:=0; vc2:=8; setlength(vi, vc2);
+  with grp[group] do
+    for i:=first to integer(first)+count-1 do
+      for j:=0 to 2 do begin
+        exist:=false;
+        for k:=vc-1 downto 0 do
+          if vi[k]=fa[i, j] then begin
+            exist:=true; break;
+          end;
+        if not exist then begin
+          inc(vc);
+          if vc>vc2 then begin // Size array with increments of 8
+            inc(vc2, 8); setlength(vi, vc2);
+          end;
+          vi[vc-1]:=fa[i, j];
+        end;
+      end;
 end;
 
 procedure TTriModel.SetfCount(n: integer);
@@ -1718,9 +1781,9 @@ begin
     result:=first+count;
     for i:=fCount-1 downto first+count do fa[i]:=fa[i-1];
     inc(count, 1);
-    fa[first+count{%H-}-1, 0]:=vCount-3;
-    fa[first+count{%H-}-1, 1]:=vCount-2;
-    fa[first+count{%H-}-1, 2]:=vCount-1;
+    fa[integer(first)+count-1, 0]:=vCount-3;
+    fa[integer(first)+count-1, 1]:=vCount-2;
+    fa[integer(first)+count-1, 2]:=vCount-1;
   end;
   for g:=0 to groups-1 do
     if grp[g].first>=result then inc(grp[g].first, 1);
