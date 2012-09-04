@@ -1392,7 +1392,7 @@ begin
 end;
 
 procedure TTriModel.RotateUV(_angle, centerX, centerY: single; group: integer);
-var i, vc: integer; vi: array of word;
+var i, vc: integer; vi: TIndexArray;
 begin
   GetGrpVertices(vi, vc, group);
   for i:=0 to vc-1 do
@@ -1401,7 +1401,7 @@ begin
 end;
 
 procedure TTriModel.ScaleUV(x, y: single; group: integer);
-var i, vc: integer; vi: array of word;
+var i, vc: integer; vi: TIndexArray;
 begin
   GetGrpVertices(vi, vc, group);
   for i:=0 to vc-1 do begin
@@ -1424,7 +1424,7 @@ begin
 end;
 
 procedure TTriModel.TranslateUV(x, y: single; group: integer);
-var i, vc: integer; vi: array of word;
+var i, vc: integer; vi: TIndexArray;
 begin
   GetGrpVertices(vi, vc, group);
   for i:=0 to vc-1 do begin
@@ -1478,8 +1478,8 @@ end;
 
 constructor TTriModel.CreateCube(segments: integer);
 var s: single; v_per_side: integer;
-  procedure _FaceIndices(fn, n: integer);
-  begin
+  procedure _FaceIndices(fn, n: integer); // 0 1
+  begin                                   // 3 2
     fa[fn  , 0]:=n+0; fa[fn  , 1]:=n+1; fa[fn  , 2]:=n+3;
     fa[fn+1, 0]:=n+3; fa[fn+1, 1]:=n+1; fa[fn+1, 2]:=n+2;
   end;
