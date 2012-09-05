@@ -2,6 +2,8 @@
 
 = nxGL =
 ----
+uses nxGraph, nxMath3D, nxModel, nxShaders, nxStrings, nxTypes
+
 == Classes ==
 
   * TCustomVertexArray
@@ -22,7 +24,8 @@
 {{{
 procedure nxInitGL;
 }}}
-Initializes OpenGL, called after initializing rendering context. Is automatically called with nx.CreateGLWindow.
+Initializes OpenGL, called after initializing rendering context.
+Is automatically called with nx.CreateGLWindow.
 ----
 == Other ==
 {{{
@@ -31,7 +34,8 @@ Initializes OpenGL, called after initializing rendering context. Is automaticall
   nxFov: single = 45;
   nxAspectRatio: single = 1.33;
 }}}
-3D-perspective settings should be altered before nxInitGL activates. nxFARZ will change maximum view-distance when using Z-buffer. nxFov determines field-of-view. nxAspectRatio relates to commands nx.Perspective and nx.SetView.
+3D-perspective settings should be altered before nxInitGL activates, but are involved with procedures nx.Perspective and nx.SetView.
+nxFARZ will change maximum view-distance when using Z-buffer. nxFov determines field-of-view.
 
 {{{
   nx: TNXGL;

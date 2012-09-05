@@ -1,7 +1,7 @@
 #nxMath documentation
 
 = nxMath =
-
+----
 Uses nxTypes
 
 == Functions and procedures ==
@@ -14,13 +14,16 @@ Returns vector angle from point 1 to point 2, in radians.
 {{{
   function Angle(src,dest: single): single;
 }}}
-Returns difference of 2 radian vector angles. Example Angle(0, pi*2) would return 0, because second angle makes a full circle.
+Returns difference of 2 radian vector angles between -pi to pi.
+Example Angle(0, pi*2) would return 0, because second angle makes a full circle.
+Used for example determining which way to turn, when 2 objects are in open space, with free rotations, and when wanting to rotate other object towards the other. With axis-functions, this information is useful in 3D-math too.
 
 {{{
   function Catmull(const p0,p1,p2,p3,t: single): single;
   function Catmull(const a,b,c,d: TVector2f; const delta: single): TVector2f;
 }}}
-Catmull-rom is a curve where all parts of the curve goes through all the points in it. It is especially useful when making smooth paths, or approximations of rounded shapes. Points 0, 1, 2, 3 are used in linear sequence. Value t is delta where 0.0 is at point 1, and 1.0 at point 2. If points 0 or 3 are unknown, use values from nearest point to it, example copy of 1 or 2. This will cause "curve" to go straight at that part.
+Catmull-rom is a curve where all parts of the curve goes through all the points in it.
+It is especially useful when making smooth paths, or approximations of rounded shapes. Points 0, 1, 2, 3 are used in linear sequence. Value t is delta where 0.0 is at point 1, and 1.0 at point 2. If points 0 or 3 are unknown, use values from nearest point to it, example copy of 1 or 2. This will cause "curve" to go straight at that part.
 
 {{{
   function Distance(x1,y1,x2,y2, px,py: single): single;
@@ -36,7 +39,7 @@ Same as Distance(), but returns + or - depending on which side the point is in r
   function dmod(a, b: double): double;
   function fmod(a, b: single): single;
 }}}
-Returns floating point remainder of a mod b. (a-int(a/b)*b)
+Returns floating point remainder of a mod b. (a - int(a / b) * b)
 
 {{{
   function Dot(const a,b: TVector2f): single;
