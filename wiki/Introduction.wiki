@@ -14,21 +14,21 @@ nxPascal is a free game engine that tries to remain lightweight and portable. It
 Basically nxPascal is modular, consistencies are separated in different units. You might choose to just want to use part of the features presented here, if you wish to use another graphics engine or something else. nxGL supports custom window creation, so you can do all that different way, but still being able to use even graphics features of this engine.
 
 == Units ==
-  * nxBass
-	* nxData
-	* nxDX (not implemented)
-	* nxGame
-	* nxGL
-	* nxGLExtra
-	* nxGLUI
-	* nxGraph
-	* nxMath
-	* nxMath3D
-	* nxModel
-	* nxNetwork
-	* nxPath
-	* nxShaders
-	* nxSound
-	* nxStrings
-	* nxTypes
-	* nxUI
+  * [nxBass]
+  * [nxData]
+  * [nxDX] (not implemented)
+  * [nxGame]
+  * [nxGL]
+  * [nxGLExtra]
+  * [nxGLUI]
+  * [nxGraph]
+  * [nxMath]
+  * [nxMath3D]
+  * [nxModel]
+  * [nxNetwork]
+  * [nxPath]
+  * [nxShaders]
+  * [nxSound]
+  * [nxStrings]
+  * [nxTypes]
+  * [nxUI]
