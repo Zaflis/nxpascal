@@ -1,0 +1,23 @@
+#nxGraph documentation
+
+= nxGraph =
+----
+Uses nxMath, nxStrings, nxTypes
+
+== Classes ==
+  * TNXCustomEngine
+  * TNXFont
+  * TTextureSet
+
+== Other ==
+
+{{{
+NX_SaveFontBitmap: boolean = false;
+}}}
+If set NX_SaveFontBitmap:=true, font creation will cause it to write 'FontBitmap.bmp' in application folder.
+
+== TNXCustomEngine class ==
+
+== TNXFont class ==
+
+== TTextureSet class ==

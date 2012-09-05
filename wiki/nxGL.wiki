@@ -2,23 +2,22 @@
 
 = nxGL =
 ----
-uses nxGraph, nxMath3D, nxModel, nxShaders, nxStrings, nxTypes
+uses dglOpenGL, nxGraph, nxMath3D, nxModel, nxShaders, nxStrings, nxTypes
 
 == Classes ==
-
   * TCustomVertexArray
   * TDisplayList
   * TFrameBuffer
-  * TGLFont
-  * TGLModel
+  * TGLFont (TNXFont)
+  * TGLModel (TTriModel)
   * TGLRenderer
   * TGLShader
-  * TGLTextureSet
-  * TNXGL
+  * TGLTextureSet (TTextureSet)
+  * TNXGL (TNXCustomEngine)
   * TRenderSettings
-  * TVBO
-  * TVertexArray
-----
+  * TVBO (TCustomVertexArray)
+  * TVertexArray (TCustomVertexArray)
+
 == Functions and procedures ==
 
 {{{
@@ -26,21 +25,45 @@ procedure nxInitGL;
 }}}
 Initializes OpenGL, called after initializing rendering context.
 Is automatically called with nx.CreateGLWindow.
-----
+
 == Other ==
 {{{
-  nxFARZ: single = 1000;
-  nxNEARZ: single = 0.1;
-  nxFov: single = 45;
-  nxAspectRatio: single = 1.33;
+nxFARZ: single = 1000;
+nxNEARZ: single = 0.1;
+nxFov: single = 45;
+nxAspectRatio: single = 1.33;
 }}}
 3D-perspective settings should be altered before nxInitGL activates, but are involved with procedures nx.Perspective and nx.SetView.
 nxFARZ will change maximum view-distance when using Z-buffer. nxFov determines field-of-view.
 
 {{{
-  nx: TNXGL;
-  tex: TGLTextureSet;
+nx: TNXGL;
+tex: TGLTextureSet;
 }}}
 *nx*, and *tex* are automatically instantiated class objects when unit is added to uses-list of your program.
 *nx: TNXGL* is basically the core of everything; graphics, rendering settings, fonts, rendering context management, error reporting.
 *tex: TGLTextureSet* is class handling all texture-operations; loading of PNG, JPG, BMP formats.
+
+== TCustomVertexArray class ==
+
+== TDisplayList class ==
+
+== TFrameBuffer class ==
+
+== TGLFont class ==
+
+== TGLModel class ==
+
+== TGLRenderer class ==
+
+== TGLShader class ==
+
+== TGLTextureSet class ==
+
+== TNXGL class ==
+
+== TRenderSettings class ==
+
+== TVBO class ==
+
+== TVertexArray class ==

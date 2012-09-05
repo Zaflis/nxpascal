@@ -1,0 +1,17 @@
+#nxBass documentation
+
+= nxBass =
+----
+Uses [http://www.un4seen.com/ BASS], nxTypes
+(Notice: bass.dll is required.)
+
+== Classes ==
+  * TBassEngine
+  * TBassSound
+	* TNXSoundListener
+
+== TBassEngine class ==
+
+== TBassSound class ==
+
+== TNXSoundListener class ==

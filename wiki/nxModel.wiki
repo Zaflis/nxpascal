@@ -1,0 +1,22 @@
+#nxModel documentation
+
+= nxModel =
+----
+Uses nxTypes
+
+== Classes ==
+  * T3DModel
+  * TModelMS3D
+	* TModelW3D (T3DModel)
+  * TPolyModel (T3DModel)
+	* TTriModel (T3DModel)
+	
+== T3DModel class ==
+
+== TModelMS3D class ==
+
+== TModelW3D class ==
+
+== TPolyModel class ==
+
+== TTriModel class ==

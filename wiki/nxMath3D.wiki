@@ -1,0 +1,15 @@
+#nxMath3D documentation
+
+= nxMath3D =
+----
+Uses nxMath, nxTypes
+
+== Functions and procedures ==
+
+{{{
+  
+}}}
+
+{{{
+  
+}}}

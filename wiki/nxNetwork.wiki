@@ -1,0 +1,32 @@
+#nxNetwork documentation
+
+= nxNetwork =
+----
+Uses nxTypes, [http://www.ararat.cz/synapse/doku.php Synapse]
+(Notice: Synapse isn't included in nxPascal. Please download separately, it has its own SVN trunk.)
+
+== Classes ==
+  * TClient (TConnection)
+  * TClientThread
+  * TConnection
+	* TServer (TConnection)
+  * TServerSubThread
+  * TServerThread
+	* TTCPServer (TServer)
+	* TUDPServer (TServer)
+
+== TClient class ==
+
+== TClientThread class ==
+
+== TConnection class ==
+
+== TServer class ==
+
+== TServerSubThread class ==
+
+== TServerThread class ==
+
+== TTCPServer class ==
+
+== TUDPServer class ==
