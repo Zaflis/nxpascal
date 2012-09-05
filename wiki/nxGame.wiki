@@ -2,10 +2,10 @@
 
 = nxGame =
 ----
-Uses nxTypes
+Uses [nxTypes]
 
 == Classes ==
- * TGameHandler
+  * TGameHandler
 
 == TGameHandler class ==
 
@@ -42,12 +42,12 @@ Returns automatic path for file, checking modPath first. You can define modPath:
 procedure Idle;
 }}}
 Called in TApplicationProperties.onIdle event.
+Calls GameLoop- and Draw-methods at frequency defined by interval. Will Sleep(1) to rest hardware at other times.
 
 {{{
 procedure KeyDown(key: word; _Shift: TShiftState);
 }}}
 Called in TForm.onKeyDown event.
-Calls GameLoop- and Draw-methods at frequency defined by interval. Will Sleep(1) to rest hardware at other times.
 
 {{{
 procedure KeyUp(key: word; _Shift: TShiftState);

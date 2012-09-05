@@ -14,3 +14,10 @@ For your game projects, it is recommended to copy the "Game template" demo to yo
 
 All demos should work as is, but for your own projects you need to set nx\src\ path to your programming IDE. If you use Delphi, this is in Environment path, saved globally for every project. For Lazarus you need to do this for every individual project:
 Project menu -> Project Options -> Paths -> Other Unit files...
+
+----
+== Synapse ==
+SVN trunk for Synapse network library is at:
+https://synalist.svn.sourceforge.net/svnroot/synalist/trunk/
+
+Check here if it's changed: http://www.ararat.cz/synapse/doku.php/download

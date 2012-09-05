@@ -2,7 +2,6 @@
 
 = nxShaders =
 ----
-Uses nxTypes
 
 == Functions and procedures ==
 

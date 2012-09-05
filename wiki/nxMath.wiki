@@ -2,7 +2,7 @@
 
 = nxMath =
 ----
-Uses nxTypes
+Uses [nxTypes]
 
 == Functions and procedures ==
 

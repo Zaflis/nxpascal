@@ -29,7 +29,7 @@ Switches value of 2 variables of same memory size, using pointers.
 procedure FixPath(var path: string);
 function getFixPath(const path: string): string;
 }}}
-Makes given path crossplatform. FixPath('/path1/path2') would do nothing with *nix based systems, but change it to '\path1\path2' with Windows.
+Makes given path crossplatform. FixPath('/path1/path2') would do nothing with linux based systems, but change it to '\path1\path2' with Windows.
 
 {{{
 function UTFToChr(const s: string): char;
