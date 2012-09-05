@@ -2,7 +2,7 @@
 
 = nxGL =
 ----
-uses [dglOpenGL], [nxGraph], [nxMath3D], [nxModel], [nxShaders], [nxStrings], [nxTypes]
+uses [http://wiki.delphigl.com/index.php/dglOpenGL.pas/en dglOpenGL], [nxGraph], [nxMath3D], [nxModel], [nxShaders], [nxStrings], [nxTypes], (LazOpenGLContext with Lazarus)
 
 == Classes ==
   * TCustomVertexArray

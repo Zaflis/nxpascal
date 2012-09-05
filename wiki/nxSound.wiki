@@ -1,7 +1,7 @@
 #nxSound documentation
 
 = nxSound =
-Unit is focused on [http://www.noeska.com/doal/ OpenAL].
+Unit is focused on [http://www.noeska.com/doal/ OpenAL]. Check [nxBass] for more finished BASS-implementation.
 ----
 uses [nxTypes], [http://www.noeska.com/doal/ OpenAL]
 

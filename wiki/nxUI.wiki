@@ -41,9 +41,9 @@ bdSize: byte; // Used by section drawing
 onMouseMove: TUIMouseMove;
 onMouseDown, onMouseUp: TUIMouseClick;
 onBeforeDraw, onAfterDraw: TUIEvent;
-property AbsPos: boolean read FAbsPos write SetAbsPos;
-property AbsSize: boolean read FAbsSize write SetAbsSize;
-property Focused: boolean read FFocused write SetFocus;
+property AbsPos: boolean;
+property AbsSize: boolean;
+property Focused: boolean;
 constructor Create(const _name: string; const _eType: TUIElementType);
 procedure BringToFront;
 function DrawAlpha: single;

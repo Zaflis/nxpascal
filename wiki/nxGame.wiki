@@ -2,7 +2,7 @@
 
 = nxGame =
 ----
-Uses [nxTypes]
+Uses [nxGraph], [nxTypes], (mouseandkeyinput with Lazarus)
 
 == Classes ==
   * TGameHandler
