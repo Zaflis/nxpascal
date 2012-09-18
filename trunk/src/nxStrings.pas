@@ -1,32 +1,33 @@
 unit nxStrings;
 
-{$IFDEF fpc}
-{$mode delphi}{$H+}
-{$ENDIF}
+{$IFDEF fpc}{$H+}{$ENDIF}
 
 interface
 
-{$IFDEF fpc}
-uses LCLProc;
-{$ENDIF}
+{$IFDEF fpc}uses LCLProc;{$ENDIF}
 
 type
   TStrAlign = (saLeft, saRight, saCenter);
-  TCustomRead = (crString,crInt,crSingle,crDouble,crByte,crWord,
-    crShortInt,crSmallInt,crCardinal,crBool,crInt64);
+  TCustomRead = (crString, crInt, crSingle, crDouble, crByte, crWord,
+    crShortInt, crSmallInt, crCardinal, crBool, crInt64);
 
   function BoolToStr(const b: Boolean): string;
   function FillStr(s,str: string; count: Word; align: TStrAlign = saCenter): string;
   function ReadCustom(const s,separator: string; const arr: array of pointer;
     const arrt: array of TCustomRead): integer;
-  function ReadInts(const s,separator: string; var ints: array of integer): integer;
-  function ReadStrings(const s,separator: string; out strings: array of string): integer;
-  function StrAfter(const s,s2: string): string;
-  function StrBefore(const s,s2: string): string;
-  function StrBetween(const s,s1,s2: string): string;
-  function StrReplace(s: string; const src,dest: string): string;
+  function ReadInts(const s, separator: string; var ints: array of integer): integer;
+  function ReadStrings(const s, separator: string; out strings: array of string): integer;
+  function StrAfter(const s, s2: string): string;
+  function StrBefore(const s, s2: string): string;
+  function StrBetween(const s, s1, s2: string): string;
+  function StrReplace(s: string; const src, dest: string): string;
   function StrToFloat2(const s: string; default: single = 0): single;
   function StrToInt2(const s: string; default: integer = 0): integer;
+
+{$IFDEF fpc}
+  operator+(const s: string; i: integer): string;
+  operator+(const i: integer; const s: string): string;
+{$ENDIF}
 
 implementation
 
@@ -217,9 +218,22 @@ begin
   end;
 end;
 
+{$IFDEF fpc}
+operator+(const s: string; i: integer): string;
+begin
+  result:=s+inttostr(i);
+end;
+
+operator+(const i: integer; const s: string): string;
+begin
+  result:=inttostr(i)+s;
+end;
+{$ENDIF}
 
 initialization
 
+  // Is known to be deprecated, but nxPascal needs consistency
+  // where all floating points are represented with a dot in strings.
   DecimalSeparator:='.';
 
 end.

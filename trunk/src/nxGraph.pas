@@ -4,6 +4,10 @@ unit nxGraph;
 {$mode objfpc}{$H+}
 {$ENDIF}
 
+{ TODO:
+- TTextureSet.ReadFromFile, WriteToFile
+}
+
 interface
 
 { If using Delphi, add png-folder in library path aswell,

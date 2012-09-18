@@ -1,5 +1,10 @@
 unit nxNetwork;
 
+{
+  Uses Synapse library
+  http://www.ararat.cz/synapse/doku.php
+}
+
 interface
 
 uses Classes, SysUtils, synsock, blcksock;
@@ -150,8 +155,6 @@ var
 implementation
 
 uses Math;
-
-{ TConnection }
 
 function Pow2fit(n: integer): integer;
 var neg: boolean;

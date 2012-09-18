@@ -18,6 +18,11 @@ unit nxGL;
 // In normal mode fpc checks nx.window <> nil
 {.$define NX_CUSTOM_WINDOW}
 
+{ TODO:
+- TVBO
+- TGLRenderer
+}
+
 interface
 
 uses Classes, dglOpenGL, Controls, Forms, ExtCtrls,
@@ -354,7 +359,7 @@ begin
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity;
 
-  glClearColor(0.0, 0.0, 0.0, 0.0); //glClearDepth(1.0);
+  glClearColor(0.0, 0.0, 0.0, 0.0);
   glColor3f(1,1,1);
   glEnable(GL_TEXTURE_2D);
   nx.rs.CullBack:=true;

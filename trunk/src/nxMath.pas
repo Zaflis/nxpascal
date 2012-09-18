@@ -37,7 +37,7 @@ uses nxTypes, math;
   function Reflect(const rayStart, rayDir, wallPoint: TVector2f): TVector2f; overload;
   function Reflect(const rayDir, wallNormal: TVector2f): TVector2f; overload;
   function Rotate(const pt,center: TVector2f; const _angle: single): TVector2f; overload;
-  procedure Rotate(var x,y: single; const _angle,centerX,centerY: single); overload;
+  procedure Rotate(var x, y: single; const _angle, centerX, centerY: single); overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Smoothen(n: single): single;
   function Tangent(const p1, p2: TVector2f): TVector2f; overload;
   function Vector2f(const x, y: single): TVector2f;
@@ -295,20 +295,18 @@ begin
 end;
 
 function Rotate(const pt,center: TVector2f; const _angle: single): TVector2f;
-var d,a: single;
 begin
-  d:=hypot(pt.y-center.y,pt.x-center.x);
-  a:=arctan2(pt.y-center.y,pt.x-center.x)+_angle*ToRad;
-  result.x:=center.x+cos(a)*d;
-  result.y:=center.y+sin(a)*d;
+  result:=pt;
+  rotate(result.x, result.y, _angle, center.x, center.y);
 end;
 
-procedure Rotate(var x,y: single; const _angle,centerX,centerY: single);
-var d,a: single;
+procedure Rotate(var x, y: single; const _angle, centerX, centerY: single);{$IFDEF CanInline}inline;{$ENDIF}
+var ca, sa, _x, _y: single;
 begin
-  d:=hypot(x-centerX, y-centerY);
-  a:=arctan2(y-centerY, x-centerX)+_angle*ToRad;
-  x:=centerX+cos(a)*d; y:=centerY+sin(a)*d;
+  sa:=sin(_angle*toRad); ca:=cos(_angle*toRad);
+  _x:=x-centerX; _y:=y-centerY;
+  x:=_x*ca-_y*sa+centerX;
+  y:=_x*sa+_y*ca+centerY;
 end;
 
 function Smoothen(n: single): single;
