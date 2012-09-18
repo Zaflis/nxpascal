@@ -2,11 +2,9 @@ unit nxModel;
 
 {$IFDEF fpc}{$mode delphi}{$H+}{$ENDIF}
 
-{TODO:
- - Rearrange model classes (Polymodel)
- - Redo loading of W3D, OBJ
- - Bones
- - TVertexFrame texture animation
+{ TODO:
+- Bones
+- TVertexFrame texture animation
 }
 
 interface
@@ -88,7 +86,6 @@ type
     procedure SetfCount(n: integer);
   public
     property fCount: integer read FfCount write SetfCount;
-    constructor Create; overload;
     constructor Create(filename: string); overload;
     constructor CreateCube(segments: integer = 1);
     constructor CreatePlane(cols, rows: integer);
@@ -1465,11 +1462,6 @@ begin
   end;
 end;
 
-constructor TTriModel.Create;
-begin
-  inherited Create;
-end;
-
 constructor TTriModel.Create(filename: string);
 begin
   Create;
@@ -1478,8 +1470,8 @@ end;
 
 constructor TTriModel.CreateCube(segments: integer);
 var s: single; v_per_side: integer;
-  procedure _FaceIndices(fn, n: integer); // 0 1
-  begin                                   // 3 2
+  procedure _FaceIndices(fn, n: integer); // 0 | /| 3
+  begin                                   // 1 |/ | 2
     fa[fn  , 0]:=n+0; fa[fn  , 1]:=n+1; fa[fn  , 2]:=n+3;
     fa[fn+1, 0]:=n+3; fa[fn+1, 1]:=n+1; fa[fn+1, 2]:=n+2;
   end;
