@@ -78,38 +78,51 @@ begin
   mdl[5].TranslateUV(0.05, 0);
 
   // Set camera
-  glLoadIdentity;
-  glTranslatef(0, -0.5, -3); // Bit further behind and upwards
-  glMultMatrixf(@cam); // Move and rotate where ship is
+  camera.Reset(false); //glLoadIdentity;
+  // Bit further behind and upwards
+  camera.Translate(0, -0.5, -3, false); //glTranslatef(0, -0.5, -3);
+  // Apply behind-ship-matrix
+  camera.Multiply(shipCam); //glMultMatrixf(@shipCam);
 
-  // Get mouse-ray on "Cursor", that is now in the middle of screen.
-  //nx.GetMouseRay(mp.x, mp.y, @rayPos, @rayDir);
-  nx.GetMouseRay(nx.Width/2, nx.Height/2, @rayPos, @rayDir);
+  // Get mouse-ray on cursor
+  if isMouseCentered then
+    nx.GetMouseRay(nx.Width/2, nx.Height/2, @rayPos, @rayDir)
+  else
+    nx.GetMouseRay(mp.x, mp.y, @rayPos, @rayDir);
 
   // Render player ship
-  glPushMatrix;
-  with pl.position do glTranslatef(x, y, z);
-  glMultMatrixf(@pl.rotation);
+  camera.Push; //glPushMatrix;
+  with pl.position do
+    camera.Translate(x, y, z); //glTranslatef(x, y, z);
+  camera.Multiply(pl.rotation); //glMultMatrixf(@pl.rotation);
   mdl[0].Render;
-  glPopMatrix;
+  camera.Pop; //glPopMatrix;
+
+  focus:=-1;
 
   // Render floating objects
   for i:=0 to high(obj) do
     with obj[i] do begin
-      glPushMatrix;
+      camera.Push; //glPushMatrix;
 
       // Test mouse-ray intersect with object
       if mdl[model].rayIntersect(rayPos, rayDir, false,
          position, rotation, nil, nil)>=0 then begin
         // Set glowing transparent red
         nx.SetColor(1, 0, 0, 0.8+0.2*sin(toRad*nx.GetTick(360, 0.5)));
+        if (focus<0) or (VectorDist(position, pl.position)<
+             VectorDist(obj[focus].position, pl.position)) then begin
+          // Change focus if it is closest focused object to player ship
+          focus:=i;
+        end;
       end else
         nx.SetColor(color); // Use objects own color
 
-      with position do glTranslatef(x, y, z);
-      glMultMatrixf(@rotation);
+      with position do
+        camera.Translate(x, y, z); //glTranslatef(x, y, z);
+      camera.Multiply(rotation); //glMultMatrixf(@rotation);
       mdl[model].Render;
-      glPopMatrix;
+      camera.Pop; //glPopMatrix;
     end;
 
   // Don't write in depth-buffer, but we can still use depth-test
@@ -134,10 +147,11 @@ begin
   d:=RayPlaneIntersect(rayPos, rayDir,
     vector(0,0,0), vector(0,1,0), @intersect);
   if d>=0 then begin
-    glPushMatrix;
-    with intersect do glTranslatef(floor(x), 0, floor(z));
+    camera.Push; //glPushMatrix;
+    with intersect do
+      camera.Translate(floor(x), 0, floor(z)); //glTranslatef(floor(x), 0, floor(z));
     mdl[1].Render;
-    glPopMatrix;
+    camera.Pop; //glPopMatrix;
   end;
 
   nx.rs.Pop; // Recall earlier render settings
