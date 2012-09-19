@@ -1381,7 +1381,7 @@ begin
   // Correct ray
   rayDir:=Multiply(rayDir, Invert(rotation));
   // Correct position
-  nxMath3D.Translate(rotation, position);
+  SetVector(rotation, position, 3);
   rotation:=invert(rotation);
   rayStart:=Multiply(rayStart, rotation);
   rotation:=invert(rotation);

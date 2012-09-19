@@ -11,7 +11,7 @@ interface
 uses nxTypes, math;
 
   function Angle(const px1,py1,px2,py2: single): single; overload;
-  function Angle(src,dest: single): single; overload;
+  function Angle(srcRadian, destRadian: single): single; overload;
   function Catmull(const p0,p1,p2,p3,t: single): single; overload;
   function Catmull(const a,b,c,d: TVector2f; const delta: single): TVector2f; overload;
   function Distance(x1,y1,x2,y2, px,py: single): single;
@@ -36,9 +36,10 @@ uses nxTypes, math;
   function Pow2near(n: integer): integer;
   function Reflect(const rayStart, rayDir, wallPoint: TVector2f): TVector2f; overload;
   function Reflect(const rayDir, wallNormal: TVector2f): TVector2f; overload;
-  function Rotate(const pt,center: TVector2f; const _angle: single): TVector2f; overload;
-  procedure Rotate(var x, y: single; const _angle, centerX, centerY: single); overload;{$IFDEF CanInline}inline;{$ENDIF}
-  function Smoothen(n: single): single;
+  function Rotate(const pt,center: TVector2f; const degrees: single): TVector2f; overload;
+  procedure Rotate(var x, y: single; const degrees, centerX, centerY: single); overload;{$IFDEF CanInline}inline;{$ENDIF}
+  function Smoothen(const n: single): single; overload;
+  function Smoothen(const source, dest: single; n: single): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Tangent(const p1, p2: TVector2f): TVector2f; overload;
   function Vector2f(const x, y: single): TVector2f;
   function VectorAdd(const v1, v2: TVector2f): TVector2f; overload;
@@ -59,14 +60,14 @@ implementation
 // Angle from 1 point to another, given in radians
 function Angle(const px1,py1,px2,py2: single): single;
 begin
-  result:=arctan2(py2-py1,px2-px1);
+  result:=arctan2(py2-py1, px2-px1);
   if result<0 then result:=result+PI*2;
 end;
 
 // Angle between 2 vectors, given in radians
-function Angle(src,dest: single): single;
+function Angle(srcRadian, destRadian: single): single;
 begin
-  result:=src-dest;
+  result:=srcRadian-destRadian;
   while result<-PI do result:=result+PI*2;
   while result>PI do result:=result-PI*2;
 end;
@@ -261,7 +262,7 @@ begin
 end;
 
 function Pow2near(n: integer): integer;
-var h,l: integer; neg: boolean;
+var h, l: integer; neg: boolean;
 begin
   if n<0 then begin
     n:=-n; neg:=true;
@@ -294,26 +295,31 @@ begin
   result.y:=rayDir.y-wallNormal.y*temp;
 end;
 
-function Rotate(const pt,center: TVector2f; const _angle: single): TVector2f;
+function Rotate(const pt,center: TVector2f; const degrees: single): TVector2f;
 begin
   result:=pt;
-  rotate(result.x, result.y, _angle, center.x, center.y);
+  rotate(result.x, result.y, degrees, center.x, center.y);
 end;
 
-procedure Rotate(var x, y: single; const _angle, centerX, centerY: single);{$IFDEF CanInline}inline;{$ENDIF}
-var ca, sa, _x, _y: single;
+procedure Rotate(var x, y: single; const degrees, centerX, centerY: single);{$IFDEF CanInline}inline;{$ENDIF}
+var ca, sa, _x, _y, rad: single;
 begin
-  sa:=sin(_angle*toRad); ca:=cos(_angle*toRad);
+  rad:=degrees*toRad; sa:=sin(rad); ca:=cos(rad);
   _x:=x-centerX; _y:=y-centerY;
-  x:=_x*ca-_y*sa+centerX;
-  y:=_x*sa+_y*ca+centerY;
+  x:=_x*ca - _y*sa + centerX;
+  y:=_x*sa + _y*ca + centerY;
 end;
 
-function Smoothen(n: single): single;
+// Make value range 0..1 smooth like sine-wave
+function Smoothen(const n: single): single;
 begin
-  if n<0 then n:=0
-  else if n>1 then n:=1;
-  Smoothen:=0.5-cos(n*pi)*0.5;
+  result:=0.5-cos(n*pi)*0.5;
+end;
+
+function Smoothen(const source, dest: single; n: single): single;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  n:=(1-cos(n*pi))*0.5;
+  result:=source*(1-n)+dest*n;
 end;
 
 function Tangent(const p1, p2: TVector2f): TVector2f;

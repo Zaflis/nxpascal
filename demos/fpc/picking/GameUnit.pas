@@ -9,7 +9,6 @@ uses
   nxGame, nxTypes;
 
 type
-
   TPlayer = record
     position, movement: TVector;
     rotation: TMatrix;
@@ -28,9 +27,12 @@ type
   TGame = class(TGameHandler)
   public
     pl: TPlayer;
-    cam: TMatrix;
+    shipCam: TMatrix;
+    camera: TCamera;
     obj: array[0..40] of TFloatingObject;
+    focus: integer;
     constructor Create;
+    destructor Destroy; override;
     procedure GameLoop; override;
     procedure SetCamBehind;
   end;
@@ -46,9 +48,10 @@ begin
   mouseXSpeed:=0.5; mouseYSpeed:=mouseXSpeed;
   CenterMouse(true);
 
+  camera:=TCamera.Create;
   pl.rotation:=NewMatrix;
   pl.position:=vector(1, 5, 3);
-  cam:=NewMatrix;
+  shipCam:=NewMatrix;
   SetCamBehind;
 
   for i:=0 to high(obj) do
@@ -65,6 +68,12 @@ begin
         CreateMatrix(vector(1, 0, 0), random*2*pi));
       color:=rgb(100+random(156), 100+random(156), 100+random(156));
     end;
+end;
+
+destructor TGame.Destroy;
+begin
+  camera.Free;
+  inherited Destroy;
 end;
 
 procedure TGame.GameLoop;
@@ -135,11 +144,13 @@ begin
 end;
 
 procedure TGame.SetCamBehind;
+var temp: TMatrix;
 begin
-  cam:=pl.rotation;
-  SetVector(cam, pl.position, 3);
-  cam:=Invert(cam);
-  cam:=Rotate(cam, 0, PI); // Rotate 180 degrees to ship behind
+  temp:=pl.rotation;
+  SetVector(temp, pl.position, 3);
+  temp:=Invert(temp);
+  temp:=Rotate(temp, 0, PI);
+  shipCam:=Interpolate(shipCam, temp, 0.3);
 end;
 
 end.

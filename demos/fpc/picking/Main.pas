@@ -94,11 +94,18 @@ end;
 
 procedure TForm1.FormMouseDown(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
+var n: integer;
 begin
   if game<>nil then begin
     game.MouseDown(button, shift);
     // MouseDown events
-
+    if game.focus>=0 then begin
+      repeat
+        n:=random(4)+2;
+      until n<>game.obj[game.focus].model;
+      game.obj[game.focus].model:=n;
+      game.focus:=-1;
+    end;
   end;
 end;
 

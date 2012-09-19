@@ -60,7 +60,7 @@ begin
   fb:=TFrameBuffer.Create(clientWidth, clientHeight, false);
 
   // Initialize grid
-  grid:=TVertexArray.Create(GS*GS*4, (GS+1)*(GS+1), GL_QUADS, true, false, false);
+  grid:=TVertexArray.Create(GS*GS, (GS+1)*(GS+1), GL_QUADS, true, false, false);
   for j:=0 to GS do
     for i:=0 to GS do begin
       // Texture coordinates
@@ -74,16 +74,16 @@ begin
   for j:=0 to GS-1 do
     for i:=0 to GS-1 do
       if i mod 2=0 then begin
-        grid.fa[4*(i+j*GS)]:=i+j*(GS+1);
-        grid.fa[4*(i+j*GS)+1]:=i+(j+1)*(GS+1);
+        grid.fa[4*(i+j*GS)]:=  i   +j   *(GS+1);
+        grid.fa[4*(i+j*GS)+1]:=i  +(j+1)*(GS+1);
         grid.fa[4*(i+j*GS)+2]:=i+1+(j+1)*(GS+1);
-        grid.fa[4*(i+j*GS)+3]:=i+1+j*(GS+1);
+        grid.fa[4*(i+j*GS)+3]:=i+1 +j   *(GS+1);
       end else begin
         // Improve grid drawing by flipping every second quad
-        grid.fa[4*(i+j*GS)]:=i+(j+1)*(GS+1);
+        grid.fa[4*(i+j*GS)]:=  i  +(j+1)*(GS+1);
         grid.fa[4*(i+j*GS)+1]:=i+1+(j+1)*(GS+1);
-        grid.fa[4*(i+j*GS)+2]:=i+1+j*(GS+1);
-        grid.fa[4*(i+j*GS)+3]:=i+j*(GS+1);
+        grid.fa[4*(i+j*GS)+2]:=i+1 +j   *(GS+1);
+        grid.fa[4*(i+j*GS)+3]:=i   +j   *(GS+1);
       end;
 
   qt:=TQuadTexture.Create('textures'+PathChar+'test.jpg');
@@ -117,6 +117,7 @@ begin
     bassSound.sound[0].looped:=true;
   end;
 
+  DoWireFrame:=true;
   LastTick:=nx.GetTick;
 
   if nx.LastError<>'' then Showmessage(nx.LastError)
@@ -233,7 +234,7 @@ begin
   grid.SetPointers;
   nx.rs.AddBlend:=true;
   nx.rs.WireFrame:=DoWireFrame;
-  grid.Render(0, grid.fCount, true); // Draw grid (or wireframe)
+  grid.Render; // Draw grid (or wireframe)
   nx.rs.WireFrame:=false;
   nx.rs.AddBlend:=false;
   grid.DisableStates;

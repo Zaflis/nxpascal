@@ -16,7 +16,7 @@ uses nxTypes;
   function Bezier(const a,b: TVector; const delta: single): TVector; overload;
   function Bezier(const p: array of TVector; const count: word;
     const delta: single): TVector; overload;
-  function Catmull(const a,b,c,d: TVector; const delta: single): TVector; overload;
+  function Catmull(const a,b,c,d: TVector; const delta: single): TVector; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function ClosestPointOnLine(const l1,l2,p: TVector): TVector;
   function CrossProduct(const a,b: TVector): TVector;{$IFDEF CanInline}inline;{$ENDIF}
   function Dot(const a,b: TVector): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
@@ -26,6 +26,7 @@ uses nxTypes;
   function Hypot3d(const x,y,z: double): double;
   function Interpolate(const v1,v2: TVector; const s: single): TVector; overload;
   function Invert(const v: TVector): TVector; overload;
+  function Matrix(const mat: TMatrix4d): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Multiply(const a,b: TVector): TVector; overload;
   procedure Norm(var x,y,z: single; const h: PSingle = nil); overload;
   procedure Norm(var x,y,z: double; const h: PDouble = nil); overload;
@@ -41,7 +42,7 @@ uses nxTypes;
     intersectNormal: PVector = nil): Boolean;{$IFDEF CanInline}inline;{$ENDIF}
   function Reflect(const rayStart, rayDir, wallPoint: TVector): TVector; overload;
   function Reflect(const rayDir, wallNormal: TVector): TVector; overload;
-  function Rotate(const v: TVector; const angle: single; axis: TVector): TVector; overload;
+  function Rotate(const v: TVector; const radians: single; axis: TVector): TVector; overload;
   function Scale(const v: TVector; s: single): TVector; overload;
   function Tangent(const a, b, c: TVector): TVector; overload;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function VectorAdd(const a, b: TVector): TVector; overload;
@@ -53,7 +54,7 @@ uses nxTypes;
 
   { Matrix Functions }
 
-  function CreateMatrix(const axis: TVector; const angle: Single): TMatrix; overload;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+  function CreateMatrix(const axis: TVector; const radians: Single): TMatrix; overload;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function CreateMatrix(const x,y,z: TVector): TMatrix; overload;
   function CreateMatrix2(const x,y,z: TVector): TMatrix;
   function CreateTranslateMatrix(const p: TVector): TMatrix;
@@ -63,20 +64,20 @@ uses nxTypes;
   function GetVector(const M: TMatrix; const axis: integer): TVector; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Interpolate(const a, b: TMatrix; s: single): TMatrix; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Invert(const M: TMatrix): TMatrix; overload;
-  function LookAt(const eye, target, up: TVector): TMatrix;
-  function MatrixOnPlane(const cPos,cDir: TVector; const angle: single = 0): TMatrix;
+  function LookAt(const eye, target, up: TVector): TMatrix; stdcall;
+  function MatrixOnPlane(const cPos,cDir: TVector; radians: single = 0): TMatrix;
   function Multiply(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
   function MultiplyRotation(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Multiply(const V: TVector; const M: TMatrix): TVector; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
-  function Rotate(const M: TMatrix; const axis: TVector; const Angle: Single;
+  function Rotate(const M: TMatrix; const axis: TVector; const radians: Single;
     withPos: boolean = true): TMatrix; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
-  function Rotate(const M: TMatrix; const axis: integer; const Angle: Single;
+  function Rotate(const M: TMatrix; const axis: integer; const radians: Single;
     withPos: boolean = true): TMatrix; overload;
   function Scale(const M: TMatrix; const s: Single): TMatrix; overload;
   function Scale(const M: TMatrix; const v: TVector): TMatrix; overload;
   procedure SetVector(var M: TMatrix; const v: TVector; const axis: integer);
   function Slerp(const a, b: TMatrix; s: single): TMatrix; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
-  procedure Translate(var M: TMatrix; const v: TVector);
+  function Translate(const M: TMatrix; const v: TVector): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
 
   { Quaternions }
 
@@ -90,7 +91,7 @@ uses nxTypes;
   function Quaternion(const M: TMatrix): TQuaternion; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Quaternion(const x, y, z: TVector): TQuaternion; overload;
   function Quaternion(const x, y, z: single): TQuaternion; overload;
-  function Quaternion(const axis: TVector; a: single): TQuaternion; overload;
+  function Quaternion(const axis: TVector; radians: single): TQuaternion; overload;
   function QuaternionAdd(const a, b: TQuaternion): TQuaternion;
   function QuaternionSub(const a, b: TQuaternion): TQuaternion;
   function QuaternionToMat(const q: TQuaternion; const position: TVector): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
@@ -170,6 +171,7 @@ end;
 
 { 3D Functions }
 
+// X, Y or Z component angle between 2 vectors, in radians
 function Angle(const v1, v2: TVector; axis: integer): single; overload;
 begin
   case axis of
@@ -202,7 +204,7 @@ begin
     Bezier:=Bezier(p[0],p[1],delta);
 end;
 
-function Catmull(const a,b,c,d: TVector; const delta: single): TVector;
+function Catmull(const a,b,c,d: TVector; const delta: single): TVector; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result.x:=nxMath.Catmull(a.x, b.x, c.x, d.x, delta);
   result.y:=nxMath.Catmull(a.y, b.y, c.y, d.y, delta);
@@ -302,6 +304,13 @@ end;
 function Invert(const v: TVector): TVector;
 begin
   result.x:=-v.x; result.y:=-v.y; result.z:=-v.z;
+end;
+
+function Matrix(const mat: TMatrix4d): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+var i, j: integer;
+begin
+  for j:=0 to 3 do
+    for i:=0 to 3 do result[i, j]:=mat[i, j];
 end;
 
 function Multiply(const a, b: TVector): TVector;
@@ -453,16 +462,16 @@ begin
   result.z:=rayDir.z-wallNormal.z*temp;
 end;
 
-function Rotate(const v: TVector; const angle: single; axis: TVector): TVector;
+function Rotate(const v: TVector; const radians: single; axis: TVector): TVector;
 var costheta, sintheta,px,py,pz: single;
 begin
-  if angle=0 then begin
+  if radians=0 then begin
     result:=v; exit;
   end;
   Norm(axis);
   px:=v.x; py:=v.y; pz:=v.z;
-  costheta := cos(angle);
-  sintheta := sin(angle);
+  costheta := cos(radians);
+  sintheta := sin(radians);
   result.x:=px*( axis.x*axis.x * ( 1.0 - costheta ) + costheta)
           + py*( axis.x*axis.y * ( 1.0 - costheta ) - axis.z * sintheta)
           + pz*( axis.x*axis.z * ( 1.0 - costheta ) + axis.y * sintheta);
@@ -523,11 +532,11 @@ end;
 { Matrix functions }
 
 // Before use, make sure that axis vector length is 1
-function CreateMatrix(const axis: TVector; const angle: Single): TMatrix;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+function CreateMatrix(const axis: TVector; const radians: Single): TMatrix;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
 var c, s, t, tx, ty, tz, sx, sy, sz: single;
 begin
-  // Same as: result:=QuaternionToMat(Quaternion(axis, angle));
-  c := cos(angle); s := sin(angle); t := 1.0 - c;
+  // Same as: result:=QuaternionToMat(Quaternion(axis, radians), vector(0,0,0));
+  c := cos(radians); s := sin(radians); t := 1.0 - c;
   tx := t * axis.X; ty := t * axis.Y; tz := t * axis.Z;
   sx := s * axis.X; sy := s * axis.Y; sz := s * axis.Z;
   Result[0, 0]:=tx * axis.X + c;
@@ -577,6 +586,7 @@ begin
           -M[0, 3]*MatrixDet(M[1, 0], M[2, 0], M[3, 0], M[1, 1], M[2, 1], M[3, 1], M[1, 2], M[2, 2], M[3, 2]);
 end;
 
+// Axis vector angle given in radians
 function GetAngle(const M: TMatrix; const axis: integer): single;
 begin
   case axis of
@@ -640,17 +650,17 @@ begin
   end;
 end;
 
-function LookAt(const eye, target, up: TVector): TMatrix;
+function LookAt(const eye, target, up: TVector): TMatrix; stdcall;
 var x,y,z: TVector;
 begin
   z:=norm(VectorSub(eye, target));
   x:=norm(crossproduct(up, z));
   y:=crossproduct(z, x);
   result:=CreateMatrix2(x, y, z);
-  translate(result, vector(-dot(eye, x), -dot(eye, y), -dot(eye, z)));
+  SetVector(result, vector(-dot(eye, x), -dot(eye, y), -dot(eye, z)), 3);
 end;
 
-function MatrixOnPlane(const cPos, cDir: TVector; const angle: single): TMatrix;
+function MatrixOnPlane(const cPos, cDir: TVector; radians: single): TMatrix;
 var x,y,z: TVector;
 begin
 
@@ -660,15 +670,15 @@ begin
 
   y:=norm(cDir);
   if y.y<>0 then
-    z:=norm(crossproduct( vector(cos(angle),0,sin(angle)), y ))
+    z:=norm(crossproduct( vector(cos(radians),0,sin(radians)), y ))
   else if y.x<>0 then
-    z:=norm(crossproduct( vector(0,cos(angle),sin(angle)), y ))
+    z:=norm(crossproduct( vector(0,cos(radians),sin(radians)), y ))
   else
-    z:=norm(crossproduct( vector(cos(angle),sin(angle),0), y ));
+    z:=norm(crossproduct( vector(cos(radians),sin(radians),0), y ));
   x:=norm(crossproduct(y,z));
   result:=CreateMatrix(x,y,z); // This works
   //result:=CreateMatrix(norm(cDir), angle); // Why does this not work?
-  Translate(result, cPos);
+  SetVector(result, cPos, 3);
 end;
 
 function Multiply(const A,B: TMatrix): TMatrix; stdcall; {$IFDEF CanInline}inline;{$ENDIF}
@@ -701,22 +711,22 @@ begin
 end;
 
 // Make sure that axis vector length is 1
-function Rotate(const M: TMatrix; const axis: TVector; const Angle: Single;
+function Rotate(const M: TMatrix; const axis: TVector; const radians: Single;
   withPos: boolean): TMatrix;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   if not withPos then
-    result:=MultiplyRotation(M, CreateMatrix(axis, Angle))
+    result:=MultiplyRotation(M, CreateMatrix(axis, radians))
   else
-    result:=Multiply(M, CreateMatrix(axis, Angle));
+    result:=Multiply(M, CreateMatrix(axis, radians));
 end;
 
-function Rotate(const M: TMatrix; const axis: integer; const Angle: Single;
+function Rotate(const M: TMatrix; const axis: integer; const radians: Single;
   withPos: boolean): TMatrix;
 begin
   case axis of
-    1: result:=rotate(M, vector(1,0,0), angle, withPos);
-    2: result:=rotate(M, vector(0,0,1), angle, withPos);
-    else result:=rotate(M, vector(0,1,0), angle, withPos);
+    1: result:=rotate(M, vector(1,0,0), radians, withPos);
+    2: result:=rotate(M, vector(0,0,1), radians, withPos);
+    else result:=rotate(M, vector(0,1,0), radians, withPos);
   end;
 end;
 
@@ -753,9 +763,9 @@ begin
   result:=QuaternionToMat(Slerp(q1, q2, s), Interpolate(v1, v2, s));
 end;
 
-procedure Translate(var M: TMatrix; const v: TVector);
+function Translate(const M: TMatrix; const v: TVector): TMatrix;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
 begin
-  M[3,0]:=M[3,0]+v.x; M[3,1]:=M[3,1]+v.y; M[3,2]:=M[3,2]+v.z;
+  result:=Multiply(M, CreateTranslateMatrix(v));
 end;
 
 { Quaternions }
@@ -867,10 +877,10 @@ begin
 	result:=norm(result);
 end;
 
-function Quaternion(const axis: TVector; a: single): TQuaternion;
+function Quaternion(const axis: TVector; radians: single): TQuaternion;
 var fHalfAngle, fSin: single;
 begin
-  fHalfAngle := 0.5*a;
+  fHalfAngle := 0.5*radians;
   fSin := sin(fHalfAngle);
   result.W := cos(fHalfAngle);
   result.X := fSin*axis.X;

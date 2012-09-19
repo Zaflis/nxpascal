@@ -205,7 +205,8 @@ end;
 // Default interval 16, for smooth 60 fps
 procedure TGameHandler.SetFrameInterval(interval: cardinal);
 begin
-  FrameInterval:=interval;
+  if interval<1 then FrameInterval:=1
+  else FrameInterval:=interval;
   mpt:=FrameInterval/1000.0;
 end;
 

@@ -76,7 +76,7 @@ type
     destructor Destroy; override;
     procedure FreeArrays;
     function GetIndexCount: integer; overload;
-    function GetIndexCount(faceCount: integer): integer; overload;
+    function GetIndexCount(const faceCount: integer): integer; overload;
     procedure MakeArrays;
     procedure MakeLinearIndices;
     procedure Set3DTextures;
@@ -133,6 +133,32 @@ type
     procedure MakeProgram(UseVertex, UseFragment: boolean);
     function SetFragmentSource(s: string): boolean;
     function SetVertexSource(s: string): boolean;
+  end;
+
+  { TCamera }
+
+  TCamera = class
+  private
+    mat: array of TMatrix;
+    index: word;
+  public
+    constructor Create;
+    procedure GetFromModelView;
+    function GetMatrix: TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
+    procedure Interpolate(const mat2: TMatrix; const delta: single; doSet: boolean = true);
+    procedure LookAt(const eye, target, up: TVector; doSet: boolean = true); overload; stdcall; {$IFDEF CanInline}inline;{$ENDIF}
+    procedure LookAt(const target, up: TVector; doSet: boolean = true); overload;
+    procedure LookAt(const target: TVector; doSet: boolean = true); overload;
+    procedure Multiply(const mat2: TMatrix; doSet: boolean = true); stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+    procedure Pop(doSet: boolean = true);
+    procedure Push;
+    procedure Reset(doSet: boolean = true);
+    procedure ResetStack;
+    procedure Rotate(const degrees: single; const axis: TVector; doSet: boolean = true); overload;
+    procedure Rotate(const degrees: single; const ax, ay, az: single; doSet: boolean = true); overload;
+    procedure SetCamera;
+    procedure Translate(const x, y, z: single; doSet: boolean = true); overload;
+    procedure Translate(const v: TVector; doSet: boolean = true); overload;
   end;
 
   { TGLRenderer }
@@ -1759,7 +1785,7 @@ begin
   if _normals then glDisableClientState(GL_NORMAL_ARRAY);
   if _textures or _3Dtextures then glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   if _colors or _AlphaColors then glDisableClientState(GL_COLOR_ARRAY);
-  va_states_set:=false;
+  va_states_set:=false; va_pointers_set:=false;
 end;
 
 procedure TVertexArray.EnableStates;
@@ -1780,7 +1806,7 @@ procedure TVertexArray.Render(first, _count: integer; Indexed: boolean);
 begin
   if not va_states_set then EnableStates;
   if not va_pointers_set then SetPointers;
-  if Indexed then glDrawElements(rendermode, _count, GL_UNSIGNED_SHORT, @(fa[first]))
+  if Indexed then glDrawElements(rendermode, GetIndexCount(_count), GL_UNSIGNED_SHORT, @(fa[first]))
   else glDrawArrays(rendermode, first, _count);
   DisableStates;
 end;
@@ -2289,17 +2315,19 @@ begin
   result:=GetIndexCount(fCount);
 end;
 
-function TCustomVertexArray.GetIndexCount(faceCount: integer): integer;
+function TCustomVertexArray.GetIndexCount(const faceCount: integer): integer;
 begin
   if faceCount>0 then begin
-    if rendermode=GL_TRIANGLES then result:=faceCount*3
-    else if rendermode=GL_QUADS then result:=faceCount*4
-    else if rendermode=GL_TRIANGLE_STRIP then result:=faceCount+2
-    else if rendermode=GL_TRIANGLE_FAN then result:=faceCount+1
-    else if rendermode=GL_LINES then result:=faceCount*2
-    else if rendermode=GL_LINE_LOOP then result:=faceCount
-    else if rendermode=GL_LINE_STRIP then result:=faceCount+1
-    else result:=faceCount; // GL_POINTS
+    case rendermode of
+      GL_TRIANGLES: result:=faceCount*3;
+      GL_QUADS: result:=faceCount*4;
+      GL_TRIANGLE_STRIP: result:=faceCount+2;
+      GL_TRIANGLE_FAN: result:=faceCount+1;
+      GL_LINES: result:=faceCount*2;
+      GL_LINE_LOOP: result:=faceCount;
+      GL_LINE_STRIP: result:=faceCount+1;
+      else result:=faceCount; // GL_POINTS
+    end;
   end else
     result:=0;
 end;
@@ -2329,6 +2357,110 @@ end;
 procedure TCustomVertexArray.SetAlphaColors;
 begin
   _AlphaColors:=true; setlength(ca, vCount*4);
+end;
+
+{ TCamera }
+
+constructor TCamera.Create;
+begin
+  setlength(mat, 1); index:=0; Reset(false);
+end;
+
+procedure TCamera.GetFromModelView;
+begin
+  glGetFloatv(GL_MODELVIEW_MATRIX, @mat[index]);
+end;
+
+function TCamera.GetMatrix: TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  result:=mat[index];
+end;
+
+procedure TCamera.Interpolate(const mat2: TMatrix; const delta: single; doSet: boolean);
+begin
+  mat[index]:=nxMath3D.Interpolate(mat[index], mat2, delta);
+  if doSet then SetCamera;
+end;
+
+procedure TCamera.LookAt(const eye, target, up: TVector; doSet: boolean);stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  mat[index]:=nxMath3D.LookAt(eye, target, up);
+  if doSet then SetCamera;
+end;
+
+procedure TCamera.LookAt(const target, up: TVector; doSet: boolean);
+begin
+  self.LookAt(GetVector(mat[index], 3), target, up, doSet);
+end;
+
+procedure TCamera.LookAt(const target: TVector; doSet: boolean);
+begin
+  self.LookAt(GetVector(mat[index], 3), target,
+    GetVector(mat[index], 1), doSet);
+end;
+
+procedure TCamera.Multiply(const mat2: TMatrix; doSet: boolean); stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  mat[index]:=nxMath3D.Multiply(mat2, mat[index]);
+  if doSet then SetCamera;
+end;
+
+procedure TCamera.Pop(doSet: boolean);
+begin
+  if index>0 then begin
+    dec(index);
+    if doSet then SetCamera;
+  end;
+end;
+
+procedure TCamera.Push;
+begin
+  if index<high(index) then begin
+    inc(index);
+    if index>high(mat) then setlength(mat, index+1);
+    mat[index]:=mat[index-1];
+  end;
+end;
+
+procedure TCamera.Reset(doSet: boolean);
+begin
+  mat[index]:=NewMatrix;
+  if doSet then SetCamera;
+end;
+
+procedure TCamera.ResetStack;
+begin
+  mat[0]:=mat[index]; index:=0;
+  setlength(mat, 1);
+end;
+
+procedure TCamera.Rotate(const degrees: single; const axis: TVector; doSet: boolean);
+begin
+  mat[index]:=nxMath3D.Multiply(CreateMatrix(norm(axis), degrees*toRad), mat[index]);
+  if doSet then SetCamera;
+end;
+
+procedure TCamera.Rotate(const degrees: single; const ax, ay, az: single; doSet: boolean);
+begin
+  self.Rotate(degrees, vector(ax, ay, az), doSet);
+end;
+
+procedure TCamera.SetCamera;
+begin
+  glLoadMatrixf(@mat[index]);
+end;
+
+procedure TCamera.Translate(const x, y, z: single; doSet: boolean);
+begin
+  self.Translate(vector(x, y, z), doSet);
+  if doSet then SetCamera;
+end;
+
+procedure TCamera.Translate(const v: TVector; doSet: boolean);
+begin
+  //mat[index]:=nxMath3D.Translate(mat[index], v);
+  mat[index]:=nxMath3D.Multiply(CreateTranslateMatrix(v), mat[index]);
+  if doSet then SetCamera;
 end;
 
 initialization

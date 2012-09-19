@@ -26,6 +26,7 @@ type
     ship, arrow: TGLModel;
     mx, my, mb: integer;
     pt: TParticleEngine;
+    camera: TCamera;
   public
   end; 
 
@@ -47,6 +48,7 @@ begin
   c.r:=0; c.g:=c.r; c.b:=c.r; c.a:=1;
   glLightfv(GL_LIGHT1, GL_AMBIENT, @c);
   nx.rs.DepthTest:=true;
+  camera:=TCamera.Create;
 
   pt:=TParticleEngine.Create;
 
@@ -73,7 +75,7 @@ begin
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
-var cam,arrM: TMatrix; mp,dir,intersect,normal: TVector;
+var arrM: TMatrix; mp,dir,intersect,normal: TVector;
     n: integer; camA,d: single; launcher: pParticleLauncher;
 begin
   if not nx.AllOK then exit;
@@ -81,7 +83,9 @@ begin
 
   // Rotate camera around Y-axis
   camA:=nx.GetTick(360, 0.02)*toRad;
-  cam:=LookAt(vector(2*cos(camA),-3,2*sin(camA)), vector(0,0,0), vector(0,1,0));
+  camera.Reset(false);
+  camera.Translate(vector(2*cos(camA), -3, 2*sin(camA)), false);
+  camera.LookAt(vector(0,0,0), true);
 
   // Add blue trail
   d:=(180-nx.GetTick(360,0.043))*toRad;
@@ -91,15 +95,11 @@ begin
     pt.SetTrailColor(pt.AddTrail(tex.IndexOf('glow'), 1000, 0.1,
       1.5*cos(d), 1*sin(d), 0.3*sin(camA)), 0.1,0.5,1);
 
-  // Set camera
-  glLoadIdentity;
-  glMultMatrixf(@cam);
-
   // Rotate ship around Z-axis
-  glRotatef(nx.GetTick(360, 0.0131), 0, 0, 1);
+  camera.Rotate(nx.GetTick(360, 0.0131), 0, 0, 1);
+
   glColor3f(0.4, 0.4, 1.0); // Use blue color
-  // Render ship
-  ship.Render;
+  ship.Render; // Render ship
 
   nx.GetMouseRay(mx, my, @mp, @dir);
 
@@ -110,10 +110,10 @@ begin
     arrM:=MatrixOnPlane(intersect, normal, nx.GetTick(360, 0.01));
 
     // Render arrow
-    glPushMatrix;
-    glMultMatrixf(@arrM);
+    camera.Push;
+    camera.Multiply(arrM);
     arrow.Render;
-    glPopMatrix;
+    camera.Pop;
 
     // Create particle when mouse is held down
     if mb>0 then begin
@@ -146,7 +146,7 @@ end;
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
   timer1.Enabled:=false;
-  pt.Free; ship.Free; arrow.Free;
+  pt.Free; ship.Free; arrow.Free; camera.Free;
   nx.KillGLWindow;
 end;
 
