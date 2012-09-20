@@ -50,6 +50,8 @@ type
   TTextureLoadOptions = set of (toMipMap, toAlphaColor, toKeepData,
     toScale, toFitScale, toCustomScale, toColorKey, toFileName, toNoLoad);
 
+  TPathingMode = (pmInterpolate, pmSmooth, pmCatmull);
+
   TTexturePart = record
     r: TRecti; center: TVector2f; name: string;
   end;
