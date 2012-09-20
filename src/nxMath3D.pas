@@ -26,7 +26,6 @@ uses nxTypes;
   function Hypot3d(const x,y,z: double): double;
   function Interpolate(const v1,v2: TVector; const s: single): TVector; overload;
   function Invert(const v: TVector): TVector; overload;
-  function Matrix(const mat: TMatrix4d): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Multiply(const a,b: TVector): TVector; overload;
   procedure Norm(var x,y,z: single; const h: PSingle = nil); overload;
   procedure Norm(var x,y,z: double; const h: PDouble = nil); overload;
@@ -65,6 +64,7 @@ uses nxTypes;
   function Interpolate(const a, b: TMatrix; s: single): TMatrix; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Invert(const M: TMatrix): TMatrix; overload;
   function LookAt(const eye, target, up: TVector): TMatrix; stdcall;
+  function Matrix(const mat: TMatrix4d): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function MatrixOnPlane(const cPos,cDir: TVector; radians: single = 0): TMatrix;
   function Multiply(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
   function MultiplyRotation(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
@@ -304,13 +304,6 @@ end;
 function Invert(const v: TVector): TVector;
 begin
   result.x:=-v.x; result.y:=-v.y; result.z:=-v.z;
-end;
-
-function Matrix(const mat: TMatrix4d): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
-var i, j: integer;
-begin
-  for j:=0 to 3 do
-    for i:=0 to 3 do result[i, j]:=mat[i, j];
 end;
 
 function Multiply(const a, b: TVector): TVector;
@@ -658,6 +651,13 @@ begin
   y:=crossproduct(z, x);
   result:=CreateMatrix2(x, y, z);
   SetVector(result, vector(-dot(eye, x), -dot(eye, y), -dot(eye, z)), 3);
+end;
+
+function Matrix(const mat: TMatrix4d): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+var i, j: integer;
+begin
+  for j:=0 to 3 do
+    for i:=0 to 3 do result[i, j]:=mat[i, j];
 end;
 
 function MatrixOnPlane(const cPos, cDir: TVector; radians: single): TMatrix;

@@ -94,7 +94,7 @@ type
     function TextW(s: string): integer;
     function WrapLines(w,h: integer; s: TStrings; first: integer = 0): integer;
     procedure Draw(x,y: single; s: string; maxW: integer = 0); virtual; abstract;
-    procedure DrawC(x,y: single; s: string; maxW: integer = 0); virtual; abstract;
+    procedure DrawC(x,y: single; s: string; maxW: integer = 0);
     procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); virtual; abstract;
     procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); virtual; abstract;
     procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); virtual; abstract;
@@ -864,6 +864,14 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TNXFont.DrawC(x, y: single; s: string; maxW: integer);
+var w: single;
+begin
+  w:=TextW(s)/2;
+  if (maxW>0) and (w>maxW/2) then w:=maxW/2;
+  Draw(x-w, y-CenterH, s, maxW);
 end;
 
 function TNXCustomEngine.CheckFile(const filename: string): boolean;

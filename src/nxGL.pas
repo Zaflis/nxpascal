@@ -57,6 +57,65 @@ type
     procedure SetTextureUnit(n: integer);
   end;
 
+  TCamera = class;
+
+  { TCameraPath }
+
+  TCameraPath = class
+  private
+    FPosition: single;
+    procedure SetPosition(p: single);
+  public
+    mat: TMatrix;
+    node: array of TMatrix;
+    parent: TCamera;
+    pathmode: TPathingMode;
+    wrapping, AutoSetCamera: boolean;
+    property Position: single read FPosition write SetPosition;
+    constructor Create(owner: TCamera);
+    function AddNode(const _mat: TMatrix): integer;
+    function Count: integer;
+    function GetMatrix(const dTime: single): TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
+    procedure SetCamera;
+  end;
+
+  { TCamera }
+
+  TCamera = class
+  private
+    index: word;
+  protected
+    mat: array of TMatrix;
+    saved: array of TMatrix;
+  public
+    path: array of TCameraPath;
+    constructor Create;
+    destructor Destroy; override;
+    function AddPath: TCameraPath;
+    procedure DeletePath(n: integer);
+    procedure GetFromModelView;
+    function GetMatrix: TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
+    function IndexOfPath(p: TCameraPath): integer;
+    procedure Interpolate(const mat2: TMatrix; const delta: single; doSet: boolean = true);
+    procedure Load(n: integer);
+    procedure LookAt(const eye, target, up: TVector; doSet: boolean = true); overload; stdcall; {$IFDEF CanInline}inline;{$ENDIF}
+    procedure LookAt(const target, up: TVector; doSet: boolean = true); overload;
+    procedure LookAt(const target: TVector; doSet: boolean = true); overload;
+    procedure Multiply(const mat2: TMatrix; doSet: boolean = true); stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+    function PathCount: integer;
+    procedure Pop(doSet: boolean = true);
+    procedure Push;
+    procedure Reset(doSet: boolean = true);
+    procedure ResetStack;
+    procedure Rotate(const degrees: single; const axis: TVector; doSet: boolean = true); overload;
+    procedure Rotate(const degrees: single; const ax, ay, az: single; doSet: boolean = true); overload;
+    function SaveCount: integer;
+    procedure Save(n: integer);
+    procedure SetCamera;
+    procedure Translate(const x, y, z: single; doSet: boolean = true); overload;
+    procedure Translate(const v: TVector; doSet: boolean = true); overload;
+  end;
+
   { TCustomVertexArray }
 
   TCustomVertexArray = class
@@ -133,32 +192,6 @@ type
     procedure MakeProgram(UseVertex, UseFragment: boolean);
     function SetFragmentSource(s: string): boolean;
     function SetVertexSource(s: string): boolean;
-  end;
-
-  { TCamera }
-
-  TCamera = class
-  private
-    mat: array of TMatrix;
-    index: word;
-  public
-    constructor Create;
-    procedure GetFromModelView;
-    function GetMatrix: TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
-    procedure Interpolate(const mat2: TMatrix; const delta: single; doSet: boolean = true);
-    procedure LookAt(const eye, target, up: TVector; doSet: boolean = true); overload; stdcall; {$IFDEF CanInline}inline;{$ENDIF}
-    procedure LookAt(const target, up: TVector; doSet: boolean = true); overload;
-    procedure LookAt(const target: TVector; doSet: boolean = true); overload;
-    procedure Multiply(const mat2: TMatrix; doSet: boolean = true); stdcall;{$IFDEF CanInline}inline;{$ENDIF}
-    procedure Pop(doSet: boolean = true);
-    procedure Push;
-    procedure Reset(doSet: boolean = true);
-    procedure ResetStack;
-    procedure Rotate(const degrees: single; const axis: TVector; doSet: boolean = true); overload;
-    procedure Rotate(const degrees: single; const ax, ay, az: single; doSet: boolean = true); overload;
-    procedure SetCamera;
-    procedure Translate(const x, y, z: single; doSet: boolean = true); overload;
-    procedure Translate(const v: TVector; doSet: boolean = true); overload;
   end;
 
   { TGLRenderer }
@@ -261,7 +294,6 @@ type
   public
     constructor CreateFont(fontName: string; fontSize, _TexSize: integer);
     procedure Draw(x,y: single; s: string; maxW: integer = 0); override;
-    procedure DrawC(x,y: single; s: string; maxW: integer = 0); override;
     procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
     procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); override;
     procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
@@ -375,7 +407,7 @@ var
 
 implementation
 
-uses SysUtils, nxMath3D, nxStrings;
+uses SysUtils, math, nxMath, nxMath3D, nxStrings;
 
 procedure nxInitGL;
 begin
@@ -1865,14 +1897,6 @@ begin
   glEnd;
 end;
 
-procedure TGLFont.DrawC(x, y: single; s: string; maxW: integer);
-var w: single;
-begin
-  w:=TextW(s)/2;
-  if (maxW>0) and (w>maxW/2) then w:=maxW/2;
-  Draw(x-w, y-CenterH, s, maxW);
-end;
-
 procedure TGLFont.DrawScaled(x, y, scaleX, scaleY: single; s: string; maxW: integer);
 begin
   glPushMatrix;
@@ -2366,6 +2390,30 @@ begin
   setlength(mat, 1); index:=0; Reset(false);
 end;
 
+destructor TCamera.Destroy;
+var i: integer;
+begin
+  for i:=0 to high(path) do path[i].Free;
+  inherited Destroy;
+end;
+
+function TCamera.AddPath: TCameraPath;
+begin
+  setlength(path, length(path)+1);
+  result:=TCameraPath.Create(self);
+  path[high(path)]:=result;
+end;
+
+procedure TCamera.DeletePath(n: integer);
+var i: integer;
+begin
+  if (n>=0) and (n<length(path)) then begin
+    for i:=n to high(path)-1 do
+      path[i]:=path[i+1];
+    setlength(path, length(path)-1);
+  end;
+end;
+
 procedure TCamera.GetFromModelView;
 begin
   glGetFloatv(GL_MODELVIEW_MATRIX, @mat[index]);
@@ -2376,10 +2424,26 @@ begin
   result:=mat[index];
 end;
 
+function TCamera.IndexOfPath(p: TCameraPath): integer;
+var i: integer;
+begin
+  for i:=0 to high(path) do
+    if path[i]=p then begin
+      result:=i; exit;
+    end;
+  result:=-1;
+end;
+
 procedure TCamera.Interpolate(const mat2: TMatrix; const delta: single; doSet: boolean);
 begin
   mat[index]:=nxMath3D.Interpolate(mat[index], mat2, delta);
   if doSet then SetCamera;
+end;
+
+procedure TCamera.Load(n: integer);
+begin
+  if (n>=0) and (high(saved)<=n) then
+    mat[index]:=saved[n];
 end;
 
 procedure TCamera.LookAt(const eye, target, up: TVector; doSet: boolean);stdcall;{$IFDEF CanInline}inline;{$ENDIF}
@@ -2403,6 +2467,11 @@ procedure TCamera.Multiply(const mat2: TMatrix; doSet: boolean); stdcall;{$IFDEF
 begin
   mat[index]:=nxMath3D.Multiply(mat2, mat[index]);
   if doSet then SetCamera;
+end;
+
+function TCamera.PathCount: integer;
+begin
+  result:=length(path);
 end;
 
 procedure TCamera.Pop(doSet: boolean);
@@ -2430,8 +2499,7 @@ end;
 
 procedure TCamera.ResetStack;
 begin
-  mat[0]:=mat[index]; index:=0;
-  setlength(mat, 1);
+  mat[0]:=mat[index]; index:=0; setlength(mat, 1);
 end;
 
 procedure TCamera.Rotate(const degrees: single; const axis: TVector; doSet: boolean);
@@ -2445,6 +2513,19 @@ begin
   self.Rotate(degrees, vector(ax, ay, az), doSet);
 end;
 
+function TCamera.SaveCount: integer;
+begin
+  result:=length(saved);
+end;
+
+procedure TCamera.Save(n: integer);
+begin
+  if n>=0 then begin
+    if high(saved)<n then setlength(saved, n+1);
+    saved[n]:=mat[index];
+  end;
+end;
+
 procedure TCamera.SetCamera;
 begin
   glLoadMatrixf(@mat[index]);
@@ -2453,14 +2534,78 @@ end;
 procedure TCamera.Translate(const x, y, z: single; doSet: boolean);
 begin
   self.Translate(vector(x, y, z), doSet);
-  if doSet then SetCamera;
 end;
 
 procedure TCamera.Translate(const v: TVector; doSet: boolean);
 begin
-  //mat[index]:=nxMath3D.Translate(mat[index], v);
   mat[index]:=nxMath3D.Multiply(CreateTranslateMatrix(v), mat[index]);
   if doSet then SetCamera;
+end;
+
+{ TCameraPath }
+
+constructor TCameraPath.Create(owner: TCamera);
+begin
+  parent:=owner; pathmode:=pmSmooth;
+  wrapping:=true; AutoSetCamera:=false;
+end;
+
+procedure TCameraPath.SetPosition(p: single);
+var c: integer;
+begin
+  c:=Count;
+  if c=0 then FPosition:=0
+  else if wrapping then begin
+    if p<0 then FPosition:=p+(((abs(floor(p))-1) div c)+1)*c
+    else FPosition:=fmod(p, c);
+  end else
+    FPosition:=max(0, min(c, p));
+  mat:=GetMatrix(FPosition);
+  if AutoSetCamera then SetCamera;
+end;
+
+function TCameraPath.AddNode(const _mat: TMatrix): integer;
+begin
+  setlength(node, length(node)+1);
+  result:=high(node); node[result]:=_mat;
+  if result=0 then mat:=_mat;
+end;
+
+function TCameraPath.Count: integer;
+begin
+  result:=length(node);
+end;
+
+function TCameraPath.GetMatrix(const dTime: single): TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
+var i, j, m0, m1, m2, m3, c: integer; delta: single;
+begin
+  c:=Count; m0:=floor(dTime)-1; delta:=dTime-(m0+1);
+  if wrapping then begin
+    if m0<0 then m0:=m0+(((abs(m0)-1) div c)+1)*c;
+    m1:=(m0+1) mod c; m2:=(m0+2) mod c; m3:=(m0+3) mod c;
+  end else begin
+    m1:=min(c, max(0, m0+1));
+    m2:=min(c, max(0, m0+2));
+    m3:=min(c, max(0, m0+3));
+    m0:=min(c, max(0, m0));
+  end;
+  for j:=0 to 3 do
+    for i:=0 to 3 do begin
+      case pathmode of
+        pmInterpolate: result[i, j]:=Interpolate(node[m1][i, j], node[m2][i, j], delta);
+        pmSmooth: result[i, j]:=Smoothen(node[m1][i, j], node[m2][i, j], delta);
+        pmCatmull: result[i, j]:=Catmull(node[m0][i, j], node[m1][i, j],
+          node[m2][i, j], node[m3][i, j], delta);
+      end;
+    end;
+end;
+
+procedure TCameraPath.SetCamera;
+begin
+  if parent<>nil then begin
+    parent.mat[parent.index]:=mat;
+    parent.SetCamera;
+  end;
 end;
 
 initialization
