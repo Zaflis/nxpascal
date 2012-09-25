@@ -166,6 +166,7 @@ procedure TGameHandler.MouseMove(x, y: integer; _Shift: TShiftState);
 var old: TVector2f;
 begin
   Shift:=_Shift;
+  if mb[2] and (not (ssRight in _Shift)) then mb[2]:=false;
   if not isMouseCentered then begin
     old:=mp;
     mp.x:=x; mp.y:=y;
