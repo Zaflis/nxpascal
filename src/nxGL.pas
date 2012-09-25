@@ -97,7 +97,7 @@ type
     function GetMatrix: TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
     function IndexOfPath(p: TCameraPath): integer;
     procedure Interpolate(const mat2: TMatrix; const delta: single; doSet: boolean = true);
-    procedure Load(n: integer);
+    procedure Load(n: integer; doSet: boolean = true);
     procedure LookAt(const eye, target, up: TVector; doSet: boolean = true); overload; stdcall; {$IFDEF CanInline}inline;{$ENDIF}
     procedure LookAt(const target, up: TVector; doSet: boolean = true); overload;
     procedure LookAt(const target: TVector; doSet: boolean = true); overload;
@@ -1285,7 +1285,7 @@ end;
 
 procedure TNXGL.SetColor(r, g, b, a: single);
 begin
-  glColor4f(r,g,b,a);
+  glColor4f(r, g, b, a);
 end;
 
 procedure TNXGL.SetColor(const rgb: TRGB);
@@ -1305,7 +1305,7 @@ end;
 
 procedure TNXGL.SetColor(r, g, b: single);
 begin
-  glColor3f(r,g,b);
+  glColor3f(r, g, b);
 end;
 
 procedure TNXGL.SetWireframe(enable: boolean = true);
@@ -2440,10 +2440,12 @@ begin
   if doSet then SetCamera;
 end;
 
-procedure TCamera.Load(n: integer);
+procedure TCamera.Load(n: integer; doSet: boolean);
 begin
-  if (n>=0) and (high(saved)<=n) then
+  if (n>=0) and (n<=high(saved)) then begin
     mat[index]:=saved[n];
+    if doSet then SetCamera;
+  end;
 end;
 
 procedure TCamera.LookAt(const eye, target, up: TVector; doSet: boolean);stdcall;{$IFDEF CanInline}inline;{$ENDIF}
@@ -2521,7 +2523,7 @@ end;
 procedure TCamera.Save(n: integer);
 begin
   if n>=0 then begin
-    if high(saved)<n then setlength(saved, n+1);
+    if n>high(saved) then setlength(saved, n+1);
     saved[n]:=mat[index];
   end;
 end;
