@@ -104,8 +104,8 @@ begin
     showmessage(nx.LastError); exit;
   end;
 
-  tex.SetTextureUnit(0); tex.SetByName('texture');
-  tex.SetTextureUnit(1); tex.SetByName('normalmap');
+  tex.TextureUnit:=0; tex.SetByName('texture');
+  tex.TextureUnit:=1; tex.SetByName('normalmap');
 
   // Tell shader that texture-unit 0 is texture, and 1 normalmap
   if locColorMap>=0 then glUniform1i(locColorMap, 0);
