@@ -77,7 +77,7 @@ Move mouse-cursor on screen. Crossplatform.
 {{{
 procedure SetFrameInterval(interval: cardinal);
 }}}
-Sets frame-interval. Default 16, for commonly steady 60 fps. 1000 / interval = FPS.
+Sets frame-interval. Default 16, for commonly steady 60 fps. 1000 / interval = FPS. Minimum interval 1, resulting maximum of 1000 FPS.
 
 {{{
 procedure SetFrameSkipping(enable: boolean);

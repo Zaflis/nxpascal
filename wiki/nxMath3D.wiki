@@ -36,7 +36,7 @@ function RaySphereIntersect(const rayStart: TVector; rayDirection: TVector;	cons
 function RayTriangleIntersect(const rayStart, rayDirection: TVector; const p1, p2, p3: TVector; intersect: PVector = nil; intersectNormal: PVector = nil): Boolean;
 function Reflect(const rayStart, rayDir, wallPoint: TVector): TVector;
 function Reflect(const rayDir, wallNormal: TVector): TVector;
-function Rotate(const v: TVector; const angle: single; axis: TVector): TVector;
+function Rotate(const v: TVector; const radians: single; axis: TVector): TVector;
 function Scale(const v: TVector; s: single): TVector;
 function Tangent(const a, b, c: TVector): TVector;
 function VectorAdd(const a, b: TVector): TVector;
@@ -49,7 +49,7 @@ function VectorSub(const a, b: TVector): TVector;
 3D-math.
 
 {{{
-function CreateMatrix(const axis: TVector; const angle: Single): TMatrix;
+function CreateMatrix(const axis: TVector; const radians: Single): TMatrix;
 function CreateMatrix(const x,y,z: TVector): TMatrix; overload;
 function CreateMatrix2(const x,y,z: TVector): TMatrix;
 function CreateTranslateMatrix(const p: TVector): TMatrix;
@@ -60,12 +60,13 @@ function GetVector(const M: TMatrix; const axis: integer): TVector;
 function Interpolate(const a, b: TMatrix; s: single): TMatrix;
 function Invert(const M: TMatrix): TMatrix;
 function LookAt(const eye, target, up: TVector): TMatrix;
-function MatrixOnPlane(const cPos,cDir: TVector; const angle: single = 0): TMatrix;
+function Matrix(const mat: TMatrix4d): TMatrix;
+function MatrixOnPlane(const cPos,cDir: TVector; const radians: single = 0): TMatrix;
 function Multiply(const A,B: TMatrix): TMatrix;
 function MultiplyRotation(const A,B: TMatrix): TMatrix;
 function Multiply(const V: TVector; const M: TMatrix): TVector;
-function Rotate(const M: TMatrix; const axis: TVector; const Angle: Single;	withPos: boolean = true): TMatrix;
-function Rotate(const M: TMatrix; const axis: integer; const Angle: Single;	withPos: boolean = true): TMatrix;
+function Rotate(const M: TMatrix; const axis: TVector; const radians: Single;	withPos: boolean = true): TMatrix;
+function Rotate(const M: TMatrix; const axis: integer; const radians: Single;	withPos: boolean = true): TMatrix;
 function Scale(const M: TMatrix; const s: Single): TMatrix;
 function Scale(const M: TMatrix; const v: TVector): TMatrix;
 procedure SetVector(var M: TMatrix; const v: TVector; const axis: integer);
@@ -85,7 +86,7 @@ function Quaternion(x, y, z, w: single): TQuaternion;
 function Quaternion(const M: TMatrix): TQuaternion;
 function Quaternion(const x, y, z: TVector): TQuaternion;
 function Quaternion(const x, y, z: single): TQuaternion;
-function Quaternion(const axis: TVector; a: single): TQuaternion;
+function Quaternion(const axis: TVector; radians: single): TQuaternion;
 function QuaternionAdd(const a, b: TQuaternion): TQuaternion;
 function QuaternionSub(const a, b: TQuaternion): TQuaternion;
 function QuaternionToMat(const q: TQuaternion; const position: TVector): TMatrix;

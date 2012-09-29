@@ -6,6 +6,7 @@ Uses [nxMath], [nxStrings], [nxTypes]
 
 == Classes ==
   * TNXCustomEngine
+  * TCustomVertexArray
   * TNXFont
   * TTextureSet
 
@@ -25,6 +26,20 @@ function GetTick: cardinal;
 function GetTick(range: integer; scale: single = 1): single;
 function LastError: string;
 function IndexOfFont(name: string): integer;
+}}}
+
+== TCustomVertexArray class ==
+
+{{{
+constructor Create(Faces, Vertices: integer; _rendermode: cardinal;	textures, normals, colors: boolean);
+constructor Create(Faces: integer; _rendermode: cardinal;	textures, normals, colors: boolean);
+destructor Destroy;
+procedure FreeArrays;
+function GetIndexCount: integer;
+procedure MakeArrays;
+procedure MakeLinearIndices;
+procedure Set3DTextures;
+procedure SetAlphaColors;
 }}}
 
 == TNXFont class ==

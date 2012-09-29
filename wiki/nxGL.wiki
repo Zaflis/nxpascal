@@ -5,18 +5,20 @@
 uses [http://wiki.delphigl.com/index.php/dglOpenGL.pas/en dglOpenGL], [nxGraph], [nxMath3D], [nxModel], [nxShaders], [nxStrings], [nxTypes], (LazOpenGLContext with Lazarus)
 
 == Classes ==
-  * TCustomVertexArray
+
+  * TCamera
+  * TCameraPath
   * TDisplayList
   * TFrameBuffer
   * TGLFont (TNXFont)
   * TGLModel (TTriModel)
   * TGLRenderer
   * TGLShader
-  * TGLTextureSet (TTextureSet)
-  * TNXGL (TNXCustomEngine)
+  * TGLTextureSet (TTextureSet) [nxGraph]
+  * TNXGL (TNXCustomEngine) [nxGraph]
   * TRenderSettings
-  * TVBO (TCustomVertexArray)
-  * TVertexArray (TCustomVertexArray)
+  * TVBO (TCustomVertexArray) [nxGraph]
+  * TVertexArray (TCustomVertexArray) [nxGraph]
 
 == Functions and procedures ==
 
@@ -44,19 +46,51 @@ tex: TGLTextureSet;
 *nx: TNXGL* is basically the core of everything; graphics, rendering settings, fonts, rendering context management, error reporting.
 *tex: TGLTextureSet* is class handling all texture-operations; loading of PNG, JPG, BMP formats.
 
-== TCustomVertexArray class ==
+== TCamera class ==
 
 {{{
-constructor Create(Faces, Vertices: integer; _rendermode: cardinal;	textures, normals, colors: boolean);
-constructor Create(Faces: integer; _rendermode: cardinal;	textures, normals, colors: boolean);
+path: array of TCameraPath;
+constructor Create;
 destructor Destroy;
-procedure FreeArrays;
-function GetIndexCount: integer;
-function GetIndexCount(faceCount: integer): integer; overload;
-procedure MakeArrays;
-procedure MakeLinearIndices;
-procedure Set3DTextures;
-procedure SetAlphaColors;
+function AddPath: TCameraPath;
+procedure DeletePath(n: integer);
+procedure GetFromModelView;
+function GetMatrix: TMatrix;
+function IndexOfPath(p: TCameraPath): integer;
+procedure Interpolate(const mat2: TMatrix; const delta: single; doSet: boolean = true);
+procedure Load(n: integer; doSet: boolean = true);
+procedure LookAt(const eye, target, up: TVector; doSet: boolean = true);
+procedure LookAt(const target, up: TVector; doSet: boolean = true);
+procedure LookAt(const target: TVector; doSet: boolean = true);
+procedure Multiply(const mat2: TMatrix; doSet: boolean = true);
+function PathCount: integer;
+procedure Pop(doSet: boolean = true);
+procedure Push;
+procedure Reset(doSet: boolean = true);
+procedure ResetStack;
+procedure Rotate(const degrees: single; const axis: TVector; doSet: boolean = true);
+procedure Rotate(const degrees: single; const ax, ay, az: single; doSet: boolean = true);
+function SaveCount: integer;
+procedure Save(n: integer);
+procedure SetCamera;
+procedure Translate(const x, y, z: single; doSet: boolean = true);
+procedure Translate(const v: TVector; doSet: boolean = true);
+}}}
+
+== TCameraPath class ==
+
+{{{
+mat: TMatrix;
+node: array of TMatrix;
+parent: TCamera;
+pathmode: TPathingMode;
+wrapping, AutoSetCamera: boolean;
+property Position: single;
+constructor Create(owner: TCamera);
+function AddNode(const _mat: TMatrix): integer;
+function Count: integer;
+function GetMatrix(const dTime: single): TMatrix;
+procedure SetCamera;
 }}}
 
 == TDisplayList class ==
@@ -120,6 +154,7 @@ procedure SetPointers;
 == TGLRenderer class ==
 
 {{{
+(incomplete)
 }}}
 
 == TGLShader class ==
@@ -243,6 +278,20 @@ function Pop: boolean;
 == TVBO class ==
 
 {{{
+UseShader: boolean;
+constructor Create;
+constructor Create(Faces, Vertices: integer; _rendermode: cardinal;
+	textures, normals, colors: boolean);
+constructor Create(Faces: integer; _rendermode: cardinal;
+	textures, normals, colors: boolean);
+destructor Destroy;
+function GetIndexCount(const faceCount: integer): integer;
+function IsStatic: boolean;
+procedure Render;
+procedure Render(first, _count: integer);
+procedure SetData;
+procedure SetPointers;
+procedure SetStatic(enable: boolean);
 }}}
 
 == TVertexArray class ==
@@ -250,6 +299,7 @@ function Pop: boolean;
 {{{
 procedure DisableStates;
 procedure EnableStates;
+function GetIndexCount(const faceCount: integer): integer;
 procedure Render(Indexed: boolean = true);
 procedure Render(first, _count: integer; Indexed: boolean = true);
 procedure SetPointers;

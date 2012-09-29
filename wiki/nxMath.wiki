@@ -12,7 +12,7 @@ Uses [nxTypes]
 Returns vector angle from point 1 to point 2, in radians.
 
 {{{
-  function Angle(src,dest: single): single;
+  function Angle(srcRadian, destRadian: single): single;
 }}}
 Returns difference of 2 radian vector angles between -pi to pi.
 Example Angle(0, pi*2) would return 0, because second angle makes a full circle.
@@ -104,8 +104,8 @@ Returns power of 2 int value rounded as near to n as possible. For example: Pow2
 Returns a reflection vector with given vector parameters.
 
 {{{
-  function Rotate(const pt,center: TVector2f; const _angle: single): TVector2f;
-  procedure Rotate(var x,y: single; const _angle,centerX,centerY: single);
+  function Rotate(const pt,center: TVector2f; const degrees: single): TVector2f;
+  procedure Rotate(var x,y: single; const degrees,centerX,centerY: single);
 }}}
 Rotates point around a center point. Angle given in degrees.
 
@@ -113,6 +113,11 @@ Rotates point around a center point. Angle given in degrees.
   function Smoothen(n: single): single;
 }}}
 Returns value from range 0..1. n<0, returns 0, and n>1 returns 1. If graph 0..1 was drawn, it would look like a section of sine-wave; starting to grow slowly, accelerates towards middle and decelerates towards 1.0.
+
+{{{
+function Smoothen(const source, dest: single; n: single): single;
+}}}
+Same smoothen result as above, but smoothens custom range between source and dest.
 
 {{{
   function Tangent(const p1, p2: TVector2f): TVector2f; 
