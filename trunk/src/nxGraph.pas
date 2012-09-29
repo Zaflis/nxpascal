@@ -39,12 +39,11 @@ type
     function Pow2Near(var w,h: word; out sx,sy: single): boolean;
     function Pow2Fit(var w,h: word; out sx,sy: single): boolean;
   public
-    texture: array of TTexture;
-    count, TextureQuality: integer;
-    scaleX, scaleY: single;
+    count, LastTexIndex, TextureQuality, cols3D, rows3D: integer;
     Options: TTextureLoadOptions;
+    scaleX, scaleY: single;
+    texture: array of TTexture;
     TransparentColor: TRGB;
-    LastTexIndex, cols3D, rows3D: integer;
     constructor Create;
     destructor Destroy; override;
     function AddTexture2(name,filename: string; transparency: boolean = false): integer;
@@ -101,6 +100,34 @@ type
     procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: integer); virtual; abstract;
     procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: integer = 0); virtual; abstract;
     procedure SetTexture; virtual; abstract;
+  end;
+
+  { TCustomVertexArray }
+
+  TCustomVertexArray = class
+  protected
+    function ColorComponents: integer;
+    function TextureComponents: integer;
+  public
+    _textures,_normals,_colors,_AlphaColors,_3Dtextures: boolean;
+    Count, fCount, vCount: integer;
+    rendermode: Cardinal;
+    fa: array of word; // Faces
+    va, na: array of TVector; // Vertices, Normals
+    ta: array of single; // Textures
+    ca: array of byte; // Colors
+    constructor Create(Faces, Vertices: integer; _rendermode: cardinal;
+      textures, normals, colors: boolean); overload;
+    constructor Create(Faces: integer; _rendermode: cardinal;
+      textures, normals, colors: boolean); overload;
+    destructor Destroy; override;
+    procedure FreeArrays;
+    function GetIndexCount: integer; overload;
+    function GetIndexCount(const faceCount: integer): integer; overload; virtual;abstract;
+    procedure MakeArrays;
+    procedure MakeLinearIndices;
+    procedure Set3DTextures;
+    procedure SetAlphaColors;
   end;
 
   { TNXCustomEngine }
@@ -912,6 +939,81 @@ begin
       result:=i; exit;
     end;
   result:=-1;
+end;
+
+{ TCustomVertexArray }
+
+function TCustomVertexArray.ColorComponents: integer;
+begin
+  if _AlphaColors then result:=4
+  else result:=3;
+end;
+
+function TCustomVertexArray.TextureComponents: integer;
+begin
+  if _3Dtextures then result:=3
+  else result:=2;
+end;
+
+constructor TCustomVertexArray.Create(Faces, Vertices: integer;
+  _rendermode: cardinal; textures, normals, colors: boolean);
+begin
+  fCount:=Faces; vCount:=Vertices;
+  rendermode:=_rendermode; Count:=GetIndexCount;
+  _textures:=textures; _normals:=normals; _colors:=colors;
+  MakeArrays;
+end;
+
+constructor TCustomVertexArray.Create(Faces: integer; _rendermode: cardinal;
+  textures, normals, colors: boolean);
+begin
+  rendermode:=_rendermode;
+  Create(Faces, GetIndexCount(Faces), _rendermode, textures, normals, colors);
+end;
+
+destructor TCustomVertexArray.Destroy;
+begin
+  FreeArrays;
+  inherited Destroy;
+end;
+
+procedure TCustomVertexArray.FreeArrays;
+begin
+  setlength(fa, 0); setlength(va, 0);
+  setlength(ta, 0); setlength(na, 0);
+  setlength(ca, 0);
+end;
+
+function TCustomVertexArray.GetIndexCount: integer;
+begin
+  result:=GetIndexCount(fCount);
+end;
+
+procedure TCustomVertexArray.MakeArrays;
+begin
+  setlength(fa, Count);
+  setlength(va, vCount);
+  if _3Dtextures then setlength(ta, vCount*3)
+  else if _textures then setlength(ta, vCount*2);
+  if _normals then setlength(na, vCount);
+  if _AlphaColors then setlength(ca, vCount*4)
+  else if _colors then setlength(ca, vCount*3);
+end;
+
+procedure TCustomVertexArray.MakeLinearIndices;
+var i: integer;
+begin
+  for i:=0 to GetIndexCount-1 do fa[i]:=i;
+end;
+
+procedure TCustomVertexArray.Set3DTextures;
+begin
+  _3Dtextures:=true; setlength(ta, vCount*3);
+end;
+
+procedure TCustomVertexArray.SetAlphaColors;
+begin
+  _AlphaColors:=true; setlength(ca, vCount*4);
 end;
 
 end.

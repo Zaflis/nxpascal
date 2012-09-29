@@ -19,7 +19,6 @@ unit nxGL;
 {.$define NX_CUSTOM_WINDOW}
 
 { TODO:
-- TVBO
 - TGLRenderer
 }
 
@@ -35,7 +34,11 @@ type
   { TGLTextureSet }
 
   TGLTextureSet = class(TTextureSet)
+  private
+    FTextureUnit: integer;
+    procedure SetTextureUnit(n: integer);
   public
+    property TextureUnit: integer read FTextureUnit write SetTextureUnit;
     destructor Destroy; override;
     constructor Create;
     function AddEmptyTexture(name: string; width, height: word; transparency: boolean = false): integer;
@@ -54,7 +57,6 @@ type
     procedure SetByName(name: string; force: boolean = false);
     procedure SetClamp(x_repeat, y_repeat: boolean);
     procedure SetTex(n: integer; force: boolean = false);
-    procedure SetTextureUnit(n: integer);
   end;
 
   TCamera = class;
@@ -116,38 +118,13 @@ type
     procedure Translate(const v: TVector; doSet: boolean = true); overload;
   end;
 
-  { TCustomVertexArray }
-
-  TCustomVertexArray = class
-  private
-    _textures,_normals,_colors,_AlphaColors,_3Dtextures: boolean;
-  public
-    Count, fCount, vCount: integer;
-    rendermode: TGLenum;
-    fa: array of word; // Faces
-    va, na: array of TVector; // Vertices, Normals
-    ta: array of single; // Textures
-    ca: array of byte; // Colors
-    constructor Create(Faces, Vertices: integer; _rendermode: cardinal;
-      textures, normals, colors: boolean); overload;
-    constructor Create(Faces: integer; _rendermode: cardinal;
-      textures, normals, colors: boolean); overload;
-    destructor Destroy; override;
-    procedure FreeArrays;
-    function GetIndexCount: integer; overload;
-    function GetIndexCount(const faceCount: integer): integer; overload;
-    procedure MakeArrays;
-    procedure MakeLinearIndices;
-    procedure Set3DTextures;
-    procedure SetAlphaColors;
-  end;
-
   { TVertexArray }
 
   TVertexArray = class(TCustomVertexArray)
   public
     procedure DisableStates;
     procedure EnableStates;
+    function GetIndexCount(const faceCount: integer): integer; override;
     procedure Render(Indexed: boolean = true); overload;
     procedure Render(first, _count: integer; Indexed: boolean = true); overload;
     procedure SetPointers;
@@ -156,11 +133,27 @@ type
   { TVBO }
 
   TVBO = class(TCustomVertexArray)
+  private
+    FStatic, dataIsSet: boolean;
+    procedure SetDefaultPointers;
+    procedure SetShaderPointers;
+    function StaticVal: cardinal;
   public
-    //procedure DisableStates;
-    //procedure EnableStates;
-    //procedure Render(first, count: integer; Indexed: boolean);
-    //procedure SetPointers;
+    bIndex, bVertex, bNormal, bTexture, bColor: cardinal;
+    UseShader: boolean;
+    constructor Create;
+    constructor Create(Faces, Vertices: integer; _rendermode: cardinal;
+      textures, normals, colors: boolean); overload;
+    constructor Create(Faces: integer; _rendermode: cardinal;
+      textures, normals, colors: boolean); overload;
+    destructor Destroy; override;
+    function GetIndexCount(const faceCount: integer): integer; override;
+    function IsStatic: boolean;
+    procedure Render; overload;
+    procedure Render(first, _count: integer); overload;
+    procedure SetData;
+    procedure SetPointers;
+    procedure SetStatic(enable: boolean);
   end;
 
   { TGLShader }
@@ -399,7 +392,8 @@ var
   nxAspectRatio: single = 1.33;
   nx: TNXGL;
   tex: TGLTextureSet;
-  va_states_set, va_pointers_set: boolean;
+  va_states_set: boolean;
+  va_pointers_owner: TCustomVertexArray;
 
   procedure nxInitGL;
   procedure nxFreeModelTextures(model: T3DModel);
@@ -1795,6 +1789,7 @@ end;
 
 procedure TGLTextureSet.SetTextureUnit(n: integer);
 begin
+  FTextureUnit:=n;
   if n>=0 then glActiveTexture(GL_TEXTURE0+n);
 end;
 
@@ -1817,7 +1812,7 @@ begin
   if _normals then glDisableClientState(GL_NORMAL_ARRAY);
   if _textures or _3Dtextures then glDisableClientState(GL_TEXTURE_COORD_ARRAY);
   if _colors or _AlphaColors then glDisableClientState(GL_COLOR_ARRAY);
-  va_states_set:=false; va_pointers_set:=false;
+  va_states_set:=false;
 end;
 
 procedure TVertexArray.EnableStates;
@@ -1829,6 +1824,23 @@ begin
   va_states_set:=true;
 end;
 
+function TVertexArray.GetIndexCount(const faceCount: integer): integer;
+begin
+  if faceCount>0 then begin
+    case rendermode of
+      GL_TRIANGLES: result:=faceCount*3;      // TRIANGLES
+      GL_QUADS: result:=faceCount*4;          // QUADS
+      GL_TRIANGLE_STRIP: result:=faceCount+2; // TRIANGLE_STRIP
+      GL_TRIANGLE_FAN: result:=faceCount+1;   // TRIANGLE_FAN
+      GL_LINES: result:=faceCount*2;          // LINES
+      GL_LINE_LOOP: result:=faceCount;        // LINE_LOOP
+      GL_LINE_STRIP: result:=faceCount+1;     // LINE_STRIP
+      else result:=faceCount;                 // POINTS
+    end;
+  end else
+    result:=0;
+end;
+
 procedure TVertexArray.Render(Indexed: boolean);
 begin
   Render(0, fCount, Indexed);
@@ -1837,7 +1849,7 @@ end;
 procedure TVertexArray.Render(first, _count: integer; Indexed: boolean);
 begin
   if not va_states_set then EnableStates;
-  if not va_pointers_set then SetPointers;
+  if va_pointers_owner<>self then SetPointers;
   if Indexed then glDrawElements(rendermode, GetIndexCount(_count), GL_UNSIGNED_SHORT, @(fa[first]))
   else glDrawArrays(rendermode, first, _count);
   DisableStates;
@@ -1847,11 +1859,9 @@ procedure TVertexArray.SetPointers;
 begin                           
   glVertexPointer(3, GL_FLOAT, 0, @(va[0]));
   if _normals then glNormalPointer(GL_FLOAT, 0, @(na[0]));
-  if _3Dtextures then glTexCoordPointer(3, GL_FLOAT, 0, @(ta[0]))
-  else if _textures then glTexCoordPointer(2, GL_FLOAT, 0, @(ta[0]));
-  if _AlphaColors then glColorPointer(4, GL_UNSIGNED_BYTE, 0, @(ca[0]))
-  else if _colors then glColorPointer(3, GL_UNSIGNED_BYTE, 0, @(ca[0]));
-  va_pointers_set:=true;
+  if _textures then glTexCoordPointer(TextureComponents, GL_FLOAT, 0, @(ta[0]));
+  if _colors then glColorPointer(ColorComponents, GL_UNSIGNED_BYTE, 0, @(ca[0]));
+  va_pointers_owner:=self;
 end;
 
 { TGLFont }
@@ -2303,86 +2313,6 @@ begin
   end;
 end;
 
-{ TCustomVertexArray }
-
-constructor TCustomVertexArray.Create(Faces, Vertices: integer;
-  _rendermode: cardinal; textures, normals, colors: boolean);
-begin
-  fCount:=Faces; vCount:=Vertices;
-  rendermode:=_rendermode; Count:=GetIndexCount;
-  _textures:=textures; _normals:=normals; _colors:=colors;
-  MakeArrays;
-end;
-
-constructor TCustomVertexArray.Create(Faces: integer; _rendermode: cardinal;
-  textures, normals, colors: boolean);
-begin
-  rendermode:=_rendermode;
-  Create(Faces, GetIndexCount(Faces), _rendermode, textures, normals, colors);
-end;
-
-destructor TCustomVertexArray.Destroy;
-begin
-  FreeArrays;
-  inherited Destroy;
-end;
-
-procedure TCustomVertexArray.FreeArrays;
-begin
-  setlength(fa, 0); setlength(va, 0);
-  setlength(ta, 0); setlength(na, 0);
-  setlength(ca, 0);
-end;
-
-function TCustomVertexArray.GetIndexCount: integer;
-begin
-  result:=GetIndexCount(fCount);
-end;
-
-function TCustomVertexArray.GetIndexCount(const faceCount: integer): integer;
-begin
-  if faceCount>0 then begin
-    case rendermode of
-      GL_TRIANGLES: result:=faceCount*3;
-      GL_QUADS: result:=faceCount*4;
-      GL_TRIANGLE_STRIP: result:=faceCount+2;
-      GL_TRIANGLE_FAN: result:=faceCount+1;
-      GL_LINES: result:=faceCount*2;
-      GL_LINE_LOOP: result:=faceCount;
-      GL_LINE_STRIP: result:=faceCount+1;
-      else result:=faceCount; // GL_POINTS
-    end;
-  end else
-    result:=0;
-end;
-
-procedure TCustomVertexArray.MakeArrays;
-begin
-  setlength(fa, Count);
-  setlength(va, vCount);
-  if _3Dtextures then setlength(ta, vCount*3)
-  else if _textures then setlength(ta, vCount*2);
-  if _normals then setlength(na, vCount);
-  if _AlphaColors then setlength(ca, vCount*4)
-  else if _colors then setlength(ca, vCount*3);
-end;
-
-procedure TCustomVertexArray.MakeLinearIndices;
-var i: integer;
-begin
-  for i:=0 to GetIndexCount-1 do fa[i]:=i;
-end;
-
-procedure TCustomVertexArray.Set3DTextures;
-begin
-  _3Dtextures:=true; setlength(ta, vCount*3);
-end;
-
-procedure TCustomVertexArray.SetAlphaColors;
-begin
-  _AlphaColors:=true; setlength(ca, vCount*4);
-end;
-
 { TCamera }
 
 constructor TCamera.Create;
@@ -2608,6 +2538,152 @@ begin
     parent.mat[parent.index]:=mat;
     parent.SetCamera;
   end;
+end;
+
+{ TVBO }
+
+function TVBO.StaticVal: cardinal;
+begin
+  if FStatic then result:=GL_STATIC_DRAW
+  else result:=GL_DYNAMIC_DRAW;
+end;
+
+constructor TVBO.Create;
+begin
+  FStatic:=false; dataIsSet:=false;
+  glGenBuffers(1, @bIndex);
+  glGenBuffers(1, @bVertex);
+  if _normals then glGenBuffers(1, @bNormal);
+  if _textures then glGenBuffers(1, @bTexture);
+  if _colors then glGenBuffers(1, @bColor);
+end;
+
+constructor TVBO.Create(Faces, Vertices: integer; _rendermode: cardinal; textures, normals, colors: boolean);
+begin
+  inherited Create(Faces, Vertices, _rendermode, textures, normals, colors);
+  Create;
+end;
+
+constructor TVBO.Create(Faces: integer; _rendermode: cardinal; textures, normals, colors: boolean);
+begin
+  inherited Create(Faces, _rendermode, textures, normals, colors);
+  Create;
+end;
+
+destructor TVBO.Destroy;
+begin
+  glDeleteBuffers(1, @bIndex);
+  glDeleteBuffers(1, @bVertex);
+  if _normals then glDeleteBuffers(1, @bNormal);
+  if _textures then glDeleteBuffers(1, @bTexture);
+  if _colors then glDeleteBuffers(1, @bColor);
+  inherited Destroy;
+end;
+
+function TVBO.GetIndexCount(const faceCount: integer): integer;
+begin
+  if faceCount>0 then begin
+    case rendermode of
+      GL_TRIANGLES: result:=faceCount*3;      // TRIANGLES
+      GL_QUADS: result:=faceCount*4;          // QUADS
+      GL_TRIANGLE_STRIP: result:=faceCount+2; // TRIANGLE_STRIP
+      GL_TRIANGLE_FAN: result:=faceCount+1;   // TRIANGLE_FAN
+      GL_LINES: result:=faceCount*2;          // LINES
+      GL_LINE_LOOP: result:=faceCount;        // LINE_LOOP
+      GL_LINE_STRIP: result:=faceCount+1;     // LINE_STRIP
+      else result:=faceCount;                 // POINTS
+    end;
+  end else
+    result:=0;
+end;
+
+function TVBO.IsStatic: boolean;
+begin
+  result:=FStatic;
+end;
+
+procedure TVBO.Render;
+begin
+  Render(0, fCount);
+end;
+
+procedure TVBO.Render(first, _count: integer);
+begin
+  SetPointers;
+  glDrawElements(rendermode, GetIndexCount(_count), GL_UNSIGNED_SHORT, nil)
+end;
+
+procedure TVBO.SetData;
+begin
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bIndex);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(word)*Count, @fa[0], StaticVal);
+  glBindBuffer(GL_ARRAY_BUFFER, bVertex);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(TVector)*vCount, @va[0], StaticVal);
+  if _normals then begin
+    glBindBuffer(GL_ARRAY_BUFFER, bNormal);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(TVector)*vCount, @na[0], StaticVal);
+  end;
+  if _textures then begin
+    glBindBuffer(GL_ARRAY_BUFFER, bTexture);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(single)*TextureComponents*vCount, @ta[0], StaticVal);
+  end;
+  if _colors then begin
+    glBindBuffer(GL_ARRAY_BUFFER, bColor);
+    glBufferData(GL_ARRAY_BUFFER, ColorComponents*vCount, @ca[0], StaticVal);
+  end;
+  dataIsSet:=true;
+end;
+
+procedure TVBO.SetPointers;
+begin
+  if (not FStatic) or (not dataIsSet) then SetData;
+  if UseShader then SetShaderPointers
+  else SetDefaultPointers;
+  va_pointers_owner:=self;
+end;
+
+procedure TVBO.SetDefaultPointers;
+begin
+  glBindBuffer(GL_ARRAY_BUFFER, bVertex);
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(3, GL_FLOAT, 0, nil);
+
+  glBindBuffer(GL_ARRAY_BUFFER, bNormal);
+  glEnableClientState(GL_NORMAL_ARRAY);
+  if _normals then glNormalPointer(GL_FLOAT, 0, nil);
+
+  glBindBuffer(GL_ARRAY_BUFFER, bColor);
+  glEnableClientState(GL_COLOR_ARRAY);
+  if _colors then glColorPointer(ColorComponents, GL_UNSIGNED_BYTE, 0, nil);
+
+  glBindBuffer(GL_ARRAY_BUFFER, bTexture);
+  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  if _textures then glTexCoordPointer(TextureComponents, GL_FLOAT, 0, nil);
+  glClientActiveTexture(GL_TEXTURE0+tex.TextureUnit);
+end;
+
+procedure TVBO.SetShaderPointers;
+begin
+  glBindBuffer(GL_ARRAY_BUFFER, bVertex);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, bytebool(GL_FALSE), 0, nil);
+
+  glBindBuffer(GL_ARRAY_BUFFER, bNormal);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, bytebool(GL_FALSE), 0, nil);
+
+  glBindBuffer(GL_ARRAY_BUFFER, bColor);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, ColorComponents, GL_UNSIGNED_BYTE, bytebool(GL_FALSE), 0, nil);
+
+  glBindBuffer(GL_ARRAY_BUFFER, bTexture);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, TextureComponents, GL_FLOAT, bytebool(GL_FALSE), 0, nil);
+end;
+
+procedure TVBO.SetStatic(enable: boolean);
+begin
+  FStatic:=enable;
 end;
 
 initialization
