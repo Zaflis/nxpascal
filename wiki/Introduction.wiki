@@ -1,4 +1,4 @@
-#labels Phase-Requirements
+#labels Phase-Requirements,Featured,Phase-Implementation
 = Introduction =
 
 nxPascal is a free game engine that tries to remain lightweight and portable. It is compilable under latest Lazarus on possibly all operating systems, and at least Delphi 7. So far this covers:
