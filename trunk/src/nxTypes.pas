@@ -43,6 +43,7 @@ type
   PVector2fArray = ^TVector2fArray;
   PVector3fArray = ^TVector3fArray;
 
+  TMatrix3f = array[0..2,0..2] of single;
   TMatrix4f = array[0..3,0..3] of single;
   TMatrix4d = array[0..3,0..3] of double;
   TMatrix = TMatrix4f;

@@ -97,6 +97,7 @@ type
     procedure DeletePath(n: integer);
     procedure GetFromModelView;
     function GetMatrix: TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
+    function GetVector(const axis: integer): TVector;{$IFDEF CanInline}inline;{$ENDIF}
     function IndexOfPath(p: TCameraPath): integer;
     procedure Interpolate(const mat2: TMatrix; const delta: single; doSet: boolean = true);
     procedure Load(n: integer; doSet: boolean = true);
@@ -141,7 +142,7 @@ type
   public
     bIndex, bVertex, bNormal, bTexture, bColor: cardinal;
     UseShader: boolean;
-    constructor Create;
+    constructor Create; overload;
     constructor Create(Faces, Vertices: integer; _rendermode: cardinal;
       textures, normals, colors: boolean); overload;
     constructor Create(Faces: integer; _rendermode: cardinal;
@@ -162,6 +163,7 @@ type
   private
     FProgram, FVertexShader, FFragmentShader: GLhandle;
     FUseVertex, FUseFragment: boolean;
+    LastErrorSource: GLHandle;
   public
     LastUniformValid: boolean;
     constructor Create(UseVertex, UseFragment: boolean);
@@ -171,9 +173,7 @@ type
     procedure DeleteProgram;
     procedure Disable;
     procedure Enable;
-    procedure GetErrorInfo(source: GLHandle; target: TStrings);
-    procedure GetFragmentShaderInfo(target: TStrings);
-    procedure GetVertexShaderInfo(target: TStrings);
+    procedure GetLastErrorInfo(target: TStrings);
     function GetUniform(name: string): GLint;
     function Link: boolean;
     function LoadDefaultFShader2D: boolean;
@@ -412,14 +412,14 @@ begin
   glLoadIdentity;
 
   glClearColor(0.0, 0.0, 0.0, 0.0);
-  glColor3f(1,1,1);
+  glColor3f(1, 1, 1);
   glEnable(GL_TEXTURE_2D);
   nx.rs.CullBack:=true;
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
   glDepthFunc(GL_LEQUAL);
   glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_GREATER,0.05);
+  glAlphaFunc(GL_GREATER, 0.05);
   glEnable(GL_NORMALIZE);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);
 
@@ -809,13 +809,16 @@ var c: TfRGBA;
 begin
   if Enable then begin
     rs.Lighting:=true;
-    glEnable(GL_LIGHT0); // Point
-    glEnable(GL_LIGHT1); // Ambient
-    nx.SetLight(1, GL_AMBIENT, 0.6, 0.6, 0.6);
-    glEnable(GL_COLOR_MATERIAL);
-    c.r:=0; c.g:=0; c.b:=0; c.a:=1;
+    glEnable(GL_LIGHT0); // Ambient directional light
+    nx.SetLight(0, GL_AMBIENT, 0.6, 0.6, 0.6);
+    nx.SetLight(0, GL_DIFFUSE, 0.7, 0.7, 0.7);
+    c:=fRGBA(0, 0, 0, 1);
+    glMaterialfv(GL_FRONT, GL_AMBIENT, PGLFloat(@c));
     glMaterialfv(GL_FRONT, GL_SPECULAR, PGLFloat(@c));
-    glColor3f(0.7,0.7,0.7);
+    c:=fRGBA(1, 1, 1, 1);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, PGLFloat(@c));
+    glEnable(GL_COLOR_MATERIAL);
+    glColor3f(0.7, 0.7, 0.7);
   end else
     rs.Lighting:=false;
 end;
@@ -1261,7 +1264,7 @@ var c: TfRGBA;
 begin
   if Enable then begin
     glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
-    c.r:=r; c.g:=g; c.b:=b; c.a:=0;
+    c.r:=r; c.g:=g; c.b:=b; c.a:=1;
     glMaterialfv(GL_FRONT, GL_SPECULAR, @c);
     glMaterialf(GL_FRONT, GL_SHININESS, shininess);
   end else glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
@@ -1789,7 +1792,10 @@ end;
 
 procedure TGLTextureSet.SetTextureUnit(n: integer);
 begin
-  FTextureUnit:=n;
+  if FTextureUnit<>n then begin
+    LastTexIndex:=abs(LastTexIndex)-1;
+    FTextureUnit:=n;
+  end;
   if n>=0 then glActiveTexture(GL_TEXTURE0+n);
 end;
 
@@ -2123,25 +2129,16 @@ begin
   glUseProgram(FProgram);
 end;
 
-procedure TGLShader.GetErrorInfo(source: GLHandle; target: TStrings);
+procedure TGLShader.GetLastErrorInfo(target: TStrings);
+var maxLength: GLint; s: string;
 begin
-  if (target=nil) or (source=0) then exit;
-  //glGetShaderiv(source, GL_INFO_LOG_LENGTH, &maxLength);
-
-	// The maxLength includes the NULL character
-	//fragmentInfoLog = new char[maxLength];
-
-	//glGetShaderInfoLog(source, maxLength, &maxLength, fragmentInfoLog);
-end;
-
-procedure TGLShader.GetFragmentShaderInfo(target: TStrings);
-begin
-  GetErrorInfo(FFragmentShader, target);
-end;
-
-procedure TGLShader.GetVertexShaderInfo(target: TStrings);
-begin
-  GetErrorInfo(FVertexShader, target);
+  if (target=nil) or (LastErrorSource=0) then exit;
+  glGetShaderiv(LastErrorSource, GL_INFO_LOG_LENGTH, @maxLength);
+  setlength(s, maxLength);
+	glGetShaderInfoLog(LastErrorSource, maxLength, maxLength, @s[1]);
+  if target.Text<>'' then target.Text:=target.Text+#13+#10+s
+  else target.Text:=s;
+  LastErrorSource:=0;
 end;
 
 function TGLShader.GetUniform(name: string): GLint;
@@ -2158,7 +2155,8 @@ begin
   isCompiled:=0;
   glGetProgramiv(FProgram, GL_LINK_STATUS, @isCompiled);
   result:=isCompiled=GL_TRUE;
-  if not result then nxSetError('GLSL program: linking failed!');
+  if not result then nxSetError(format(
+    'GLSL linking failed with errorID %d!', [isCompiled]));
 end;
 
 function TGLShader.LoadDefaultFShader2D: boolean;
@@ -2252,7 +2250,10 @@ begin
   glCompileShader(FFragmentShader);
   isCompiled:=0;
   glGetShaderiv(FFragmentShader, GL_COMPILE_STATUS, @isCompiled);
-  if isCompiled=GL_FALSE then nxSetError('Fragment shader compilation failed');
+  if isCompiled=GL_FALSE then begin
+    nxSetError('Fragment shader compilation failed');
+    LastErrorSource:=FFragmentShader;
+  end;
   result:=isCompiled=GL_TRUE;
 end;
 
@@ -2266,7 +2267,10 @@ begin
   glCompileShader(FVertexShader);
   isCompiled:=0;
   glGetShaderiv(FVertexShader, GL_COMPILE_STATUS, @isCompiled);
-  if isCompiled=GL_FALSE then nxSetError('Vertex shader compilation failed');
+  if isCompiled=GL_FALSE then begin
+    nxSetError('Vertex shader compilation failed');
+    LastErrorSource:=FVertexShader;
+  end;
   result:=isCompiled=GL_TRUE;
 end;
 
@@ -2354,6 +2358,11 @@ begin
   result:=mat[index];
 end;
 
+function TCamera.GetVector(const axis: integer): TVector;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  result:=nxMath3D.GetVector(mat[index], axis);
+end;
+
 function TCamera.IndexOfPath(p: TCameraPath): integer;
 var i: integer;
 begin
@@ -2386,13 +2395,13 @@ end;
 
 procedure TCamera.LookAt(const target, up: TVector; doSet: boolean);
 begin
-  self.LookAt(GetVector(mat[index], 3), target, up, doSet);
+  self.LookAt(nxMath3D.GetVector(mat[index], 3), target, up, doSet);
 end;
 
 procedure TCamera.LookAt(const target: TVector; doSet: boolean);
 begin
-  self.LookAt(GetVector(mat[index], 3), target,
-    GetVector(mat[index], 1), doSet);
+  self.LookAt(nxMath3D.GetVector(mat[index], 3), target,
+    nxMath3D.GetVector(mat[index], 1), doSet);
 end;
 
 procedure TCamera.Multiply(const mat2: TMatrix; doSet: boolean); stdcall;{$IFDEF CanInline}inline;{$ENDIF}
@@ -2610,7 +2619,8 @@ end;
 procedure TVBO.Render(first, _count: integer);
 begin
   SetPointers;
-  glDrawElements(rendermode, GetIndexCount(_count), GL_UNSIGNED_SHORT, nil)
+  glDrawElements(rendermode, GetIndexCount(_count), GL_UNSIGNED_SHORT,
+    {%H-}pointer(first*sizeof(word)) );
 end;
 
 procedure TVBO.SetData;

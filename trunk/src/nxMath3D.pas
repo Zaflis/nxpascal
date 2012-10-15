@@ -60,6 +60,7 @@ uses nxTypes;
   function Determinant(const M: TMatrix): Single;
   function GetAngle(const M: TMatrix; const axis: integer): single;
   function GetRotation(const mat: TMatrix): TMatrix;
+  function GetRotation3(const mat: TMatrix): TMatrix3f;
   function GetVector(const M: TMatrix; const axis: integer): TVector; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Interpolate(const a, b: TMatrix; s: single): TMatrix; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Invert(const M: TMatrix): TMatrix; overload;
@@ -106,8 +107,9 @@ uses nxTypes;
   operator +(const a, b: TVector): TVector;
   operator -(const a, b: TVector): TVector;
   operator *(const a, b: TVector): TVector;{$IFDEF CanInline}inline;{$ENDIF}
-  operator *(const a: TVector; n: single): TVector;
-  operator /(const a: TVector; n: single): TVector;
+  operator *(const a: TVector; const n: single): TVector;
+  operator *(const n: single; const a: TVector): TVector;
+  operator /(const a: TVector; const n: single): TVector;
   operator *(const a, b: TMatrix): TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
   operator *(const v: TVector; const m: TMatrix): TVector;{$IFDEF CanInline}inline;{$ENDIF}
   operator +(const m: TMatrix; const v: TVector): TMatrix;
@@ -590,13 +592,20 @@ begin
 end;
 
 function GetRotation(const mat: TMatrix): TMatrix;
-var i,j: integer;
+var i, j: integer;
 begin
   for j:=0 to 2 do begin
-    for i:=0 to 2 do result[i,j]:=mat[i,j];
+    for i:=0 to 2 do result[i,j]:=mat[i, j];
     result[j, 3]:=0; result[3, j]:=0;
   end;
   result[3, 3]:=1;
+end;
+
+function GetRotation3(const mat: TMatrix): TMatrix3f;
+var i, j: integer;
+begin
+  for j:=0 to 2 do
+    for i:=0 to 2 do result[i, j]:=mat[i, j];
 end;
 
 function GetVector(const M: TMatrix; const axis: integer): TVector;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
@@ -972,12 +981,17 @@ begin
   result:=CrossProduct(a, b);
 end;
 
-operator*(const a: TVector; n: single): TVector;
+operator*(const a: TVector; const n: single): TVector;
 begin
   result.x:=a.x*n; result.y:=a.y*n; result.z:=a.z*n;
 end;
 
-operator/(const a: TVector; n: single): TVector;
+operator*(const n: single; const a: TVector): TVector;
+begin
+  result.x:=a.x*n; result.y:=a.y*n; result.z:=a.z*n;
+end;
+
+operator/(const a: TVector; const n: single): TVector;
 begin
   result.x:=a.x/n; result.y:=a.y/n; result.z:=a.z/n;
 end;
