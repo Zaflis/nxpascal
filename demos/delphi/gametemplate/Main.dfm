@@ -20,6 +20,7 @@ object Form1: TForm1
   OnMouseMove = FormMouseMove
   OnMouseUp = FormMouseUp
   OnMouseWheel = FormMouseWheel
+  OnPaint = FormPaint
   PixelsPerInch = 96
   TextHeight = 13
   object AppEvents: TApplicationEvents
