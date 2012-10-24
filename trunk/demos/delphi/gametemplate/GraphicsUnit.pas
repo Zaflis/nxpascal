@@ -25,8 +25,10 @@ begin
   inherited Create;
   // Load graphics
   nx.SetClearColor(0.1, 0.2, 0.4);
+  nx.Clear(true, true);
+  nx.Flip;
+  
   nx.CreateFont('Courier', 8, 256);
-
   tex.AddTexture('glow', GetPath('textures\glow.png'));
 
   // Last operations
@@ -58,7 +60,9 @@ begin
 
   nx.SetFont(0); nx.SetColor(1, 0, 0);
   nx.Font[0].DrawC(nx.Width/2, 15, '- Press ESC to quit -');
-
+  nx.SetColor(1, 1, 1, 0.5);
+  nx.Font[0].DrawC(nx.Width/2, 30, '- or Space to toggle mouse mode -');
+   
   nx.Disable2D;
   nx.Flip;
 end;

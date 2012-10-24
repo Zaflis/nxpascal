@@ -750,7 +750,7 @@ begin
     window:=TOpenGLControl.Create(hWindow);
     window.Parent:=hWindow;
     window.SendToBack;
-    //window.SetBounds(0,0,hWindow.Width,hWindow.Height);
+    window.SetBounds(0,0,hWindow.Width,hWindow.Height);
     window.OnResize:=@doResize;
     window.Align:=alClient;
     window.MakeCurrent(false);
@@ -2135,7 +2135,7 @@ begin
   if (target=nil) or (LastErrorSource=0) then exit;
   glGetShaderiv(LastErrorSource, GL_INFO_LOG_LENGTH, @maxLength);
   setlength(s, maxLength);
-	glGetShaderInfoLog(LastErrorSource, maxLength, maxLength, @s[1]);
+  glGetShaderInfoLog(LastErrorSource, maxLength, maxLength, @s[1]);
   if target.Text<>'' then target.Text:=target.Text+#13+#10+s
   else target.Text:=s;
   LastErrorSource:=0;

@@ -31,7 +31,6 @@ begin
   modpath:='testMod'; // Use custom mod in this path
   playerPos:=vector2f(nx.Width/2, nx.Height/2);
   mouseXSpeed:=1; mouseYSpeed:=mouseXSpeed;
-
   CenterMouse(true);
 end;
 

@@ -18,6 +18,7 @@ type
     procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure FormMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FormMouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+    procedure FormPaint(Sender: TObject);
   private
     game: TGraphicalGame;
   public
@@ -39,14 +40,6 @@ begin
 
   if not nx.CreateGlWindow(self) then begin
     showmessage('Failed to initialize OpenGL!'); exit;
-  end;
-
-  // Create game
-  game:=TGraphicalGame.Create;
-  if not game.Initialized then begin
-    FreeAndNil(game);
-    //showmessage('Game failed to initialize!');
-    exit;
   end;
 end;
 
@@ -128,6 +121,20 @@ begin
     // Mousewheel events
 
   end;
+end;
+
+procedure TForm1.FormPaint(Sender: TObject);
+begin
+  // Create game
+  if (game=nil) and nx.AllOK then begin
+    game:=TGraphicalGame.Create;
+    if not game.Initialized then begin
+      FreeAndNil(game);
+      //showmessage('Game failed to initialize!');
+      exit;
+    end;
+  end;
+  onPaint:=nil;
 end;
 
 end.
