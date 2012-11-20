@@ -1,62 +1,162 @@
 object Form1: TForm1
-  Left = 312
-  Height = 240
+  Left = 302
+  Height = 405
   Top = 124
-  Width = 320
+  Width = 511
   Caption = 'Edit3D'
-  ClientHeight = 220
-  ClientWidth = 320
+  ClientHeight = 385
+  ClientWidth = 511
   Menu = MainMenu1
   OnClose = FormClose
   OnCreate = FormCreate
-  LCLVersion = '0.9.31'
+  OnPaint = FormPaint
+  Position = poScreenCenter
+  LCLVersion = '1.1'
   object Panel1: TPanel
     Left = 0
     Height = 32
     Top = 0
-    Width = 320
+    Width = 511
     Align = alTop
-    Caption = 'Panel1'
+    ClientHeight = 32
+    ClientWidth = 511
     TabOrder = 0
+    object Label2: TLabel
+      Left = 8
+      Height = 15
+      Top = 7
+      Width = 34
+      Caption = 'Mode:'
+      ParentColor = False
+    end
+    object selMode: TComboBox
+      Left = 48
+      Height = 23
+      Top = 4
+      Width = 70
+      AutoSize = False
+      ItemHeight = 15
+      ItemIndex = 0
+      Items.Strings = (
+        'Objects'
+        'Faces'
+        'Vertices'
+      )
+      Style = csDropDownList
+      TabOrder = 0
+      TabStop = False
+      Text = 'Objects'
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 353
+    Top = 32
+    Width = 112
+    Align = alLeft
+    ClientHeight = 353
+    ClientWidth = 112
+    TabOrder = 1
+    object Panel3: TPanel
+      Left = 1
+      Height = 146
+      Top = 1
+      Width = 110
+      Align = alTop
+      ClientHeight = 146
+      ClientWidth = 110
+      TabOrder = 0
+      object btnAddObject: TButton
+        Left = 5
+        Height = 20
+        Top = 18
+        Width = 100
+        Anchors = [akTop, akLeft, akRight]
+        Caption = 'Add object >'
+        OnClick = btnAddObjectClick
+        TabOrder = 0
+      end
+      object objlist: TListBox
+        Left = 1
+        Height = 104
+        Top = 39
+        Width = 108
+        Anchors = [akTop, akLeft, akRight, akBottom]
+        ItemHeight = 0
+        PopupMenu = objlistPopup
+        TabOrder = 1
+      end
+      object Label1: TLabel
+        Left = 1
+        Height = 15
+        Top = 1
+        Width = 108
+        Align = alTop
+        Alignment = taCenter
+        Caption = 'Select'
+        ParentColor = False
+      end
+    end
+    object Splitter2: TSplitter
+      Cursor = crVSplit
+      Left = 1
+      Height = 5
+      Top = 147
+      Width = 110
+      Align = alTop
+      ResizeAnchor = akTop
+    end
+  end
+  object Splitter1: TSplitter
+    Left = 112
+    Height = 353
+    Top = 32
+    Width = 5
   end
   object Timer1: TTimer
     Enabled = False
-    left = 24
-    top = 41
+    Interval = 17
+    OnTimer = Timer1Timer
+    left = 216
+    top = 64
   end
   object MainMenu1: TMainMenu
-    left = 72
-    top = 108
+    left = 152
+    top = 64
     object MenuItem1: TMenuItem
       Caption = 'File'
-      object MenuItem8: TMenuItem
+      object mnuNewWorkspace: TMenuItem
         Caption = 'New workspace...'
+        OnClick = mnuNewWorkspaceClick
       end
-      object MenuItem9: TMenuItem
+      object mnuOpenWorkspace: TMenuItem
         Caption = 'Open workspace...'
         ShortCut = 114
       end
-      object MenuItem60: TMenuItem
+      object mnuSaveWorkspace: TMenuItem
         Caption = 'Save workspace'
         ShortCut = 113
       end
-      object MenuItem12: TMenuItem
+      object mnuSaveWorkspaceAs: TMenuItem
         Caption = 'Save workspace as...'
       end
       object MenuItem13: TMenuItem
         Caption = '-'
       end
-      object MenuItem16: TMenuItem
+      object mnuAddObject: TMenuItem
         Caption = 'Add object...'
+        OnClick = mnuAddObjectClick
       end
-      object MenuItem11: TMenuItem
+      object mnuSaveObject: TMenuItem
         Caption = 'Save selected object as...'
+        OnClick = mnuSaveObjAsClick
       end
       object MenuItem15: TMenuItem
         Caption = '-'
       end
-      object MenuItem10: TMenuItem
+      object mnuExit: TMenuItem
         Caption = 'Exit'
+        OnClick = mnuExitClick
       end
     end
     object MenuItem2: TMenuItem
@@ -68,16 +168,16 @@ object Form1: TForm1
       object MenuItem22: TMenuItem
         Caption = '-'
       end
-      object MenuItem23: TMenuItem
+      object mnuCopy: TMenuItem
         Caption = 'Copy'
         ShortCut = 16451
       end
-      object MenuItem24: TMenuItem
-        Caption = 'New Item24'
+      object mnuPaste: TMenuItem
+        Caption = 'Paste'
         ShortCut = 16470
       end
-      object MenuItem25: TMenuItem
-        Caption = 'New Item25'
+      object mnuDelete: TMenuItem
+        Caption = 'Delete'
         ShortCut = 46
       end
       object MenuItem26: TMenuItem
@@ -163,10 +263,7 @@ object Form1: TForm1
         end
       end
       object MenuItem35: TMenuItem
-        Caption = 'Scale'
-        object MenuItem51: TMenuItem
-          Caption = 'New Item53'
-        end
+        Caption = 'Scale...'
       end
       object MenuItem44: TMenuItem
         Caption = 'Flip face(s)'
@@ -215,14 +312,51 @@ object Form1: TForm1
       Caption = 'Tools'
       object MenuItem21: TMenuItem
         Caption = 'Memory usage...'
+        OnClick = MenuItem21Click
       end
       object MenuItem20: TMenuItem
         Caption = 'List GL extensions of your card...'
+        OnClick = MenuItem20Click
       end
     end
     object MenuItem7: TMenuItem
       Caption = 'Help'
       Visible = False
+    end
+  end
+  object AppProperties: TApplicationProperties
+    left = 280
+    top = 64
+  end
+  object openD: TOpenDialog
+    DefaultExt = '.nxw'
+    Filter = 'Supported models (NXW, OBJ, W3D, Milkshape)|*.nxw;*.obj;*.w3d;*.ms3d|All files|*.*'
+    left = 152
+    top = 128
+  end
+  object saveD: TSaveDialog
+    DefaultExt = '.nxw'
+    Filter = 'NXW|*.nxw|OBJ|*.obj|W3D|*.w3d|Milkshape ascii|*.ms3d|All files|*.*'
+    left = 216
+    top = 128
+  end
+  object objlistPopup: TPopupMenu
+    left = 56
+    top = 104
+    object mnuAddToScene: TMenuItem
+      Caption = 'Add to scene'
+      OnClick = btnAddObjectClick
+    end
+    object mnuSaveObjAs: TMenuItem
+      Caption = 'Save as...'
+      OnClick = mnuSaveObjAsClick
+    end
+    object MenuItem11: TMenuItem
+      Caption = '-'
+    end
+    object mnuDeleteObj: TMenuItem
+      Caption = 'Delete'
+      OnClick = mnuDeleteObjClick
     end
   end
 end

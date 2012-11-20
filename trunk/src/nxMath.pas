@@ -12,8 +12,8 @@ uses nxTypes, math;
 
   function Angle(const px1,py1,px2,py2: single): single; overload;
   function Angle(srcRadian, destRadian: single): single; overload;
-  function Catmull(const p0,p1,p2,p3,t: single): single; overload;
-  function Catmull(const a,b,c,d: TVector2f; const delta: single): TVector2f; overload;
+  function Catmull(const p0,p1,p2,p3,t: single): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
+  function Catmull(const a,b,c,d: TVector2f; const delta: single): TVector2f; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Distance(x1,y1,x2,y2, px,py: single): single;
   function Distance2(x1,y1,x2,y2, px,py: single): single;
   function dmod(a, b: double): double;
@@ -72,14 +72,14 @@ begin
   while result>PI do result:=result-PI*2;
 end;
 
-function Catmull(const p0,p1,p2,p3,t: single): single;
+function Catmull(const p0,p1,p2,p3,t: single): single;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result:=0.5*( 2*p1+(p2-p0)*t +
    (2*p0-5*p1+4*p2-p3)*t*t +
    (3*p1-p0-3*p2+p3)*t*t*t );
 end;
 
-function Catmull(const a,b,c,d: TVector2f; const delta: single): TVector2f;
+function Catmull(const a,b,c,d: TVector2f; const delta: single): TVector2f;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result.x:=Catmull(a.x, b.x, c.x, d.x, delta);
   result.y:=Catmull(a.y, b.y, c.y, d.y, delta);

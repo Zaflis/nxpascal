@@ -14,9 +14,10 @@ interface
   to avoid compile error here.
   (Or move png folder contents to nx source folder.)}
 
-uses SysUtils, {$IFDEF fpc}GraphType, LazUTF8, LCLIntf,{$ELSE}Windows, pngimage,
-  JPEG,{$ENDIF} Controls, Graphics, Classes, math,
-  nxStrings, nxMath, nxTypes;
+uses SysUtils,{$IFDEF fpc}GraphType, LazUTF8, LCLIntf, FPimage
+  {$ELSE}Windows, pngimage, JPEG{$ENDIF}, Graphics,
+  {$IFDEF fpc}zstream{$ELSE}zlib{$ENDIF},
+  Controls, Classes, math, nxStrings, nxMath, nxTypes;
 
 type
   TTexture = record
@@ -88,7 +89,9 @@ type
     TexSize, height: word;
     color: TfRGBA;
     constructor Create(_TexSize: integer);
-    procedure CreateBMP(fontName: string; fontSize, _TexSize: integer);
+    constructor Load(filename: string);
+    constructor CreateBMP(fontName: string; fontSize, _TexSize: integer);
+    constructor CreateBMPAndSave(fontName: string; fontSize, _TexSize: integer; filename: string);
     procedure SetColor(const r,g,b: single; a: single = 1);
     function TextW(s: string): integer;
     function WrapLines(w,h: integer; s: TStrings; first: integer = 0): integer;
@@ -365,6 +368,7 @@ end;
 function TTextureSet.LoadBMPData(tex: PTexture; bmp: TBitmap): boolean;
 var sx, sy: single; n, x1, y1: integer;
     x, y: word; UseScale: boolean;
+    {$IFDEF fpc}fpColor: TFPColor;{$ENDIF}
 begin
   result:=false;
   if (tex=nil) or (bmp=nil) then exit;
@@ -399,9 +403,10 @@ begin
     for x:=0 to tex^.Width-1 do begin
       if UseScale then x1:=trunc(x*sx) else x1:=x;
       {$IFDEF fpc}
-      tex^.Data[n]:=bmp.Canvas.Colors[x1, y1].red;
-      tex^.Data[n+1]:=bmp.Canvas.Colors[x1, y1].green;
-      tex^.Data[n+2]:=bmp.Canvas.Colors[x1, y1].blue;
+      fpColor:=bmp.Canvas.Colors[x1, y1];
+      tex^.Data[n]:=fpColor.red div 256;
+      tex^.Data[n+1]:=fpColor.green div 256;
+      tex^.Data[n+2]:=fpColor.blue div 256;
       {$ELSE}
       tex^.Data[n]:=GetRValue(bmp.Canvas.Pixels[x1, y1]);
       tex^.Data[n+1]:=GetGValue(bmp.Canvas.Pixels[x1, y1]);
@@ -825,12 +830,35 @@ begin
   name:='unnamed';
 end;
 
-procedure TNXFont.CreateBMP(fontName: string; fontSize,
-  _TexSize: integer);
-var i,x,y: integer; b: TBitmap; c: char; s: string;
+constructor TNXFont.Load(filename: string);
+var fs: TFileStream; ds: TDeCompressionStream;
+    tex: PTexture; c: cardinal;
 begin
-  self.TexSize:=_TexSize;
-  nxTex.Options:=[toAlphaColor];
+  textureI:=nxTex.AddTexture2(filename, '', true);
+  tex:=@nxTex.texture[textureI];
+  fs:=TFileStream.Create(filename, fmOpenRead);
+  fs.ReadBuffer(TexSize, 2);
+  Create(TexSize);
+  fs.ReadBuffer(Height, 2);
+  fs.ReadBuffer(CenterH, 1);
+  sx:=texSize div 16; sy:=texSize div 14;
+  tex^.sizeX:=texSize; tex^.sizeY:=texSize;
+  nxTex.SetSize(textureI, TexSize, TexSize);
+  fs.ReadBuffer(charW, 256-32);
+  c:=0;
+  fs.ReadBuffer(c, 4);
+  tex^.Data:=allocmem(c);
+  ds:=TDeCompressionStream.create(fs);
+  ds.read(tex^.Data[0], c);
+  ds.Free; fs.Free;
+end;
+
+constructor TNXFont.CreateBMP(fontName: string; fontSize, _TexSize: integer);
+var i,x,y: integer; b: TBitmap; c: char; s: string;
+    temp: TTextureLoadOptions;
+begin
+  temp:=nxTex.Options; nxTex.Options:=[toAlphaColor];
+  TexSize:=_TexSize;
   TextureI:=nxTex.AddTexture2('*F '+fontname, '', true);
   b:=TBitmap.Create;
   b.Width:=TexSize; b.Height:=TexSize;
@@ -855,6 +883,25 @@ begin
   nxTex.LoadBMPData(@nxTex.texture[textureI], b);
   if NX_SaveFontBitmap then b.SaveToFile('FontBitmap.bmp');
   b.Free;
+  nxTex.Options:=temp;
+end;
+
+constructor TNXFont.CreateBMPAndSave(fontName: string; fontSize, _TexSize: integer; filename: string);
+var fs: TFileStream; cs: TCompressionStream;
+    tex: PTexture; c: cardinal;
+begin
+  CreateBMP(fontName, fontSize, _TexSize);
+  fs:=TFileStream.Create(filename, fmCreate);
+  fs.WriteBuffer(TexSize, 2);
+  fs.WriteBuffer(Height, 2);
+  fs.WriteBuffer(CenterH, 1);
+  fs.WriteBuffer(charW, 256-32);
+  tex:=@nxTex.texture[textureI];
+  c:=tex^.sizeX*tex^.sizeY*tex^.values;
+  fs.WriteBuffer(c, 4);
+  cs:=TCompressionStream.create(cldefault, fs);
+  cs.write(tex^.Data[0], c);
+  cs.Free; fs.Free;
 end;
 
 procedure TNXFont.SetColor(const r, g, b: single; a: single);

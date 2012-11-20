@@ -5,23 +5,36 @@ unit main;
 interface
 
 uses
-  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs, ExtCtrls,
-  Menus, dglOpenGL, nxGL, nxTypes, ModelUnit;
+  Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
+  ExtCtrls, Menus, StdCtrls, LCLType,
+  dglOpenGL, nxGL, nxTypes, ModelUnit;
 
 type
 
   { TForm1 }
 
   TForm1 = class(TForm)
+    AppProperties: TApplicationProperties;
+    btnAddObject: TButton;
+    mnuSaveObjAs: TMenuItem;
+    MenuItem11: TMenuItem;
+    mnuAddToScene: TMenuItem;
+    mnuDeleteObj: TMenuItem;
+    objlistPopup: TPopupMenu;
+    saveD: TSaveDialog;
+    selMode: TComboBox;
+    Label1: TLabel;
+    Label2: TLabel;
+    objlist: TListBox;
     MainMenu1: TMainMenu;
     MenuItem1: TMenuItem;
-    MenuItem10: TMenuItem;
-    MenuItem11: TMenuItem;
-    MenuItem12: TMenuItem;
+    mnuExit: TMenuItem;
+    mnuSaveObject: TMenuItem;
+    mnuSaveWorkspaceAs: TMenuItem;
     MenuItem13: TMenuItem;
     MenuItem14: TMenuItem;
     MenuItem15: TMenuItem;
-    MenuItem16: TMenuItem;
+    mnuAddObject: TMenuItem;
     MenuItem17: TMenuItem;
     MenuItem18: TMenuItem;
     MenuItem19: TMenuItem;
@@ -29,9 +42,9 @@ type
     MenuItem20: TMenuItem;
     MenuItem21: TMenuItem;
     MenuItem22: TMenuItem;
-    MenuItem23: TMenuItem;
-    MenuItem24: TMenuItem;
-    MenuItem25: TMenuItem;
+    mnuCopy: TMenuItem;
+    mnuPaste: TMenuItem;
+    mnuDelete: TMenuItem;
     MenuItem26: TMenuItem;
     MenuItem27: TMenuItem;
     MenuItem28: TMenuItem;
@@ -60,7 +73,6 @@ type
     MenuItem49: TMenuItem;
     MenuItem5: TMenuItem;
     MenuItem50: TMenuItem;
-    MenuItem51: TMenuItem;
     MenuItem52: TMenuItem;
     MenuItem53: TMenuItem;
     MenuItem54: TMenuItem;
@@ -70,22 +82,45 @@ type
     MenuItem58: TMenuItem;
     MenuItem59: TMenuItem;
     MenuItem6: TMenuItem;
-    MenuItem60: TMenuItem;
+    mnuSaveWorkspace: TMenuItem;
     MenuItem7: TMenuItem;
-    MenuItem8: TMenuItem;
-    MenuItem9: TMenuItem;
+    mnuNewWorkspace: TMenuItem;
+    mnuOpenWorkspace: TMenuItem;
+    openD: TOpenDialog;
     Panel1: TPanel;
+    Panel2: TPanel;
+    Panel3: TPanel;
+    Splitter1: TSplitter;
+    Splitter2: TSplitter;
     Timer1: TTimer;
+    procedure btnAddObjectClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
+    procedure FormPaint(Sender: TObject);
+    procedure mnuSaveObjAsClick(Sender: TObject);
+    procedure mnuDeleteObjClick(Sender: TObject);
+    procedure mnuExitClick(Sender: TObject);
+    procedure MenuItem20Click(Sender: TObject);
+    procedure MenuItem21Click(Sender: TObject);
+    procedure mnuAddObjectClick(Sender: TObject);
+    procedure mnuNewWorkspaceClick(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
   private
-    model: TEditModel;
-    objDL: array[0..2] of TDisplayList;
+    obj: array of TEditModel;
+    modified: boolean;
+    selarray: array[0..high(word)] of byte;
+    scene: T3DScene;
+    procedure FreeObjects;
+    procedure LoadGLData;
   public
   end;
 
 var
   Form1: TForm1;
+
+const
+  EPSILON: Single = 1e-40;
+  EPSILON2: Single = 1e-30;
 
 implementation
 
@@ -95,17 +130,122 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  if not nx.CreateGlWindow(self) then exit;
+  width:=800; height:=600;
+  if not nx.CreateGlWindow(self) then begin
+    showmessage('Cannot initialize OpenGL'); exit;
+  end;
+  scene:=T3DScene.Create;
+end;
+
+procedure TForm1.LoadGLData;
+begin
 
 end;
 
-procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  nx.Clear(true, true);
+  scene.Render;
+  nx.Flip;
+end;
+
+procedure TForm1.FormPaint(Sender: TObject);
+begin
+  if (tag=0) and nx.AllOK then begin
+    tag:=1;
+    LoadGLData;
+    timer1.Enabled:=true;
+  end;
+end;
+
+procedure TForm1.mnuSaveObjAsClick(Sender: TObject);
+begin
+  if (objlist.Items.Count>0) and (objlist.ItemIndex>=0) then begin
+    if saveD.Execute then begin
+      //obj[objlist.ItemIndex].SaveToOBJ();
+    end;
+  end;
+end;
+
+procedure TForm1.mnuDeleteObjClick(Sender: TObject);
+begin
+  if (objlist.Items.Count>0) and (objlist.ItemIndex>=0) then begin
+
+  end;
+end;
+
+procedure TForm1.mnuExitClick(Sender: TObject);
+begin
+  close;
+end;
+
+procedure TForm1.MenuItem20Click(Sender: TObject);
+begin
+  showmessage(nx.GetEXT);
+end;
+
+procedure TForm1.MenuItem21Click(Sender: TObject);
+var m, tm: cardinal;
+begin
+  tm:=tex.GetMemoryUsage;
+  m:=tm;
+  showmessage(format(' - Memory usage -'+#13+
+    'Textures = %d'+#13+
+    'Objects = ?'+#13+
+    'Total = %d',[tm, m]));
+end;
+
+procedure TForm1.mnuAddObjectClick(Sender: TObject);
+var n: integer;
+begin
+  if openD.Execute then begin
+    n:=length(obj);
+    setlength(obj, n+1);
+    obj[n]:=TEditModel.Create;
+    obj[n].LoadFromFile(openD.FileName);
+  end;
+end;
+
+procedure TForm1.mnuNewWorkspaceClick(Sender: TObject);
+var dr: integer;
+begin
+  if modified then begin
+    dr:=application.MessageBox('Close file without saving?',
+      'File was modified', MB_ICONQUESTION + MB_YESNOCANCEL);
+    if dr<>IDYES then exit;
+  end;
+  modified:=false;
+  objlist.Items.Clear;
+  FreeObjects;
+end;
+
+procedure TForm1.FreeObjects;
 var i: integer;
 begin
-  for i:=0 to high(objDL) do
-    if objDL[i]<>nil then objDL[i].Free;
-  if model<>nil then model.Free;
+  for i:=0 to high(obj) do obj[i].Free;
+  setlength(obj, 0);
+end;
+
+procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
+var dr: integer;
+begin
+  if modified then begin
+    dr:=application.MessageBox('Quit without saving?',
+      'File was modified', MB_ICONQUESTION + MB_YESNOCANCEL);
+    if dr<>IDYES then begin
+      CloseAction:=caNone; exit;
+    end;
+  end;
+  FreeObjects;
+  FreeAndNil(scene);
   nx.KillGLWindow;
+end;
+
+procedure TForm1.btnAddObjectClick(Sender: TObject);
+begin
+  if (objlist.Items.Count>0) and (objlist.ItemIndex>=0) then begin
+    scene.Add(obj[objlist.ItemIndex]);
+  end;
 end;
 
 end.

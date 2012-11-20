@@ -14,6 +14,11 @@ uses nxTypes;
 type
   TIndexArray = array of word;
 
+  TModelVertex = packed record
+    v, n: TVector;
+    uv: TVector2f;
+  end;
+
   TMaterial = record
     name, texture: string;
     texIndex: smallint;
@@ -34,19 +39,13 @@ type
   PVertexFrame = ^TVertexFrame;
 
   TBone = record
-    rot: TMatrix;
+    rot: TMatrix3f;
     position: TVector;
   end;
 
   { T3DModel }
 
   T3DModel = class
-  private
-    FvCount, FGroups, FmCount, vCount2, fCount2: integer;
-    procedure SetGroups(n: integer);
-    procedure SetmCount(n: integer);
-    procedure SetvCount(n: integer);
-  public
     bCount: integer;
     va, na: array of TVector; // Vertices, Normals
     ta: array of TVector2f; // Textures
@@ -54,14 +53,20 @@ type
     grp: array of TFaceGroup;
     bone: array of TBone;
     UseMaterials, UseColors: boolean;
+  private
+    FvCount, FGroups, FmCount, vCount2, fCount2: integer;
+    procedure SetGroups(n: integer);
+    procedure SetmCount(n: integer);
+    procedure SetvCount(n: integer);
+  public
     property groups: integer read FGroups write SetGroups;
     property mCount: integer read FmCount write SetmCount;
     property vCount: integer read FvCount write SetvCount;
     procedure Center(_x, _y, _z: boolean);
     procedure Clear;
     function GetRadius: single;
-    procedure Rotate(_angle: single; axis: TVector);
-    procedure RotateUV(_angle, centerX, centerY: single); overload;
+    procedure Rotate(_radians: single; axis: TVector);
+    procedure RotateUV(_radians, centerX, centerY: single); overload;
     procedure Scale(x, y, z: single);
     procedure ScaleTo(size: single);
     procedure ScaleUV(x, y: single); overload;
@@ -71,6 +76,7 @@ type
 
   TModelW3D = class;
   TPolyModel = class;
+  TVertexModel = class;
 
   TTriFaceIndices = array[0..2] of word;
 
@@ -134,6 +140,7 @@ type
       ccw: boolean = false): word;
     procedure AssignTo(tri: TTriModel); overload;
     procedure AssignTo(w3d: TModelW3D); overload;
+    procedure AssignTo(vm: TVertexModel); overload;
     procedure Clear;
     procedure DivideTriangles;
     function GetTangent(const fIndex: word): TVector;
@@ -142,8 +149,32 @@ type
     procedure LoadFromOBJ(filename: string);
     procedure LoadFromW3D(filename: string; obj: integer = -1);
     procedure MakeNormals;
+    procedure SaveToFile(filename: string);
     procedure SaveToOBJ(filename: string);
     procedure SaveToW3D(filename: string);
+  end;
+
+  { TVertexModel }
+
+  TVertexModel = class
+    fa: array of TTriFaceIndices;
+    va: array of TModelVertex;
+    ca: array of TRGBA;
+    grp: array of TFaceGroup;
+    bone: array of TBone;
+    frame: array of TVertexFrame;
+  private
+  public
+    procedure Center(_x, _y, _z: boolean);
+    procedure Clear;
+    function GetRadius: single;
+    procedure Rotate(_radians: single; axis: TVector);
+    procedure RotateUV(_radians, centerX, centerY: single); overload;
+    procedure Scale(x, y, z: single);
+    procedure ScaleTo(size: single);
+    procedure ScaleUV(x, y: single); overload;
+    procedure Translate(x, y, z: single);
+    procedure TranslateUV(x, y: single); overload;
   end;
 
   TW3DFace = record
@@ -262,20 +293,20 @@ begin
   end;
 end;
 
-procedure T3DModel.Rotate(_angle: single; axis: TVector);
+procedure T3DModel.Rotate(_radians: single; axis: TVector);
 var i: integer;
 begin
   for i:=0 to vCount-1 do begin
-    va[i]:=nxMath3D.Rotate(va[i], _angle, axis);
-    na[i]:=nxMath3D.Rotate(na[i], _angle, axis);
+    va[i]:=nxMath3D.Rotate(va[i], _radians, axis);
+    na[i]:=nxMath3D.Rotate(na[i], _radians, axis);
   end;
 end;
 
-procedure T3DModel.RotateUV(_angle, centerX, centerY: single);
+procedure T3DModel.RotateUV(_radians, centerX, centerY: single);
 var i: integer;
 begin
   for i:=0 to vCount-1 do
-    nxMath.Rotate(ta[i].x, ta[i].y, _angle, centerX, centerY);
+    nxMath.Rotate(ta[i].x, ta[i].y, _radians, centerX, centerY);
 end;
 
 procedure T3DModel.Scale(x, y, z: single);
@@ -469,6 +500,28 @@ begin
     end;
   end;
   for i:=0 to bCount-1 do w3d.bone[i]:=bone[i];
+end;
+
+procedure TPolyModel.AssignTo(vm: TVertexModel);
+var i, j: integer;
+begin
+  vm.Clear;
+  DivideTriangles;
+  setlength(vm.fa, fCount);
+  setlength(vm.va, fCount);
+  setlength(vm.grp, groups);
+  setlength(vm.bone, bCount);
+  for i:=0 to vCount-1 do begin
+    vm.va[i].v:=va[i];
+    vm.va[i].n:=na[i];
+    vm.va[i].uv:=ta[i];
+  end;
+  for i:=0 to fCount-1 do
+    for j:=0 to 2 do
+      if j<fa[i].count then vm.fa[i,j]:=fa[i].index[j]
+      else vm.fa[i,j]:=fa[i].index[0];
+  for i:=0 to groups-1 do vm.grp[i]:=grp[i];
+  for i:=0 to bCount-1 do vm.bone[i]:=bone[i];
 end;
 
 procedure TPolyModel.Clear;
@@ -710,6 +763,15 @@ begin
   fillchar(na[0], vCount*sizeof(na[0]), 0);
   for i:=0 to groups-1 do MakeGrpNormals(i);
   for i:=0 to vCount-1 do na[i]:=Norm(na[i]);
+end;
+
+procedure TPolyModel.SaveToFile(filename: string);
+var ext: string;
+begin
+  FixPath(filename);
+  ext:=lowercase(extractfileext(filename));
+  if ext='.w3d' then SaveToW3D(filename)
+  else if ext='.obj' then SaveToOBJ(filename);
 end;
 
 procedure TPolyModel.SaveToOBJ(filename: string);
@@ -1409,14 +1471,11 @@ begin
 end;
 
 procedure TTriModel.SaveToFile(filename: string);
-var ext: string; poly: TPolyModel;
+var poly: TPolyModel;
 begin
-  ext:=lowercase(extractfileext(filename));
   poly:=TPolyModel.Create;
   AssignTo(poly);
-  if ext='.w3d' then poly.SaveToW3D(filename)
-  else if ext='.obj' then poly.SaveToOBJ(filename);
-  //else if ext='.ms3d' then poly.SaveToMS3D(filename);
+  poly.SaveToFile(filename);
   poly.Free;
 end;
 
@@ -1801,6 +1860,137 @@ begin
   for i:=0 to mCount-1 do poly.mat[i]:=mat[i];
   for i:=0 to groups-1 do poly.grp[i]:=grp[i];
   for i:=0 to bCount-1 do poly.bone[i]:=bone[i];
+end;
+
+{ TVertexModel }
+
+procedure TVertexModel.Center(_x, _y, _z: boolean);
+var i: integer; minx,miny,minz, maxx,maxy,maxz, d: single;
+begin
+  if length(va)<=0 then exit;
+  if _x then begin
+    minx:=va[0].v.x; maxx:=va[0].v.x;
+    for i:=1 to high(va) do begin
+      if va[i].v.x<minx then minx:=va[i].v.x
+      else if va[i].v.x>maxx then maxx:=va[i].v.x;
+    end;
+    d:=(maxx+minx)/2;
+    for i:=0 to high(va) do va[i].v.x:=va[i].v.x-d;
+  end;
+  if _y then begin
+    miny:=va[0].v.y; maxy:=va[0].v.y;
+    for i:=1 to high(va) do begin
+      if va[i].v.y<miny then miny:=va[i].v.y
+      else if va[i].v.y>maxy then maxy:=va[i].v.y;
+    end;
+    d:=(maxy+miny)/2;
+    for i:=0 to high(va) do va[i].v.y:=va[i].v.y-d;
+  end;
+  if _z then begin
+    minz:=va[0].v.z; maxz:=va[0].v.z;
+    for i:=1 to high(va) do begin
+      if va[i].v.z<minz then minz:=va[i].v.z
+      else if va[i].v.z>maxz then maxz:=va[i].v.z;
+    end;
+    d:=(maxz+minz)/2;
+    for i:=0 to high(va) do va[i].v.z:=va[i].v.z-d;
+  end;
+end;
+
+procedure TVertexModel.Clear;
+begin
+  setlength(va, 0); setlength(fa, 0); setlength(ca, 0);
+  setlength(bone, 0); setlength(grp, 0); setlength(frame, 0);
+end;
+
+function TVertexModel.GetRadius: single;
+var i: integer; d: single;
+begin
+  result:=0;
+  for i:=0 to high(va) do begin
+    d:=hypot3f(va[i].v.x, va[i].v.y, va[i].v.z);
+    if d>result then result:=d;
+  end;
+end;
+
+procedure TVertexModel.Rotate(_radians: single; axis: TVector);
+var i: integer;
+begin
+  for i:=0 to high(va) do begin
+    va[i].v:=nxMath3D.Rotate(va[i].v, _radians, axis);
+    va[i].n:=nxMath3D.Rotate(va[i].n, _radians, axis);
+  end;
+end;
+
+procedure TVertexModel.RotateUV(_radians, centerX, centerY: single);
+var i: integer;
+begin
+  for i:=0 to high(va) do
+    nxMath.Rotate(va[i].uv.x, va[i].uv.y, _radians, centerX, centerY);
+end;
+
+procedure TVertexModel.Scale(x, y, z: single);
+var i: integer;
+begin
+  for i:=0 to high(va) do begin
+    va[i].v.x:=va[i].v.x*x;
+    va[i].v.y:=va[i].v.y*y;
+    va[i].v.z:=va[i].v.z*z;
+  end;
+end;
+
+procedure TVertexModel.ScaleTo(size: single);
+var i: integer; minx,miny,minz, maxx,maxy,maxz, d,dx,dy,dz: single;
+begin
+  if length(va)<=0 then exit;
+  minx:=va[0].v.x; maxx:=va[0].v.x;
+  miny:=va[0].v.y; maxy:=va[0].v.y;
+  minz:=va[0].v.z; maxz:=va[0].v.z;
+  for i:=1 to high(va) do begin
+    if va[i].v.x<minx then minx:=va[i].v.x
+    else if va[i].v.x>maxx then maxx:=va[i].v.x;
+    if va[i].v.y<miny then miny:=va[i].v.y
+    else if va[i].v.y>maxy then maxy:=va[i].v.y;
+    if va[i].v.z<minz then minz:=va[i].v.z
+    else if va[i].v.z>maxz then maxz:=va[i].v.z;
+  end;
+  dx:=size/(maxx-minx);
+  dy:=size/(maxy-miny);
+  dz:=size/(maxz-minz);
+  if dx<dy then d:=dx
+  else d:=dy;
+  if d<dz then d:=dz;
+  for i:=0 to high(va) do begin
+    va[i].v.x:=va[i].v.x*d;
+    va[i].v.y:=va[i].v.y*d;
+    va[i].v.z:=va[i].v.z*d;
+  end;
+end;
+
+procedure TVertexModel.ScaleUV(x, y: single);
+var i: integer;
+begin
+  for i:=0 to high(va) do begin
+    va[i].uv.x:=va[i].uv.x*x; va[i].uv.y:=va[i].uv.y*y;
+  end;
+end;
+
+procedure TVertexModel.Translate(x, y, z: single);
+var i: integer;
+begin
+  for i:=0 to high(va) do begin
+    va[i].v.x:=va[i].v.x+x;
+    va[i].v.y:=va[i].v.y+y;
+    va[i].v.z:=va[i].v.z+z;
+  end;
+end;
+
+procedure TVertexModel.TranslateUV(x, y: single);
+var i: integer;
+begin
+  for i:=0 to high(va) do begin
+    va[i].uv.x:=va[i].uv.x+x; va[i].uv.y:=va[i].uv.y+y;
+  end;
 end;
 
 initialization

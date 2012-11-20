@@ -286,6 +286,7 @@ type
   TGLFont = class(TNXFont)
   public
     constructor CreateFont(fontName: string; fontSize, _TexSize: integer);
+    constructor LoadFont(filename: string);
     procedure Draw(x,y: single; s: string; maxW: integer = 0); override;
     procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
     procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); override;
@@ -315,6 +316,7 @@ type
     procedure ClearFonts;
     procedure CreateBasicFont;
     function CreateFont(fontName: string; fontSize, TexSize: integer): integer;
+    function LoadFont(filename: string): integer;
     {$IFnDEF NX_CUSTOM_WINDOW}
     function CreateGlWindow(hWindow: TWinControl): boolean;
     {$ENDIF}
@@ -720,9 +722,17 @@ end;
 function TNXGL.CreateFont(fontName: string; fontSize, TexSize: integer): integer;
 begin
   result:=fontCount;
-  inc(FontCount); setlength(font,fontcount);
-  font[result]:=TGLFont.CreateFont(fontName,fontSize,TexSize);
+  inc(FontCount); setlength(font, fontcount);
+  font[result]:=TGLFont.CreateFont(fontName, fontSize, TexSize);
   font[result].name:=NewFontName(fontName);
+end;
+
+function TNXGL.LoadFont(filename: string): integer;
+begin
+  result:=fontCount;
+  inc(FontCount); setlength(font, fontcount);
+  font[result]:=TGLFont.LoadFont(filename);
+  font[result].name:=NewFontName(filename);
 end;
 
 procedure TNXGL.FontFromImage(TexSize: integer);
@@ -1873,19 +1883,27 @@ end;
 { TGLFont }
 
 constructor TGLFont.CreateFont(fontName: string; fontSize, _TexSize: integer);
-var temp: TTextureLoadOptions; tempC: TRGB;
 begin
-  temp:=tex.Options; tempC:=tex.TransparentColor;
-  CreateBMP(fontName,fontSize,_TexSize);
+  CreateBMP(fontName, fontSize, _TexSize);
   tex.texture[textureI].Format:=GL_RGBA;
   tex.texture[textureI].intFormat:=GL_RGBA;
-  glGenTextures(1,@tex.texture[textureI].index);
+  glGenTextures(1, @tex.texture[textureI].index);
   tex.ChangeTexMode3D(false);
-  tex.SetTex(textureI,true);
+  tex.SetTex(textureI, true);
   tex.Restore(@tex.texture[textureI]);
-  tex.Options:=temp;
-  tex.TransparentColor:=tempC;
-  SetColor(1,1,1,1);
+  SetColor(1, 1, 1, 1);
+end;
+
+constructor TGLFont.LoadFont(filename: string);
+begin
+  inherited Load(filename);
+  tex.texture[textureI].Format:=GL_RGBA;
+  tex.texture[textureI].intFormat:=GL_RGBA;
+  glGenTextures(1, @tex.texture[textureI].index);
+  tex.ChangeTexMode3D(false);
+  tex.SetTex(textureI, true);
+  tex.Restore(@tex.texture[textureI]);
+  SetColor(1, 1, 1, 1);
 end;
 
 procedure TGLFont.Draw(x, y: single; s: string; maxW: integer);
