@@ -7,11 +7,12 @@ interface
 
 {$IFnDEF windows}uses SysUtils;{$ENDIF}
 
-const ToRad = 0.0174532925199433;  //  PI / 180 = Deg To Rad
-      ToDeg = 57.295779513082321;  //  180 / PI = Rad To Deg
+const ToRad = 0.0174532925199433;  // (PI / 180) = Deg To Rad
+      ToDeg = 57.295779513082321;  // (180 / PI) = Rad To Deg
       TextCutChar = #30;
       {$IFDEF windows}PathChar = '\';
       {$ELSE}PathChar = PathDelim;{$ENDIF}
+      EPSILON: Single = 1e-40;
 
 type
   {$IFDEF fpc}PointerArrayType = PByte;

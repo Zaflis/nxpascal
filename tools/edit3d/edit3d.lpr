@@ -13,7 +13,7 @@ uses
 {$R *.res}
 
 begin
-  Application.Title:='project1';
+  Application.Title:='Edit3D';
   RequireDerivedFormResource := True;
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);

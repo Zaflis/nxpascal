@@ -13,6 +13,7 @@ uses nxTypes;
   { General 3D Functions }          
 
   function Angle(const v1,v2: TVector; axis: integer): single; overload;
+  function Angle(v1,v2: TVector): single; overload;
   function Bezier(const a,b: TVector; const delta: single): TVector; overload;
   function Bezier(const p: array of TVector; const count: word;
     const delta: single): TVector; overload;
@@ -22,8 +23,8 @@ uses nxTypes;
   function Dot(const a,b: TVector): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function GetAvgNormal(const n1,n2,n3,n4: PVector): TVector;
   function HalfBezier(const a,b,c: TVector; const delta: single): TVector;
-  function Hypot3f(const x,y,z: single): single;
-  function Hypot3d(const x,y,z: double): double;
+  function Hypot3f(const x,y,z: single): single;{$IFDEF CanInline}inline;{$ENDIF}
+  function Hypot3d(const x,y,z: double): double;{$IFDEF CanInline}inline;{$ENDIF}
   function Interpolate(const v1,v2: TVector; const s: single): TVector; overload;
   function Invert(const v: TVector): TVector; overload;
   function Multiply(const a,b: TVector): TVector; overload;
@@ -68,6 +69,8 @@ uses nxTypes;
   function Matrix(const mat: TMatrix4d): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function MatrixOnPlane(const cPos,cDir: TVector; radians: single = 0): TMatrix;
   function Multiply(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
+  function Multiply(const A,B: TMatrix3f): TMatrix3f; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
+  function Multiply(const A: TMatrix; const B: TMatrix3f): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
   function MultiplyRotation(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Multiply(const V: TVector; const M: TMatrix): TVector; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Rotate(const M: TMatrix; const axis: TVector; const radians: Single;
@@ -111,6 +114,8 @@ uses nxTypes;
   operator *(const n: single; const a: TVector): TVector;
   operator /(const a: TVector; const n: single): TVector;
   operator *(const a, b: TMatrix): TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
+  operator *(const a, b: TMatrix3f): TMatrix3f;{$IFDEF CanInline}inline;{$ENDIF}
+  operator *(const a: TMatrix; const b: TMatrix3f): TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
   operator *(const v: TVector; const m: TMatrix): TVector;{$IFDEF CanInline}inline;{$ENDIF}
   operator +(const m: TMatrix; const v: TVector): TMatrix;
   operator -(const m: TMatrix; const v: TVector): TMatrix;
@@ -124,15 +129,15 @@ uses nxTypes;
 
 var
   NewMatrix: TMatrix;
+  NewMatrix3f: TMatrix3f;
+  nullVector: TVector;
 
 implementation
 
 uses math, nxMath;
 
 var
-  EPSILON: Single = 1e-40;
   EPSILON2: Single = 1e-30;
-  nullVector: TVector;
 
 { Internal functions }
 
@@ -141,6 +146,15 @@ var i,j: integer;
 begin
   for i:=0 to 3 do
     for j:=0 to 3 do
+      if i=j then result[i,j]:=1
+      else result[i,j]:=0;
+end;
+
+function getNewMatrix3f: TMatrix3f;
+var i,j: integer;
+begin
+  for i:=0 to 2 do
+    for j:=0 to 2 do
       if i=j then result[i,j]:=1
       else result[i,j]:=0;
 end;
@@ -181,6 +195,14 @@ begin
     1: result:=nxMath.angle(v1.z,v1.y, v2.z,v2.y); // Y (vertical angle)
     else result:=nxMath.angle(v1.x,v1.y, v2.x,v2.y); // Z (roll)
   end;
+end;
+
+// Angle between 2 vectors in radians
+function Angle(v1, v2: TVector): single;
+begin
+  norm(v1.x, v1.y, v1.z);
+  norm(v2.x, v2.y, v2.z);
+  result:=arccos(dot(v1, v2));
 end;
 
 // delta = 0..1
@@ -286,12 +308,12 @@ begin
   HalfBezier:=Bezier(b1,b2,delta);
 end;
 
-function Hypot3f(const x,y,z: single): single;
+function Hypot3f(const x,y,z: single): single;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result:=sqrt(x*x+y*y+z*z);
 end;
 
-function Hypot3d(const x, y, z: double): double;
+function Hypot3d(const x, y, z: double): double;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result:=sqrt(x*x+y*y+z*z);
 end;
@@ -699,6 +721,28 @@ begin
         A[I, 2] * B[2, J] + A[I, 3] * B[3, J];
 end;
 
+function Multiply(const A, B: TMatrix3f): TMatrix3f; stdcall; {$IFDEF CanInline}inline;{$ENDIF}
+var I, J: Integer;
+begin
+  for I := 0 to 2 do
+    for J := 0 to 2 do
+      Result[I, J] := A[I, 0] * B[0, J] + A[I, 1] * B[1, J] +
+        A[I, 2] * B[2, J];
+end;
+
+function Multiply(const A: TMatrix; const B: TMatrix3f): TMatrix; stdcall; {$IFDEF CanInline}inline;{$ENDIF}
+var I, J: Integer;
+begin
+  for I := 0 to 2 do begin
+    for J := 0 to 2 do
+      Result[I, J] := A[I, 0] * B[0, J] + A[I, 1] * B[1, J] +
+        A[I, 2] * B[2, J];
+    result[3, I]:=A[3, I];
+    result[I, 3]:=A[I, 3];
+  end;
+  result[3, 3]:=A[3, 3];
+end;
+
 function MultiplyRotation(const A, B: TMatrix): TMatrix;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
 var I, J: Integer;
 begin
@@ -1001,6 +1045,16 @@ begin
   result:=multiply(a, b);
 end;
 
+operator*(const a, b: TMatrix3f): TMatrix3f;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  result:=multiply(a, b);
+end;
+
+operator*(const a: TMatrix; const b: TMatrix3f): TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  result:=multiply(a, b);
+end;
+
 operator*(const v: TVector; const m: TMatrix): TVector;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result:=Multiply(v, m);
@@ -1051,7 +1105,8 @@ end;
 
 initialization
 
-  NewMatrix:=getNewMatrix;
   nullVector:=vector(0, 0, 0);
+  NewMatrix:=getNewMatrix;
+  NewMatrix3f:=getNewMatrix3f;
 
 end.
