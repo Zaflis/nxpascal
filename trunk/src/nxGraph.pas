@@ -825,6 +825,7 @@ var i: integer;
 begin
   height:=_TexSize div 14;
   CenterH:=_TexSize div 28;
+  sx:=texSize div 16; sy:=texSize div 14;
   for i:=32 to 255 do charW[i]:=_TexSize div 16-1;
   SetColor(1,1,1,1);
   name:='unnamed';
@@ -838,12 +839,11 @@ begin
   tex:=@nxTex.texture[textureI];
   fs:=TFileStream.Create(filename, fmOpenRead);
   fs.ReadBuffer(TexSize, 2);
+  tex^.sizeX:=texSize; tex^.sizeY:=texSize;
   Create(TexSize);
+  nxTex.SetSize(textureI, TexSize, TexSize);
   fs.ReadBuffer(Height, 2);
   fs.ReadBuffer(CenterH, 1);
-  sx:=texSize div 16; sy:=texSize div 14;
-  tex^.sizeX:=texSize; tex^.sizeY:=texSize;
-  nxTex.SetSize(textureI, TexSize, TexSize);
   fs.ReadBuffer(charW, 256-32);
   c:=0;
   fs.ReadBuffer(c, 4);

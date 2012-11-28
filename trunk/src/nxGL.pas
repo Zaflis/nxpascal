@@ -301,6 +301,7 @@ type
 
   TNXGL = class(TNXCustomEngine)
   private
+    FBorderStyle: TFormBorderStyle;
     {$IFnDEF NX_CUSTOM_WINDOW}procedure doResize(Sender: TObject);{$ENDIF}
     function GetFFPS: integer;
     function NewFontName(base: string): string;
@@ -343,7 +344,7 @@ type
     function GLInfo(ext: string): boolean; overload;
     function Initialized: boolean;
     {$IFnDEF NX_CUSTOM_WINDOW}
-    procedure KillGLWindow;
+    procedure KillGLWindow(force: boolean = false);
     {$ENDIF}
     procedure Line(x,y,x2,y2: integer);
     function MouseRayAtPlane(const mx,my: single; const planePos,planeNormal: TVector): TVector;
@@ -360,10 +361,12 @@ type
     procedure SetColor(const rgba: TRGBA); overload;
     procedure SetFont(index: integer);
     procedure SetLight(light, pname: TGLenum; x,y,z: single; w: single=1);
+    procedure SetMaxFullscreen(enable: boolean);
     procedure SetPixel(x,y: integer);
     procedure SetSpecular(Enable: boolean; r,g,b,shininess: single);
     procedure SetView(X, Y, _Width, _Height: integer);
     procedure SetWireframe(enable: boolean = true);
+    procedure ToggleMaxFullscreen;
   end;
 
   { TFrameBuffer }
@@ -1153,14 +1156,18 @@ begin
 end;
 
 {$IFnDEF NX_CUSTOM_WINDOW}
-procedure TNXGL.KillGLWindow;
+procedure TNXGL.KillGLWindow(force: boolean);
 begin
+  tex.Clear;
+  application.ProcessMessages;
   {$IFnDEF fpc}
   if Initialized then DeactivateRenderingContext;
   if nxRC>0 then wglDeleteContext(nxRC);
   if (nxHWND.Handle>0) and (nxDC>0) then
     ReleaseDC(nxHWND.Handle,nxDC);
   nxDC:=0; nxRC:=0;
+  {$ELSE}
+  if force and (window<>nil) then FreeAndNil(window);
   {$ENDIF}
   nxHWND:=nil;
 end;
@@ -1321,12 +1328,38 @@ begin
   else glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 end;
 
+procedure TNXGL.ToggleMaxFullscreen;
+begin
+  with TForm(nxHWND) do
+    SetMaxFullscreen(not
+      ((BorderStyle=bsNone) and (WindowState=wsMaximized)) );
+end;
+
 // Use light index starting from 0
 procedure TNXGL.SetLight(light, pname: TGLenum; x, y, z: single; w: single);
 var v: TVector4f;
 begin
   v.x:=x; v.y:=y; v.z:=z; v.w:=w;
   glLightfv(GL_LIGHT0+light, pname, @v);
+end;
+
+procedure TNXGL.SetMaxFullscreen(enable: boolean);
+var hWindow: TWinControl;
+begin
+  if (nxHWND=nil) or (not (nxHWND is TForm)) then exit;
+  with TForm(nxHWND) do begin
+    if ((BorderStyle=bsNone) and (WindowState=wsMaximized)) = enable then
+      exit; // State is already set
+    if enable then begin
+      FBorderStyle:=BorderStyle;
+      BorderStyle:=bsNone; WindowState:=wsMaximized;
+    end else begin
+      WindowState:=wsNormal; BorderStyle:=FBorderStyle;
+    end;
+  end;
+  hWindow:=nxHWND;
+  KillGLWindow(true);
+  CreateGlWindow(hWindow);
 end;
 
 procedure TNXGL.SetPixel(x, y: integer);
