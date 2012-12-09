@@ -3,12 +3,17 @@ object Form1: TForm1
   Height = 405
   Top = 124
   Width = 511
+  AllowDropFiles = True
   Caption = 'Edit3D'
   ClientHeight = 385
   ClientWidth = 511
   Menu = MainMenu1
   OnClose = FormClose
   OnCreate = FormCreate
+  OnDropFiles = FormDropFiles
+  OnMouseDown = FormMouseDown
+  OnMouseMove = FormMouseMove
+  OnMouseUp = FormMouseUp
   OnPaint = FormPaint
   Position = poScreenCenter
   LCLVersion = '1.1'
@@ -195,14 +200,17 @@ object Form1: TForm1
         object MenuItem28: TMenuItem
           Caption = 'Top'
           ShortCut = 32817
+          OnClick = MenuItem28Click
         end
         object MenuItem29: TMenuItem
           Caption = 'Front'
           ShortCut = 32818
+          OnClick = MenuItem29Click
         end
         object MenuItem30: TMenuItem
           Caption = 'Right'
           ShortCut = 32819
+          OnClick = MenuItem30Click
         end
       end
       object MenuItem31: TMenuItem

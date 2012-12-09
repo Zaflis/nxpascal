@@ -104,7 +104,8 @@ type
     procedure LookAt(const eye, target, up: TVector; doSet: boolean = true); overload; stdcall; {$IFDEF CanInline}inline;{$ENDIF}
     procedure LookAt(const target, up: TVector; doSet: boolean = true); overload;
     procedure LookAt(const target: TVector; doSet: boolean = true); overload;
-    procedure Multiply(const mat2: TMatrix; doSet: boolean = true); stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+    procedure Multiply(const mat2: TMatrix; doSet: boolean = true); overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+    procedure Multiply(const mat2: TMatrix3f; doSet: boolean = true); overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
     function PathCount: integer;
     procedure Pop(doSet: boolean = true);
     procedure Push;
@@ -333,6 +334,8 @@ type
     procedure DrawTexRepeat(x,y,sizeX,sizeY: integer);
     procedure Enable2D(flip: boolean = true); overload;
     procedure Enable2D(X, Y, _Width, _Height: integer; flip: boolean = true); overload;
+    procedure FillCircle(x, y, radiusX, radiusY: single; sides: integer);
+    procedure FillRect(x, y, _width, _height: integer);
     {$IFnDEF NX_CUSTOM_WINDOW}
     procedure Flip;
     {$ENDIF}
@@ -346,24 +349,24 @@ type
     {$IFnDEF NX_CUSTOM_WINDOW}
     procedure KillGLWindow(force: boolean = false);
     {$ENDIF}
-    procedure Line(x,y,x2,y2: integer);
-    function MouseRayAtPlane(const mx,my: single; const planePos,planeNormal: TVector): TVector;
-    function MouseRayAtXZPlane(const mx,my: single): TVector;
-    procedure OutLine(x,y,_width,_height: integer);
+    procedure Line(x, y, x2, y2: integer);
+    function MouseRayAtPlane(const mx, my: single; const planePos,planeNormal: TVector): TVector;
+    function MouseRayAtXZPlane(const mx, my: single): TVector;
+    procedure OutLine(x, y, _width, _height: integer);
     procedure Perspective(Stretch: boolean = false);
     function ProgDir: string;
-    procedure RectT(x1,y1,x2,y2: single);
-    procedure RectZT(x1,z1,x2,z2,y: single);
-    procedure SetClearColor(r,g,b: single; a: single=0);
-    procedure SetColor(r,g,b: single); overload;
-    procedure SetColor(r,g,b,a: single); overload;
+    procedure RectT(x1, y1, x2, y2: single);
+    procedure RectZT(x1, z1, x2, z2, y: single);
+    procedure SetClearColor(r, g, b: single; a: single=0);
+    procedure SetColor(r, g, b: single); overload;
+    procedure SetColor(r, g, b, a: single); overload;
     procedure SetColor(const rgb: TRGB); overload;
     procedure SetColor(const rgba: TRGBA); overload;
     procedure SetFont(index: integer);
     procedure SetLight(light, pname: TGLenum; x,y,z: single; w: single=1);
     procedure SetMaxFullscreen(enable: boolean);
     procedure SetPixel(x,y: integer);
-    procedure SetSpecular(Enable: boolean; r,g,b,shininess: single);
+    procedure SetSpecular(Enable: boolean; r, g, b, shininess: single);
     procedure SetView(X, Y, _Width, _Height: integer);
     procedure SetWireframe(enable: boolean = true);
     procedure ToggleMaxFullscreen;
@@ -719,7 +722,7 @@ end;
 
 procedure TNXGL.CreateBasicFont;
 begin
-  if FontCount=0 then CreateFont('Arial',9,256);
+  if FontCount=0 then CreateFont('Arial', 9, 256);
 end;
 
 function TNXGL.CreateFont(fontName: string; fontSize, TexSize: integer): integer;
@@ -1080,6 +1083,25 @@ begin
   end;
 end;
 
+procedure TNXGL.FillCircle(x, y, radiusX, radiusY: single; sides: integer);
+var n: integer; i, j, aa: single;
+begin
+  if sides<3 then exit;
+  aa:=-2*pi/sides;
+  glBegin(GL_POLYGON);
+    for n:=0 to sides-1 do
+      glVertex2f(x+radiusX*cos(aa*n), y+radiusY*sin(aa*n));
+  glEnd;
+end;
+
+procedure TNXGL.FillRect(x, y, _width, _height: integer);
+begin
+  glBegin(GL_QUADS);
+    glVertex2f(x, y); glVertex2f(x, y+_height);
+    glVertex2f(x+_width, y+_height); glVertex2f(x+_width, y);
+  glEnd;
+end;
+
 procedure TNXGL.Enable2D(flip: boolean);
 begin
   Enable2D(Left,Top,Width,Height,flip);
@@ -1177,7 +1199,7 @@ procedure TNXGL.Line(x, y, x2, y2: integer);
 const d = 0.5;
 begin
   glBegin(GL_LINES);
-    glVertex2f(x+d,y+d); glVertex2f(x2+d,y2+d);
+    glVertex2f(x+d, y+d); glVertex2f(x2+d, y2+d);
   glEnd;
 end;
 
@@ -2456,6 +2478,12 @@ begin
 end;
 
 procedure TCamera.Multiply(const mat2: TMatrix; doSet: boolean); stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  mat[index]:=nxMath3D.Multiply(mat2, mat[index]);
+  if doSet then SetCamera;
+end;
+
+procedure TCamera.Multiply(const mat2: TMatrix3f; doSet: boolean); stdcall; {$IFDEF CanInline}inline;{$ENDIF}
 begin
   mat[index]:=nxMath3D.Multiply(mat2, mat[index]);
   if doSet then SetCamera;
