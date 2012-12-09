@@ -38,7 +38,7 @@ uses nxTypes, math;
   function Reflect(const rayDir, wallNormal: TVector2f): TVector2f; overload;
   function Rotate(const pt,center: TVector2f; const degrees: single): TVector2f; overload;
   procedure Rotate(var x, y: single; const degrees, centerX, centerY: single); overload;{$IFDEF CanInline}inline;{$ENDIF}
-  function Smoothen(const n: single): single; overload;
+  function Smoothen(n: single): single; overload;
   function Smoothen(const source, dest: single; n: single): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Tangent(const p1, p2: TVector2f): TVector2f; overload;
   function Vector2f(const x, y: single): TVector2f;
@@ -75,8 +75,8 @@ end;
 function Catmull(const p0,p1,p2,p3,t: single): single;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result:=0.5*( 2*p1+(p2-p0)*t +
-   (2*p0-5*p1+4*p2-p3)*t*t +
-   (3*p1-p0-3*p2+p3)*t*t*t );
+    (2*p0-5*p1+4*p2-p3)*t*t +
+    (3*p1-p0-3*p2+p3)*t*t*t );
 end;
 
 function Catmull(const a,b,c,d: TVector2f; const delta: single): TVector2f;{$IFDEF CanInline}inline;{$ENDIF}
@@ -311,8 +311,10 @@ begin
 end;
 
 // Make value range 0..1 smooth like sine-wave
-function Smoothen(const n: single): single;
+function Smoothen(n: single): single;
 begin
+  if n<0 then n:=0
+  else if n>1 then n:=1;
   result:=0.5-cos(n*pi)*0.5;
 end;
 

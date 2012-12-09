@@ -71,6 +71,7 @@ uses nxTypes;
   function Multiply(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
   function Multiply(const A,B: TMatrix3f): TMatrix3f; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
   function Multiply(const A: TMatrix; const B: TMatrix3f): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
+  function Multiply(const A: TMatrix3f; const B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
   function MultiplyRotation(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Multiply(const V: TVector; const M: TMatrix): TVector; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Rotate(const M: TMatrix; const axis: TVector; const radians: Single;
@@ -743,6 +744,19 @@ begin
   result[3, 3]:=A[3, 3];
 end;
 
+function Multiply(const A: TMatrix3f; const B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
+var I, J: Integer;
+begin
+  for I := 0 to 2 do begin
+    for J := 0 to 2 do
+      Result[I, J] := A[I, 0] * B[0, J] + A[I, 1] * B[1, J] +
+        A[I, 2] * B[2, J];
+    result[3, I]:=b[3, I];
+    result[I, 3]:=b[I, 3];
+  end;
+  result[3, 3]:=b[3, 3];
+end;
+
 function MultiplyRotation(const A, B: TMatrix): TMatrix;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
 var I, J: Integer;
 begin
@@ -835,7 +849,7 @@ end;
 
 function Lerp(const a, b: TQuaternion; s: single): TQuaternion;
 begin
-	result:=Norm(QuaternionAdd(Multiply(a, 1.0-s), Multiply(b, s)));
+  result:=Norm(QuaternionAdd(Multiply(a, 1.0-s), Multiply(b, s)));
 end;
 
 function Multiply(const q: TQuaternion; s: single): TQuaternion;
@@ -848,9 +862,9 @@ end;
 
 function Multiply(const a, b: TQuaternion): TQuaternion;
 begin
-	result.X := (b.W * a.X) + (b.X * a.W) + (b.Y * a.Z) - (b.Z * a.Y);
-	result.Y := (b.W * a.Y) - (b.X * a.Z) + (b.Y * a.W) + (b.Z * a.X);
-	result.Z := (b.W * a.Z) + (b.X * a.Y) - (b.Y * a.X) + (b.Z * a.W);
+  result.X := (b.W * a.X) + (b.X * a.W) + (b.Y * a.Z) - (b.Z * a.Y);
+  result.Y := (b.W * a.Y) - (b.X * a.Z) + (b.Y * a.W) + (b.Z * a.X);
+  result.Z := (b.W * a.Z) + (b.X * a.Y) - (b.Y * a.X) + (b.Z * a.W);
   result.W := (b.W * a.W) - (b.X * a.X) - (b.Y * a.Y) - (b.Z * a.Z);
 end;
 
@@ -867,7 +881,7 @@ begin
   result.x:=x; result.y:=y; result.z:=z; result.w:=w;
 end;
 
-// Make new quaternion from rotation matrix
+// Make new quaternion from matrix
 function Quaternion(const M: TMatrix): TQuaternion;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
 begin
   result:=Quaternion(PVector(@M[0, 0])^, PVector(@M[1, 0])^, PVector(@M[2, 0])^);
@@ -878,56 +892,56 @@ function Quaternion(const x, y, z: TVector): TQuaternion;
 var diag, scale: single;
 begin
   diag := x.x + y.y + z.z + 1;
-	if (diag>0.0) then begin
-		scale := sqrt(diag) * 2.0;
+  if (diag>0.0) then begin
+    scale := sqrt(diag) * 2.0;
     result.X := (y.z - z.y) / scale;
-		result.Y := (z.x - x.z) / scale;
-		result.Z := (x.y - y.x) / scale;
-		result.W := 0.25 * scale;
-	end else if (x.x>y.y) and (x.x>z.z) then	begin
-		scale := sqrt(1.0 + x.x - y.y - z.z) * 2.0;
-		result.X := 0.25 * scale;
+    result.Y := (z.x - x.z) / scale;
+    result.Z := (x.y - y.x) / scale;
+    result.W := 0.25 * scale;
+  end else if (x.x>y.y) and (x.x>z.z) then	begin
+    scale := sqrt(1.0 + x.x - y.y - z.z) * 2.0;
+    result.X := 0.25 * scale;
     result.Y := (y.x + x.y) / scale;
-		result.Z := (x.z + z.x) / scale;
-		result.W := (y.z - z.y) / scale;
-	end	else if (y.y>z.z) then begin
-		scale := sqrt(1.0 + y.y - x.x - z.z) * 2.0;
+    result.Z := (x.z + z.x) / scale;
+    result.W := (y.z - z.y) / scale;
+  end else if (y.y>z.z) then begin
+    scale := sqrt(1.0 + y.y - x.x - z.z) * 2.0;
     result.X := (x.y + y.x) / scale;
-		result.Y := 0.25 * scale;
+    result.Y := 0.25 * scale;
     result.Z := (z.y + y.z) / scale;
-		result.W := (z.x - x.z) / scale;
-	end	else begin
-		scale := sqrt(1.0 + 1.0 - x.x - y.y) * 2.0;
+    result.W := (z.x - x.z) / scale;
+  end else begin
+    scale := sqrt(1.0 + 1.0 - x.x - y.y) * 2.0;
     result.X := (z.x + x.z) / scale;
-		result.Y := (z.y + y.z) / scale;
-		result.Z := 0.25 * scale;
+    result.Y := (z.y + y.z) / scale;
+    result.Z := 0.25 * scale;
     result.W := (x.y - y.x) / scale;
-	end;
-	result:=norm(result);
+  end;
+  result:=norm(result);
 end;
 
 // Make new quaternion from euler angles
 function Quaternion(const x, y, z: single): TQuaternion;
 var a, sr, cr, sp, cp, sy, cy, cpcy, spcy, cpsy, spsy: single;
 begin
-	a := x * 0.5;
-	sr := sin(a);
-	cr := cos(a);
-	a := y * 0.5;
-	sp := sin(a);
-	cp := cos(a);
-	a := z * 0.5;
-	sy := sin(a);
-	cy := cos(a);
-	cpcy := cp * cy;
-	spcy := sp * cy;
-	cpsy := cp * sy;
-	spsy := sp * sy;
-	result.X := sr * cpcy - cr * spsy;
-	result.Y := cr * spcy + sr * cpsy;
-	result.Z := cr * cpsy - sr * spcy;
-	result.W := cr * cpcy + sr * spsy;
-	result:=norm(result);
+  a := x * 0.5;
+  sr := sin(a);
+  cr := cos(a);
+  a := y * 0.5;
+  sp := sin(a);
+  cp := cos(a);
+  a := z * 0.5;
+  sy := sin(a);
+  cy := cos(a);
+  cpcy := cp * cy;
+  spcy := sp * cy;
+  cpsy := cp * sy;
+  spsy := sp * sy;
+  result.X := sr * cpcy - cr * spsy;
+  result.Y := cr * spcy + sr * cpsy;
+  result.Z := cr * cpsy - sr * spcy;
+  result.W := cr * cpcy + sr * spsy;
+  result:=norm(result);
 end;
 
 function Quaternion(const axis: TVector; radians: single): TQuaternion;
@@ -958,18 +972,20 @@ begin
 end;
 
 function QuaternionToMat(const q: TQuaternion; const position: TVector): TMatrix;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+var xx, yy, zz: single;
 begin
-  result[0, 0] := 1.0 - 2.0*q.Y*q.Y - 2.0*q.Z*q.Z;
-  result[0, 1] :=       2.0*q.X*q.Y + 2.0*q.Z*q.W;
-  result[0, 2] :=       2.0*q.X*q.Z - 2.0*q.Y*q.W;
+  xx:=q.X*q.X; yy:=q.Y*q.Y; zz:=q.Z*q.Z;
+  result[0, 0] := 1.0 - 2.0*(yy + zz);
+  result[0, 1] :=       2.0*(q.X*q.Y + q.Z*q.W);
+  result[0, 2] :=       2.0*(q.X*q.Z - q.Y*q.W);
   result[0, 3] := 0.0;
-  result[1, 0] :=       2.0*q.X*q.Y - 2.0*q.Z*q.W;
-  result[1, 1] := 1.0 - 2.0*q.X*q.X - 2.0*q.Z*q.Z;
-  result[1, 2] :=       2.0*q.Z*q.Y + 2.0*q.X*q.W;
+  result[1, 0] :=       2.0*(q.X*q.Y - q.Z*q.W);
+  result[1, 1] := 1.0 - 2.0*(xx + zz);
+  result[1, 2] :=       2.0*(q.Z*q.Y + q.X*q.W);
   result[1, 3] := 0.0;
-  result[2, 0] :=       2.0*q.X*q.Z + 2.0*q.Y*q.W;
-  result[2, 1] :=       2.0*q.Z*q.Y - 2.0*q.X*q.W;
-  result[2, 2] := 1.0 - 2.0*q.X*q.X - 2.0*q.Y*q.Y;
+  result[2, 0] :=       2.0*(q.X*q.Z + q.Y*q.W);
+  result[2, 1] :=       2.0*(q.Z*q.Y - q.X*q.W);
+  result[2, 2] := 1.0 - 2.0*(xx + yy);
   result[2, 3] := 0.0;
   result[3, 0] := position.x;
   result[3, 1] := position.y;

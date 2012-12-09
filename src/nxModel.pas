@@ -975,7 +975,7 @@ var F: TextFile; s: string; sa: array[0..127] of string;
     gIndex: array of word; i2,j2: integer;
     tmpN: array of TVector;
     vPos, fPos: integer;
-    oPos: TVector;
+    oPos: TVector; isOld: boolean;
 begin
   FixPath(filename);
   if not fileexists(filename) then begin
@@ -983,8 +983,12 @@ begin
   end;
   Clear; UseMaterials:=true; UseColors:=true;
   assignfile(F, filename); reset(F);
-  readln(F); // Skip version
-  readln(F, objCount); // objects
+  readln(F, s); // Version (or object count in old version)
+  isOld:=pos('version', lowercase(s))<1;
+  if isOld then begin
+    closefile(F); exit; // Old format not supported!
+  end else
+    readln(F, objCount); // objects
   readln(F, i); // materials
   mCount:=i;
   vPos:=0; fPos:=0;
@@ -1049,7 +1053,7 @@ begin
   for i:=0 to mCount-1 do begin
     mat[i].addMode:=false; mat[i].transparent:=false;
     mat[i].texIndex:=-1;
-    readln(F); // Skip material name
+    readln(F, mat[i].name); // Material name
     readln(F, mat[i].texture);
     readln(F, s); k:=ReadStrings(s, ' ', sa);
     mat[i].color.a:=round(strtofloat2(sa[0])*255);
@@ -1060,16 +1064,11 @@ begin
     end;
     readln(F); // Skip ambient
 
-    //readln(F, c.r, c.g, c.b);
-    //mat[i].color:=RGBA(round(c.r*255), round(c.g*255), round(c.b*255),
-    //  mat[i].color.a);
     readln(F, s); ReadStrings(s, ' ', sa);
     mat[i].color:=RGBA(round(strtofloat2(sa[0])*255),
       round(strtofloat2(sa[1])*255), round(strtofloat2(sa[2])*255),
       mat[i].color.a);
 
-    //readln(F, c.r, c.g, c.b);
-    //mat[i].specular:=max(max(c.r, c.g), c.b);
     readln(F, s); ReadStrings(s, ' ', sa);
     mat[i].specular:=max(max(strtofloat2(sa[0]), strtofloat2(sa[1])),
       strtofloat2(sa[2]));
@@ -1149,7 +1148,7 @@ end;
 procedure TModelW3D.AssignTo(const poly: TPolyModel);
 var i, j: integer;
 begin
-  DoTextureCorrection;
+  //DoTextureCorrection;
 
   poly.Clear;
   poly.UseColors:=UseColors; poly.UseMaterials:=UseMaterials;
@@ -1223,8 +1222,7 @@ procedure TModelW3D.SaveToFile(filename: string);
 var F: TextFile; i,j: integer; s: string;
 begin
   try
-    assignfile(F,filename);
-    rewrite(F);
+    assignfile(F, filename); rewrite(F);
     writeln(F, 'Version: 1');
     writeln(F, 1); // Objects
     writeln(F, mCount); // Materials
@@ -1254,7 +1252,7 @@ begin
       end;
     for i:=0 to mCount-1 do
       with mat[i] do begin
-        writeln(F, 'Material', i);
+        writeln(F, name);
         writeln(F, texture);
         s:=format('%.2f %.2f',[color.a/255, shininess]);
         writeln(F, s);
