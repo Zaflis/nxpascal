@@ -1,4 +1,5 @@
 object Form1: TForm1
+  Cursor = crCross
   Left = 312
   Height = 240
   Top = 139

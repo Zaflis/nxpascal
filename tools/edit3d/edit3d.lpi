@@ -71,18 +71,12 @@
       <OtherUnitFiles Value="..\..\src"/>
       <UnitOutputDirectory Value="lib"/>
     </SearchPaths>
-    <CodeGeneration>
-      <SmartLinkUnit Value="True"/>
-      <TargetCPU Value="i386"/>
-      <TargetOS Value="win32"/>
-    </CodeGeneration>
     <Linking>
       <Debugging>
-        <UseValgrind Value="True"/>
+        <DebugInfoType Value="dsStabs"/>
         <StripSymbols Value="True"/>
         <UseExternalDbgSyms Value="True"/>
       </Debugging>
-      <LinkSmart Value="True"/>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>

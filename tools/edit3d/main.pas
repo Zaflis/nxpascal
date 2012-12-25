@@ -21,6 +21,7 @@ type
     mnuAddToScene: TMenuItem;
     mnuDeleteObj: TMenuItem;
     objlistPopup: TPopupMenu;
+    sbar: TPanel;
     saveD: TSaveDialog;
     selMode: TComboBox;
     Label1: TLabel;
@@ -47,10 +48,10 @@ type
     mnuDelete: TMenuItem;
     MenuItem26: TMenuItem;
     MenuItem27: TMenuItem;
-    MenuItem28: TMenuItem;
-    MenuItem29: TMenuItem;
+    mnuCamTop: TMenuItem;
+    mnuCamFront: TMenuItem;
     MenuItem3: TMenuItem;
-    MenuItem30: TMenuItem;
+    mnuCamRight: TMenuItem;
     MenuItem31: TMenuItem;
     MenuItem32: TMenuItem;
     MenuItem33: TMenuItem;
@@ -101,9 +102,9 @@ type
     procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure FormMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure FormPaint(Sender: TObject);
-    procedure MenuItem28Click(Sender: TObject);
-    procedure MenuItem29Click(Sender: TObject);
-    procedure MenuItem30Click(Sender: TObject);
+    procedure mnuCamTopClick(Sender: TObject);
+    procedure mnuCamFrontClick(Sender: TObject);
+    procedure mnuCamRightClick(Sender: TObject);
     procedure mnuSaveObjAsClick(Sender: TObject);
     procedure mnuDeleteObjClick(Sender: TObject);
     procedure mnuExitClick(Sender: TObject);
@@ -122,6 +123,7 @@ type
     procedure AddFile(filename: string);
     procedure FreeObjects;
     procedure LoadGLData;
+    procedure SetStatus(statusText: string);
   public
   end;
 
@@ -146,17 +148,22 @@ begin
   scene:=T3DScene.Create;
   nx.DefaultLights;
   nx.rs.DepthTest:=true;
+  if nx.LastError<>'' then begin
+    showmessage(nx.LastError); nx.ClearError;
+  end;
 end;
 
 procedure TForm1.LoadGLData;
 begin
   nx.CreateBasicFont;
-  if DEBUGMODE then begin
-    //AddFile('objects\ship.w3d');
-    //AddFile('objects\extrude.w3d');
-    AddFile('objects\test.w3d');
-    btnAddObjectClick(nil);
-  end;
+
+  SetStatus('Done');
+end;
+
+procedure TForm1.SetStatus(statusText: string);
+begin
+  sbar.Caption:=statusText;
+  application.ProcessMessages;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);
@@ -164,6 +171,16 @@ begin
   nx.Clear(true, true);
   scene.Render;
   nx.Flip;
+
+  if DEBUGMODE then begin
+    if timer1.Tag=0 then begin
+      timer1.Tag:=1;
+      AddFile('objects\ship.w3d');
+      //AddFile('objects\extrude.w3d');
+      //AddFile('objects\test.w3d');
+      btnAddObjectClick(nil);
+    end;
+  end;
 end;
 
 procedure TForm1.FormPaint(Sender: TObject);
@@ -172,6 +189,8 @@ begin
     tag:=1;
     LoadGLData;
     timer1.Enabled:=true;
+  end else if (tag=0) and (nx.LastError<>'') then begin
+    showmessage(nx.LastError); nx.ClearError;
   end;
 end;
 
@@ -181,14 +200,17 @@ begin
   if not fileexists(filename) then begin
     showmessage(filename+' doesn''t exist.'); exit;
   end;
+  SetStatus('Loading '+filename+'...');
   n:=length(obj);
   setlength(obj, n+1);
   obj[n]:=TEditModel.Create;
   obj[n].LoadFromFile(filename);
+  SetStatus('Loading textures...');
   nxLoadModelTextures(obj[n], 'textures');
 
   objList.Items.Add(extractfilename(filename));
   objList.ItemIndex:=objList.Items.Count-1;
+  SetStatus('Done');
 end;
 
 procedure TForm1.FormDropFiles(Sender: TObject; const FileNames: array of String);
@@ -207,7 +229,11 @@ procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Intege
 var dx, dy: integer;
 begin
   dx:=x-mp.x; dy:=y-mp.y;
-  if mb=1 then begin
+  if mb=2 then begin
+    // Move camera
+
+  end else if (ssCtrl in Shift) and (mb>0) then begin
+    // Rotate camera
     with scene do begin
       ax:=ax+dx;
       ay:=ay+dy;
@@ -216,6 +242,10 @@ begin
       if ay>90 then ay:=90
       else if ay<-90 then ay:=-90;
     end;
+  end else if mb=1 then begin
+    // Select area
+
+    // Move ...
   end;
   mp:=point(x, y);
 end;
@@ -226,19 +256,19 @@ begin
   mb:=0;
 end;
 
-procedure TForm1.MenuItem28Click(Sender: TObject);
+procedure TForm1.mnuCamTopClick(Sender: TObject);
 begin
-  scene.cam.Load(0);
+  scene.ax:=0; scene.ay:=90;
 end;
 
-procedure TForm1.MenuItem29Click(Sender: TObject);
+procedure TForm1.mnuCamFrontClick(Sender: TObject);
 begin
-  scene.cam.Load(1);
+  scene.ax:=0; scene.ay:=0;
 end;
 
-procedure TForm1.MenuItem30Click(Sender: TObject);
+procedure TForm1.mnuCamRightClick(Sender: TObject);
 begin
-  scene.cam.Load(2);
+  scene.ax:=270; scene.ay:=0;
 end;
 
 procedure TForm1.mnuSaveObjAsClick(Sender: TObject);

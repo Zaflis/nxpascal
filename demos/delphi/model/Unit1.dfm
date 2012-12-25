@@ -3,6 +3,7 @@ object Form1: TForm1
   Top = 127
   Width = 346
   Height = 285
+  Cursor = crCross
   Caption = 'Model demo'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET

@@ -462,7 +462,7 @@ begin
   end;
   tex^.Width:=jpg.Width; tex^.Height:=jpg.Height;
   {$IFDEF fpc}
-  LoadRaw(tex,jpg.RawImage);
+  LoadRaw(tex, jpg.RawImage);
   {$ELSE}
   bmp:=TBitmap.Create; bmp.Assign(jpg);
   self.LoadBMPData(tex, bmp);
@@ -764,7 +764,7 @@ procedure TTextureSet.SetCount(n: integer);
 begin
   count:=n; n:=nxMath.pow2fit(n);
   if n<>count2 then begin
-    count2:=n; setlength(texture,count2);
+    count2:=n; setlength(texture, count2);
   end;
 end;
 
@@ -777,10 +777,10 @@ begin
   if PatternHeight>t^.Height then PatternHeight:=t^.Height;
   t^.PatternWidth:=PatternWidth;
   t^.PatternHeight:=PatternHeight;
-  SkipWidth:=min(SkipWidth,t^.Width-PatternWidth);
-  SkipHeight:=min(SkipHeight,t^.Height-PatternHeight);
-  t^.SkipWidth:=max(0,SkipWidth);
-  t^.SkipHeight:=max(0,SkipHeight);
+  SkipWidth:=min(SkipWidth, t^.Width-PatternWidth);
+  SkipHeight:=min(SkipHeight, t^.Height-PatternHeight);
+  t^.SkipWidth:=max(0, SkipWidth);
+  t^.SkipHeight:=max(0, SkipHeight);
 end;
 
 procedure TTextureSet.SetSize(tex: integer; Width, Height: word; DefaultPattern: boolean);
@@ -797,10 +797,10 @@ begin
   end else with t^ do begin
     if PatternWidth>Width then PatternWidth:=Width;
     if PatternHeight>Height then PatternHeight:=Height;
-    SkipWidth:=min(SkipWidth,Width-PatternWidth);
-    SkipHeight:=min(SkipHeight,Height-PatternHeight);
-    SkipWidth:=max(0,SkipWidth);
-    SkipHeight:=max(0,SkipHeight);
+    SkipWidth:=min(SkipWidth, Width-PatternWidth);
+    SkipHeight:=min(SkipHeight, Height-PatternHeight);
+    SkipWidth:=max(0, SkipWidth);
+    SkipHeight:=max(0, SkipHeight);
   end;
 end;
 

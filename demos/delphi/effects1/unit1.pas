@@ -126,7 +126,9 @@ end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
-  qt.Free; pt.Free; grid.Free;
+  qt.Free;
+  pt.Free;
+  grid.Free;
 end;
 
 procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
