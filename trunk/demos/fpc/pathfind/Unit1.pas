@@ -170,6 +170,7 @@ end;
 
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
 begin
+  timer1.Enabled:=false;
   back.Free;
   // Pathfinder class allows use of several custom maps
   // therefore they have to be freed manually.

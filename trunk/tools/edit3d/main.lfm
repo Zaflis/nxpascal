@@ -46,6 +46,8 @@ object Form1: TForm1
         'Objects'
         'Faces'
         'Vertices'
+        'Bones'
+        'Animation'
       )
       Style = csDropDownList
       TabOrder = 0
@@ -55,11 +57,11 @@ object Form1: TForm1
   end
   object Panel2: TPanel
     Left = 0
-    Height = 353
+    Height = 333
     Top = 32
     Width = 112
     Align = alLeft
-    ClientHeight = 353
+    ClientHeight = 333
     ClientWidth = 112
     TabOrder = 1
     object Panel3: TPanel
@@ -114,9 +116,20 @@ object Form1: TForm1
   end
   object Splitter1: TSplitter
     Left = 112
-    Height = 353
+    Height = 333
     Top = 32
     Width = 5
+  end
+  object sbar: TPanel
+    Left = 0
+    Height = 20
+    Top = 365
+    Width = 511
+    Align = alBottom
+    Alignment = taLeftJustify
+    BevelWidth = 2
+    Caption = 'Starting up...'
+    TabOrder = 3
   end
   object Timer1: TTimer
     Enabled = False
@@ -197,20 +210,20 @@ object Form1: TForm1
       Caption = 'View'
       object MenuItem17: TMenuItem
         Caption = 'Camera'
-        object MenuItem28: TMenuItem
+        object mnuCamTop: TMenuItem
           Caption = 'Top'
           ShortCut = 32817
-          OnClick = MenuItem28Click
+          OnClick = mnuCamTopClick
         end
-        object MenuItem29: TMenuItem
+        object mnuCamFront: TMenuItem
           Caption = 'Front'
           ShortCut = 32818
-          OnClick = MenuItem29Click
+          OnClick = mnuCamFrontClick
         end
-        object MenuItem30: TMenuItem
+        object mnuCamRight: TMenuItem
           Caption = 'Right'
           ShortCut = 32819
-          OnClick = MenuItem30Click
+          OnClick = mnuCamRightClick
         end
       end
       object MenuItem31: TMenuItem

@@ -427,7 +427,7 @@ begin
   glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
   glDepthFunc(GL_LEQUAL);
   glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_GREATER, 0.05);
+  glAlphaFunc(GL_GREATER, 0.008);
   glEnable(GL_NORMALIZE);
   glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST);
 
@@ -805,9 +805,10 @@ begin
   ReadExtensions; ReadImplementationProperties;
   nxInitGL;
 
-  if nxHWND is TForm then
-    if not assigned(TForm(nxHWND).OnResize) then
-      TForm(nxHWND).OnResize:=doResize;
+  if (nxHWND is TForm) and (not assigned(TForm(nxHWND).OnResize)) then
+    TForm(nxHWND).OnResize:=doResize
+  else if (nxHWND is TPanel) and (not assigned(TPanel(nxHWND).OnResize)) then
+    TPanel(nxHWND).OnResize:=doResize;
   nx.SetView(0,0,nxHWND.ClientWidth,nxHWND.ClientHeight);
   {$ENDIF}
 
@@ -1084,7 +1085,7 @@ begin
 end;
 
 procedure TNXGL.FillCircle(x, y, radiusX, radiusY: single; sides: integer);
-var n: integer; i, j, aa: single;
+var n: integer; aa: single;
 begin
   if sides<3 then exit;
   aa:=-2*pi/sides;
@@ -1186,7 +1187,7 @@ begin
   if Initialized then DeactivateRenderingContext;
   if nxRC>0 then wglDeleteContext(nxRC);
   if (nxHWND.Handle>0) and (nxDC>0) then
-    ReleaseDC(nxHWND.Handle,nxDC);
+    ReleaseDC(nxHWND.Handle, nxDC);
   nxDC:=0; nxRC:=0;
   {$ELSE}
   if force and (window<>nil) then FreeAndNil(window);
@@ -1702,6 +1703,9 @@ end;
 
 procedure TGLTextureSet.RemoveTexture(n: integer; force: boolean);
 begin
+  // Uncomment for testing. Wrong n value would be error elsewhere.
+  //if (n>=count) or (n<0) then exit;
+
   dec(texture[n].RefCount);
   if force or (texture[n].RefCount=0) then begin
     if texture[n].index>0 then

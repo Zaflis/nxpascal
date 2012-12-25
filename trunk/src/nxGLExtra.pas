@@ -810,7 +810,9 @@ var i: integer;
 begin
   for i:=3 downto 0 do
     if textureI[i]>=0 then begin
-      tex.RemoveTexture(textureI[i]); textureI[i]:=-1;
+      if textureI[i]<tex.count then
+        tex.RemoveTexture(textureI[i]);
+      textureI[i]:=-1;
     end;
 end;
 

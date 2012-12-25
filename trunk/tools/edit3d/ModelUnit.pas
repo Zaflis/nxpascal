@@ -8,6 +8,7 @@ uses SysUtils, nxModel, nxGL, {%H-}nxMath, nxMath3D, nxTypes,
   dglOpenGL;
 
 type
+  TSceneMode = (smObject, smFace, smVertex, smBone, smAnim);
 
   { TEditModel }
 
@@ -122,8 +123,8 @@ begin
 
   nx.Enable2D;
   nx.SetFont(0); nx.SetColor(1, 1, 1);
-  if length(o)>0 then
-    nx.Font[0].Draw(1, 1, format('vCount: %d', [o[0].obj.groups]));
+  //if length(o)>0 then
+  //  nx.Font[0].Draw(1, 1, format('vCount: %d', [o[0].obj.groups]));
   nx.Disable2D;
 end;
 

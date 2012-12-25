@@ -55,10 +55,11 @@ begin
   if (game=nil) and nx.AllOK then begin
     game:=TGraphicalGame.Create;
     if not game.Initialized then begin
+      // Failed to initialize game
       FreeAndNil(game);
     end;
-  end;
-  onPaint:=nil; // No need to trigger this event again
+    onPaint:=nil; // No need to trigger this event again
+  end;    
 end;
 
 procedure TForm1.AppPropertiesIdle(Sender: TObject; var Done: Boolean);
