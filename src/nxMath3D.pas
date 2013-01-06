@@ -38,7 +38,7 @@ uses nxTypes;
     const sphereCenter: TVector; const sphereRadius: Single;
     const i1, i2: PVector): Integer;
   function RayTriangleIntersect(const rayStart, rayDirection: TVector;
-    const p1, p2, p3: TVector; intersect: PVector = nil;
+    const p1, p2, p3: TVector; BothSided: boolean; intersect: PVector = nil;
     intersectNormal: PVector = nil): Boolean;{$IFDEF CanInline}inline;{$ENDIF}
   function Reflect(const rayStart, rayDir, wallPoint: TVector): TVector; overload;
   function Reflect(const rayDir, wallNormal: TVector): TVector; overload;
@@ -426,14 +426,22 @@ begin
   if i2<>nil then i2^:=VectorCombine(rayStart, rayDirection, lf+s);
 end;
 
-// Tests both-sided intersection for line and triangle
-function RayTriangleIntersect(const rayStart, rayDirection: TVector; const p1, p2,
-  p3: TVector; intersect: PVector; intersectNormal: PVector): Boolean;{$IFDEF CanInline}inline;{$ENDIF}
+// Tests intersection for line and triangle
+function RayTriangleIntersect(const rayStart, rayDirection: TVector;
+  const p1, p2, p3: TVector; BothSided: boolean; intersect: PVector;
+  intersectNormal: PVector): Boolean;{$IFDEF CanInline}inline;{$ENDIF}
 var pvec, v1, v2, qvec, tvec: TVector;
     t, u, v, det, invDet: Single;
 begin
   v1:=VectorSub(p2, p1);
   v2:=VectorSub(p3, p1);
+  if not BothSided then begin
+    pvec:=CrossProduct(v1, v2);
+    if Dot(pvec, rayDirection)>0 then begin
+      // Ray is coming from behind the triangle
+      result:=false; exit;
+    end;
+  end;
   pvec:=CrossProduct(rayDirection, v2);
   det:=Dot(v1, pvec);
   if (det<EPSILON2) and (det>-EPSILON2) then begin // vector is parallel to triangle's plane

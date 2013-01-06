@@ -1406,7 +1406,7 @@ begin
       for i:=first to integer(first)+Count-1 do
         if RayTriangleIntersect(rayStart, RayDir,
            va[fa[i][0]], va[fa[i][1]], va[fa[i][2]],
-           intersect, normal) then begin
+           false, intersect, normal) then begin
           if (not findClosest) or (intersect=nil) then begin
             result:=i; exit;
           end else begin
