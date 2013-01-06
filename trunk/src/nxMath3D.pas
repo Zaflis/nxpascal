@@ -8,7 +8,7 @@ interface
 - Recheck MatrixOnPlane
 }
 
-uses nxTypes;
+uses nxMath, nxTypes;
 
   { General 3D Functions }          
 
@@ -136,7 +136,7 @@ var
 
 implementation
 
-uses math, nxMath;
+uses math;
 
 { Internal functions }
 

@@ -218,7 +218,7 @@ begin
   end;
 end;
 
-{$IFDEF VER2_7}
+{$IFDEF fpc_fullversion > 20600}
 {operator+(const s: string; i: integer): string;
 begin
   // Usage does not compile on latest FPC 2.7.1
@@ -236,6 +236,6 @@ initialization
 
   // Is known to be deprecated, but nxPascal needs consistency
   // where all floating points are represented with a dot in strings.
-  DecimalSeparator:='.';
+  DecimalSeparator{%H-}:='.';
 
 end.
