@@ -13,7 +13,8 @@ unit nxBass;
 
 interface
 
-uses Windows, SysUtils, Controls, Bass, nxTypes {$IFDEF fpc},fileutil{$ENDIF};
+uses {$IFDEF fpc}LCLType, fileutil{$ELSE}Windows{$ENDIF}, SysUtils,
+  Controls, Bass, nxTypes;
 
 type
 

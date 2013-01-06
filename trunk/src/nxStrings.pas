@@ -24,8 +24,8 @@ type
   function StrToFloat2(const s: string; default: single = 0): single;
   function StrToInt2(const s: string; default: integer = 0): integer;
 
-{$IFDEF fpc}
-  operator+(const s: string; i: integer): string;
+{$IFDEF VER2_7}
+  //operator+(const s: string; i: integer): string;
   operator+(const i: integer; const s: string): string;
 {$ENDIF}
 
@@ -218,12 +218,14 @@ begin
   end;
 end;
 
-{$IFDEF fpc}
-operator+(const s: string; i: integer): string;
+{$IFDEF VER2_7}
+{operator+(const s: string; i: integer): string;
 begin
+  // Usage does not compile on latest FPC 2.7.1
   result:=s+inttostr(i);
-end;
+end;}
 
+// string := int + string
 operator+(const i: integer; const s: string): string;
 begin
   result:=inttostr(i)+s;
