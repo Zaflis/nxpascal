@@ -46,6 +46,7 @@ uses nxTypes;
   function Scale(const v: TVector; s: single): TVector; overload;
   function Tangent(const a, b, c: TVector): TVector; overload;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function VectorAdd(const a, b: TVector): TVector; overload;
+  function VectorCombine(const V1, V2: TVector; const F2: Single): TVector;
   function VectorDist(const a, b: TVector): single; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function VectorDiv(const v: TVector; s: single): TVector;
   function VectorMatch(const a, b: TVector; delta: single=0.01): boolean; overload;
@@ -136,9 +137,6 @@ var
 implementation
 
 uses math, nxMath;
-
-var
-  EPSILON2: Single = 1e-30;
 
 { Internal functions }
 
@@ -430,6 +428,7 @@ end;
 function RayTriangleIntersect(const rayStart, rayDirection: TVector;
   const p1, p2, p3: TVector; BothSided: boolean; intersect: PVector;
   intersectNormal: PVector): Boolean;{$IFDEF CanInline}inline;{$ENDIF}
+const EPSILON2 = 1e-30;
 var pvec, v1, v2, qvec, tvec: TVector;
     t, u, v, det, invDet: Single;
 begin

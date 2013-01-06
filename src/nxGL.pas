@@ -19,6 +19,7 @@ unit nxGL;
 {.$define NX_CUSTOM_WINDOW}
 
 { TODO:
+- Test and finalize TNXGL.MousePick()
 - TGLRenderer
 }
 
@@ -30,6 +31,8 @@ uses Classes, dglOpenGL, Controls, Forms, ExtCtrls,
   {$ELSE}Windows,{$ENDIF} nxShaders, nxModel, nxTypes, nxGraph;
 
 type
+
+  TRenderProc = procedure(index: integer) of object;
 
   { TGLTextureSet }
 
@@ -350,6 +353,8 @@ type
     procedure KillGLWindow(force: boolean = false);
     {$ENDIF}
     procedure Line(x, y, x2, y2: integer);
+    function MousePick(mx, my, PickRadius: double;
+      Count: integer; RenderProc: TRenderProc): integer;
     function MouseRayAtPlane(const mx, my: single; const planePos,planeNormal: TVector): TVector;
     function MouseRayAtXZPlane(const mx, my: single): TVector;
     procedure OutLine(x, y, _width, _height: integer);
@@ -1204,16 +1209,57 @@ begin
   glEnd;
 end;
 
+function TNXGL.MousePick(mx, my, PickRadius: double; Count: integer; RenderProc: TRenderProc): integer;
+var SelBuffer: array[0..511] of TGLUint;
+    i, hits: integer; viewport: TGLVectori4;
+    d1: double;
+begin
+
+  { TODO: Not working in tests properly yet! }
+
+  result:=-1;
+  if count<1 then exit;
+  glGetIntegerv(GL_VIEWPORT, @viewPort);
+
+  glSelectBuffer(512, @SelBuffer);
+  glRenderMode(GL_SELECT);
+  glInitNames; glPushName(0);
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix; glLoadIdentity;
+  gluPickMatrix(mx, my, PickRadius, PickRadius, viewport);
+  gluPerspective(nxFov, nxAspectRatio, nxNEARZ, nxFARZ);
+  //glPopMatrix;
+  glMatrixMode(GL_MODELVIEW);
+
+  for i:=0 to Count-1 do begin
+    glLoadName(i); RenderProc(i);
+  end;
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix;
+  glMatrixMode(GL_MODELVIEW);
+
+  hits:=glRenderMode(GL_RENDER);
+  if hits>0 then begin
+    d1:=selBuffer[1]; result:=selBuffer[3];
+    if hits>128 then hits:=128;
+    for i:=1 to hits-1 do
+      if selBuffer[i*4+1]<d1 then begin
+        result:=selBuffer[i*4+3]; d1:=selBuffer[i*4+1];
+      end;
+  end;
+end;
+
 function TNXGL.MouseRayAtPlane(const mx,my: single; const planePos,planeNormal: TVector): TVector;
 var rayOrigin, rayDirection: TVector;
 begin
-  GetMouseRay(mx,my,@rayOrigin,@rayDirection);
-  rayPlaneIntersect(rayOrigin,rayDirection,planePos,planeNormal,@result);
+  GetMouseRay(mx, my, @rayOrigin, @rayDirection);
+  rayPlaneIntersect(rayOrigin, rayDirection, planePos, planeNormal, @result);
 end;
 
 function TNXGL.MouseRayAtXZPlane(const mx, my: single): TVector;
 begin
-  result:=MouseRayAtPlane(mx,my,Vector(0,0,0),Vector(0,1,0));
+  result:=MouseRayAtPlane(mx, my, Vector(0,0,0), Vector(0,1,0));
 end;
 
 function TNXGL.NewFontName(base: string): string;
@@ -1249,8 +1295,8 @@ procedure TNXGL.OutLine(x, y, _width, _height: integer);
 const d = 0.5;
 begin
   glBegin(GL_LINE_LOOP);
-    glVertex2f(x+d,y+d); glVertex2f(x+d,y+d+_height-1);
-    glVertex2f(x+d+_width-1,y+d+_height-1); glVertex2f(x+d+_width-1,y+d);
+    glVertex2f(x+d, y+d); glVertex2f(x+d, y+d+_height-1);
+    glVertex2f(x+d+_width-1, y+d+_height-1); glVertex2f(x+d+_width-1, y+d);
   glEnd;
 end;
 
@@ -1315,8 +1361,8 @@ begin
   Left:=X; Top:=Y; Width:=_Width; Height:=_Height;
   nxAspectRatio:=_Width/_Height;
   if Initialized then begin
-    glViewport(X,Y,_Width,_Height);
-    {$IFDEF fpc}window.SetBounds(X,Y,_Width,_Height);{$ENDIF}
+    glViewport(X, Y, _Width, _Height);
+    {$IFDEF fpc}window.SetBounds(X, Y, _Width, _Height);{$ENDIF}
   end;
 end;
 
