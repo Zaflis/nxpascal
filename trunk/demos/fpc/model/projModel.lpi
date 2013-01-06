@@ -52,8 +52,8 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="98"/>
-        <CursorPos X="18" Y="115"/>
+        <TopLine Value="79"/>
+        <CursorPos X="37" Y="105"/>
         <UsageCount Value="94"/>
         <Bookmarks Count="1">
           <Item0 X="5" Y="167" ID="5"/>
@@ -271,16 +271,16 @@
         <Filename Value="..\..\..\src\nxModel.pas"/>
         <UnitName Value="nxModel"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="220"/>
-        <CursorPos X="7" Y="240"/>
+        <TopLine Value="1396"/>
+        <CursorPos X="35" Y="1402"/>
         <UsageCount Value="10"/>
       </Unit28>
       <Unit29>
         <Filename Value="..\..\..\src\nxMath3D.pas"/>
         <UnitName Value="nxMath3D"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="529"/>
-        <CursorPos X="53" Y="551"/>
+        <TopLine Value="417"/>
+        <CursorPos X="31" Y="434"/>
         <UsageCount Value="11"/>
       </Unit29>
       <Unit30>
@@ -300,7 +300,7 @@
         <UsageCount Value="11"/>
       </Unit31>
     </Units>
-    <JumpHistory Count="6" HistoryIndex="5">
+    <JumpHistory Count="7" HistoryIndex="6">
       <Position1>
         <Filename Value="Unit1.pas"/>
         <Caret Line="78" Column="5" TopLine="76"/>
@@ -325,6 +325,10 @@
         <Filename Value="Unit1.pas"/>
         <Caret Line="102" Column="21" TopLine="91"/>
       </Position6>
+      <Position7>
+        <Filename Value="Unit1.pas"/>
+        <Caret Line="108" Column="26" TopLine="97"/>
+      </Position7>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
