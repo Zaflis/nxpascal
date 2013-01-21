@@ -5,8 +5,8 @@ unit Unit1;
 interface
 
 uses
-  Classes, LResources, Forms, Controls, SysUtils, ExtCtrls, Dialogs,
-  dglOpenGL, nxGL, nxTypes, nxMath3D, nxGLExtra;
+  Classes, LResources, Forms, Controls, SysUtils, ExtCtrls,
+  Dialogs, dglOpenGL, nxGL, nxTypes, nxMath3D, nxGLExtra;
 
 type
 
@@ -40,13 +40,12 @@ implementation
 { TForm1 }
 
 procedure TForm1.FormCreate(Sender: TObject);
-var c: TfRGBA; err: GLenum;
+var err: GLenum;
 begin
   ClientWidth:=800; ClientHeight:=600;
   nx.CreateGlWindow(self);
   nx.DefaultLights;
-  c.r:=0; c.g:=c.r; c.b:=c.r; c.a:=1;
-  glLightfv(GL_LIGHT1, GL_AMBIENT, @c);
+  nx.SetLight(1, GL_AMBIENT, 0, 0, 0);
   nx.rs.DepthTest:=true;
   camera:=TCamera.Create;
 

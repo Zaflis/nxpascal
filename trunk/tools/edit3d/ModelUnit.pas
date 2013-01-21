@@ -7,6 +7,8 @@ interface
 uses SysUtils, nxModel, nxGL, {%H-}nxMath, nxMath3D, nxTypes,
   dglOpenGL;
 
+const DefaultZoom = 4;
+
 type
   TSceneMode = (smObject, smFace, smVertex, smBone, smAnim);
 
@@ -35,6 +37,7 @@ type
     o: array of TInstancedModel;
     cam: TCamera;
     ax, ay, zoom: single;
+    camPos: TVector;
     cp: TVector;
     constructor Create;
     destructor Destroy; override;
@@ -44,6 +47,14 @@ type
     procedure Delete(objIndex: integer);
   end;
 
+var
+  selarray: array[0..high(word)] of byte;
+  focus, selCount: integer;
+  mode: TSceneMode;
+  ray: TMouseRay;
+  mp: TVector2f;
+  eobj: array[0..2] of TGLModel;
+
 implementation
 
 { T3DScene }
@@ -51,8 +62,7 @@ implementation
 constructor T3DScene.Create;
 begin
   cam:=TCamera.Create;
-  cam.Translate(0, 0, -5);
-  ax:=-30; ay:=30;
+  ax:=-30; ay:=30; zoom:=DefaultZoom;
 end;
 
 destructor T3DScene.Destroy;
@@ -65,8 +75,8 @@ procedure T3DScene.Render;
 var i, j, g, f, n, lastM: integer; lastC: word;
 begin
   cam.Reset(false);
-  cam.Translate(0, 0, -5);
-  cam.Rotate(ay, 1, 0, 0);
+  cam.Translate(0, 0, -zoom, false);
+  cam.Rotate(ay, 1, 0, 0, false);
   cam.Rotate(ax, 0, 1, 0);
 
   for i:=0 to high(o) do
@@ -120,6 +130,34 @@ begin
       if lastC>0 then glEnd;
       cam.Pop;
     end;
+
+  // Grid
+  tex.Disable; nx.rs.Push;
+  nx.rs.Lighting:=false;
+  glBegin(GL_LINES);
+  for i:=-10 to 10 do begin
+    if abs(i) mod 5=0 then nx.SetColor(0.5, 1, 0.5, 0.2)
+    else nx.SetColor(0.5, 1, 0.5, 0.1);
+    glVertex3f(i*0.2, 0, -2.2); glVertex3f(i*0.2, 0, 2.2);
+    glVertex3f(-2.2, 0, i*0.2); glVertex3f(2.2, 0, i*0.2);
+  end;
+  glVertex3f(0, 0, 0); glVertex3f(0, 2.2, 0);
+  glVertex3f(-0.2, 1, 0); glVertex3f(0.2, 1, 0);
+  glVertex3f(-0.2, 2, 0); glVertex3f(0.2, 2, 0);
+  glEnd;
+  nx.rs.Pop; tex.Enable;
+
+  // Selected/Focused objects
+  for i:=0 to high(o) do
+    if (selArray[i]>0) or (focus=i) then
+      with o[i] do begin
+        cam.Push;
+        cam.Translate(position, false);
+        cam.Multiply(rotation, true);
+        eObj[1].ScaleTo(obj);
+        eObj[1].Render;
+        cam.Pop(false);
+      end;
 
   nx.Enable2D;
   nx.SetFont(0); nx.SetColor(1, 1, 1);

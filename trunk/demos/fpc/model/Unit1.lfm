@@ -1,8 +1,8 @@
 object Form1: TForm1
   Cursor = crCross
-  Left = 312
+  Left = 302
   Height = 240
-  Top = 139
+  Top = 137
   Width = 320
   Caption = 'Model demo'
   OnClose = FormClose

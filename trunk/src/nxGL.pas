@@ -353,8 +353,6 @@ type
     procedure KillGLWindow(force: boolean = false);
     {$ENDIF}
     procedure Line(x, y, x2, y2: integer);
-    function MousePick(mx, my, PickRadius: double;
-      Count: integer; RenderProc: TRenderProc): integer;
     function MouseRayAtPlane(const mx, my: single; const planePos,planeNormal: TVector): TVector;
     function MouseRayAtXZPlane(const mx, my: single): TVector;
     procedure OutLine(x, y, _width, _height: integer);
@@ -1207,47 +1205,6 @@ begin
   glBegin(GL_LINES);
     glVertex2f(x+d, y+d); glVertex2f(x2+d, y2+d);
   glEnd;
-end;
-
-function TNXGL.MousePick(mx, my, PickRadius: double; Count: integer; RenderProc: TRenderProc): integer;
-var SelBuffer: array[0..511] of TGLUint;
-    i, hits: integer; viewport: TGLVectori4;
-    d1: double;
-begin
-
-  { TODO: Not working in tests properly yet! }
-
-  result:=-1;
-  if count<1 then exit;
-  glGetIntegerv(GL_VIEWPORT, @viewPort);
-
-  glSelectBuffer(512, @SelBuffer);
-  glRenderMode(GL_SELECT);
-  glInitNames; glPushName(0);
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix; glLoadIdentity;
-  gluPickMatrix(mx, my, PickRadius, PickRadius, viewport);
-  gluPerspective(nxFov, nxAspectRatio, nxNEARZ, nxFARZ);
-  //glPopMatrix;
-  glMatrixMode(GL_MODELVIEW);
-
-  for i:=0 to Count-1 do begin
-    glLoadName(i); RenderProc(i);
-  end;
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix;
-  glMatrixMode(GL_MODELVIEW);
-
-  hits:=glRenderMode(GL_RENDER);
-  if hits>0 then begin
-    d1:=selBuffer[1]; result:=selBuffer[3];
-    if hits>128 then hits:=128;
-    for i:=1 to hits-1 do
-      if selBuffer[i*4+1]<d1 then begin
-        result:=selBuffer[i*4+3]; d1:=selBuffer[i*4+1];
-      end;
-  end;
 end;
 
 function TNXGL.MouseRayAtPlane(const mx,my: single; const planePos,planeNormal: TVector): TVector;
