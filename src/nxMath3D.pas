@@ -141,7 +141,7 @@ uses math;
 { Internal functions }
 
 function getNewMatrix: TMatrix;
-var i,j: integer;
+var i, j: integer;
 begin
   for i:=0 to 3 do
     for j:=0 to 3 do
@@ -150,7 +150,7 @@ begin
 end;
 
 function getNewMatrix3f: TMatrix3f;
-var i,j: integer;
+var i, j: integer;
 begin
   for i:=0 to 2 do
     for j:=0 to 2 do

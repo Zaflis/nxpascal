@@ -35,12 +35,12 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="32">
+    <Units Count="34">
       <Unit0>
         <Filename Value="projModel.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="projModel"/>
-        <UsageCount Value="94"/>
+        <UsageCount Value="98"/>
       </Unit0>
       <Unit1>
         <Filename Value="Unit1.pas"/>
@@ -52,11 +52,11 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="79"/>
-        <CursorPos X="37" Y="105"/>
-        <UsageCount Value="94"/>
+        <TopLine Value="1"/>
+        <CursorPos X="20" Y="14"/>
+        <UsageCount Value="98"/>
         <Bookmarks Count="1">
-          <Item0 X="5" Y="167" ID="5"/>
+          <Item0 X="5" Y="166" ID="5"/>
         </Bookmarks>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
@@ -263,33 +263,33 @@
         <Filename Value="..\..\..\src\dglOpenGL.pas"/>
         <UnitName Value="dglOpenGL"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="492"/>
-        <CursorPos X="3" Y="506"/>
+        <TopLine Value="1701"/>
+        <CursorPos X="3" Y="1713"/>
         <UsageCount Value="10"/>
       </Unit27>
       <Unit28>
         <Filename Value="..\..\..\src\nxModel.pas"/>
         <UnitName Value="nxModel"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1396"/>
-        <CursorPos X="35" Y="1402"/>
-        <UsageCount Value="10"/>
+        <TopLine Value="828"/>
+        <CursorPos X="42" Y="842"/>
+        <UsageCount Value="11"/>
       </Unit28>
       <Unit29>
         <Filename Value="..\..\..\src\nxMath3D.pas"/>
         <UnitName Value="nxMath3D"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="417"/>
-        <CursorPos X="31" Y="434"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="431"/>
+        <CursorPos X="17" Y="436"/>
+        <UsageCount Value="12"/>
       </Unit29>
       <Unit30>
         <Filename Value="..\..\..\src\nxGL.pas"/>
         <UnitName Value="nxGL"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="2371"/>
-        <CursorPos X="1" Y="2385"/>
-        <UsageCount Value="11"/>
+        <TopLine Value="337"/>
+        <CursorPos X="15" Y="347"/>
+        <UsageCount Value="12"/>
       </Unit30>
       <Unit31>
         <Filename Value="..\..\..\src\nxGLExtra.pas"/>
@@ -299,36 +299,36 @@
         <CursorPos X="69" Y="712"/>
         <UsageCount Value="11"/>
       </Unit31>
+      <Unit32>
+        <Filename Value="..\..\..\src\nxGraph.pas"/>
+        <UnitName Value="nxGraph"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="523"/>
+        <CursorPos X="8" Y="532"/>
+        <UsageCount Value="10"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="..\..\..\src\nxTypes.pas"/>
+        <UnitName Value="nxTypes"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="51"/>
+        <CursorPos X="34" Y="62"/>
+        <UsageCount Value="11"/>
+      </Unit33>
     </Units>
-    <JumpHistory Count="7" HistoryIndex="6">
+    <JumpHistory Count="3" HistoryIndex="2">
       <Position1>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="78" Column="5" TopLine="76"/>
+        <Caret Line="49" Column="57" TopLine="37"/>
       </Position1>
       <Position2>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="107" Column="13" TopLine="92"/>
+        <Caret Line="104" Column="11" TopLine="91"/>
       </Position2>
       <Position3>
         <Filename Value="Unit1.pas"/>
-        <Caret Line="105" Column="5" TopLine="92"/>
+        <Caret Line="101" Column="28" TopLine="1"/>
       </Position3>
-      <Position4>
-        <Filename Value="Unit1.pas"/>
-        <Caret Line="103" Column="41" TopLine="86"/>
-      </Position4>
-      <Position5>
-        <Filename Value="Unit1.pas"/>
-        <Caret Line="91" Column="41" TopLine="83"/>
-      </Position5>
-      <Position6>
-        <Filename Value="Unit1.pas"/>
-        <Caret Line="102" Column="21" TopLine="91"/>
-      </Position6>
-      <Position7>
-        <Filename Value="Unit1.pas"/>
-        <Caret Line="108" Column="26" TopLine="97"/>
-      </Position7>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

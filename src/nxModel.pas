@@ -9,7 +9,7 @@ unit nxModel;
 
 interface
 
-uses nxTypes;
+uses SysUtils, nxTypes;
 
 type
   TIndexArray = array of word;
@@ -64,11 +64,16 @@ type
     property vCount: integer read FvCount write SetvCount;
     procedure Center(_x, _y, _z: boolean);
     procedure Clear;
-    function GetRadius: single;
+    function GetRadius(cubic: boolean = false): single;
+    function GetRadiusX(): single;
+    function GetRadiusY(): single;
+    function GetRadiusZ(): single;
     procedure Rotate(_radians: single; axis: TVector);
     procedure RotateUV(_radians, centerX, centerY: single); overload;
     procedure Scale(x, y, z: single);
-    procedure ScaleTo(size: single);
+    procedure ScaleTo(size: single); overload;
+    procedure ScaleTo(sizeX, sizeY, sizeZ: single); overload;
+    procedure ScaleTo(ref: T3DModel); overload;
     procedure ScaleUV(x, y: single); overload;
     procedure Translate(x, y, z: single);
     procedure TranslateUV(x, y: single); overload;
@@ -149,6 +154,14 @@ type
     procedure LoadFromOBJ(filename: string);
     procedure LoadFromW3D(filename: string; obj: integer = -1);
     procedure MakeNormals;
+    function rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
+      const intersect: PVector=nil; const normal: PVector=nil): integer; overload; stdcall;
+    function rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
+      const position: TVector; rotation: TMatrix;
+      const intersect: PVector=nil; const normal: PVector=nil): integer; overload; stdcall;
+    function RayPolyIntersect(const rayStart, rayDirection: TVector;
+      const vi: PWordArray; Count: integer; BothSided: boolean;
+      intersect: PVector; intersectNormal: PVector): Boolean; stdcall;
     procedure SaveToFile(filename: string);
     procedure SaveToOBJ(filename: string);
     procedure SaveToW3D(filename: string);
@@ -272,7 +285,7 @@ type
 
 implementation
 
-uses Classes, SysUtils, math, nxStrings, nxMath3D, nxMath
+uses Classes, math, nxStrings, nxMath, nxMath3D
   {$IFDEF fpc}, FileUtil{$ENDIF};
 
 { T3DModel }
@@ -283,12 +296,53 @@ begin
   setlength(bone, 0);
 end;
 
-function T3DModel.GetRadius: single;
+function T3DModel.GetRadius(cubic: boolean): single;
+  procedure _SetMax(var original: single; value: single);
+  begin
+    value:=abs(value);
+    if value>original then original:=value;
+  end;
 var i: integer; d: single;
 begin
   result:=0;
   for i:=0 to vCount-1 do begin
-    d:=hypot3f(va[i].x, va[i].y, va[i].z);
+    if cubic then begin
+      _SetMax(result, va[i].x);
+      _SetMax(result, va[i].y);
+      _SetMax(result, va[i].z);
+    end else begin
+      d:=hypot3f(va[i].x, va[i].y, va[i].z);
+      if d>result then result:=d;
+    end;
+  end;
+end;
+
+function T3DModel.GetRadiusX: single;
+var i: integer; d: single;
+begin
+  result:=0;
+  for i:=0 to vCount-1 do begin
+    d:=abs(va[i].x);
+    if d>result then result:=d;
+  end;
+end;
+
+function T3DModel.GetRadiusY: single;
+var i: integer; d: single;
+begin
+  result:=0;
+  for i:=0 to vCount-1 do begin
+    d:=abs(va[i].y);
+    if d>result then result:=d;
+  end;
+end;
+
+function T3DModel.GetRadiusZ: single;
+var i: integer; d: single;
+begin
+  result:=0;
+  for i:=0 to vCount-1 do begin
+    d:=abs(va[i].z);
     if d>result then result:=d;
   end;
 end;
@@ -343,6 +397,36 @@ begin
     va[i].y:=va[i].y*d;
     va[i].z:=va[i].z*d;
   end;
+end;
+
+procedure T3DModel.ScaleTo(sizeX, sizeY, sizeZ: single);
+var i: integer; minx,miny,minz, maxx,maxy,maxz, dx,dy,dz: single;
+begin
+  if vCount<=0 then exit;
+  minx:=va[0].x; maxx:=va[0].x;
+  miny:=va[0].y; maxy:=va[0].y;
+  minz:=va[0].z; maxz:=va[0].z;
+  for i:=1 to vCount-1 do begin
+    if va[i].x<minx then minx:=va[i].x
+    else if va[i].x>maxx then maxx:=va[i].x;
+    if va[i].y<miny then miny:=va[i].y
+    else if va[i].y>maxy then maxy:=va[i].y;
+    if va[i].z<minz then minz:=va[i].z
+    else if va[i].z>maxz then maxz:=va[i].z;
+  end;
+  dx:=sizeX/(maxx-minx);
+  dy:=sizeY/(maxy-miny);
+  dz:=sizeZ/(maxz-minz);
+  for i:=0 to vCount-1 do begin
+    va[i].x:=va[i].x*dx;
+    va[i].y:=va[i].y*dy;
+    va[i].z:=va[i].z*dz;
+  end;
+end;
+
+procedure T3DModel.ScaleTo(ref: T3DModel);
+begin
+  ScaleTo(ref.GetRadiusX*2, ref.GetRadiusY*2, ref.GetRadiusZ*2);
 end;
 
 procedure T3DModel.ScaleUV(x, y: single);
@@ -763,6 +847,92 @@ begin
   fillchar(na[0], vCount*sizeof(na[0]), 0);
   for i:=0 to groups-1 do MakeGrpNormals(i);
   for i:=0 to vCount-1 do na[i]:=Norm(na[i]);
+end;
+
+function TPolyModel.rayIntersect(const rayStart, rayDir: TVector;
+  findClosest: boolean; const intersect: PVector;
+  const normal: PVector): integer; stdcall;
+var g, i: integer; d: single; nearest: single;
+    vI,vN: TVector;
+begin
+  result:=-1; nearest:=-2;
+  for g:=0 to groups-1 do
+    if grp[g].visible then with grp[g] do
+      for i:=first to integer(first)+Count-1 do
+        if RayPolyIntersect(rayStart, RayDir,
+           @fa[i].index[0], fa[i].count,
+           false, intersect, normal) then begin
+          if (not findClosest) or (intersect=nil) then begin
+            result:=i; exit;
+          end else begin
+            d:=VectorDist(rayStart, intersect^);
+            if (d<nearest) or (nearest<-1) then begin
+              nearest:=d; vI:=intersect^;
+              if normal<>nil then vN:=normal^;
+              result:=i;
+            end;
+          end;
+        end;
+  if nearest>-1 then begin
+    intersect^:=vI;
+    if normal<>nil then normal^:=vN;
+  end;
+end;
+
+function TPolyModel.rayIntersect(rayStart, rayDir: TVector;
+  findClosest: boolean; const position: TVector; rotation: TMatrix;
+  const intersect: PVector; const normal: PVector): integer; stdcall;
+begin
+  // Correct ray
+  rayDir:=Multiply(rayDir, Invert(rotation));
+  // Correct position
+  SetVector(rotation, position, 3);
+  rotation:=invert(rotation);
+  rayStart:=Multiply(rayStart, rotation);
+  rotation:=invert(rotation);
+  result:=rayIntersect(rayStart, rayDir, findClosest, intersect,
+    normal);
+end;
+
+// Credits to Dan (PascalGameDev forums)
+function TPolyModel.RayPolyIntersect(const rayStart,
+  rayDirection: TVector; const vi: PWordArray; Count: integer;
+  BothSided: boolean; intersect: PVector;
+  intersectNormal: PVector): Boolean; stdcall;
+var d: Single; i: Integer;
+    Hit, nn, vx, vy: TVector;
+    pi, pj: PVector;
+    Hit2, pi2, pj2: TVector2f;
+begin
+  Result:=False;
+  if Count<3 then Exit; //no need to proceed if we have less than 3 points.
+  vx:=Norm(VectorSub(va[vi[Count div 3]], va[vi[0]]));
+  nn:=Norm(CrossProduct(vx, VectorSub(va[vi[Count*2 div 3]], va[vi[0]])));
+  // Exit if ray is coming from behind the triangle
+  if (not BothSided) and (Dot(nn, rayDirection)>0) then exit;
+  d:=RayPlaneIntersect(rayStart, rayDirection, va[vi[0]], nn,
+     intersect);
+  if d>=0 then Hit:=VectorAdd(rayStart, nxMath3D.Scale(rayDirection, d))
+  else Exit; // the ray is parallel to the polygons plane. quit
+  vy:=CrossProduct(nn, vx); // Don't need to norm(), length is 1
+  // vx and vy are the 2d space projection vectors.
+  Hit2:=Vector2f(Dot(vx, Hit), -Dot(vy, Hit));
+  // and that's how you project a point to 2d space
+  // and finally we're checking if the intersection point is inside the polygon.
+  pj:=@va[vi[Count-1]];
+  pj2:=Vector2f(Dot(vx, pj^), -Dot(vy, pj^));
+  for i:=0 to Count-1 do begin
+    pi:=@va[vi[i]];
+    pi2:=Vector2f(Dot(vx, pi^), -Dot(vy, pi^));
+    if ( ((pi2.y<=Hit2.y) and (Hit2.y<pj2.y)) or
+         ((pj2.y<=Hit2.y) and (Hit2.y<pi2.y)) ) and (
+       Hit2.x < (pj2.x-pi2.x)*(Hit2.y-pi2.y)/(pj2.y-pi2.y)+pi2.x
+       ) then
+    Result:=not Result;
+    pj:=pi;
+    pj2:=Vector2f(Dot(vx, pj^), -Dot(vy, pj^));
+  end;
+  if intersectNormal<>nil then intersectNormal^:=nn;
 end;
 
 procedure TPolyModel.SaveToFile(filename: string);
@@ -1404,9 +1574,14 @@ begin
   for g:=0 to groups-1 do
     if grp[g].visible then with grp[g] do
       for i:=first to integer(first)+Count-1 do
+
+        //if RayTriangleIntersect(rayStart, RayDir,
+        //   va[fa[i][0]], va[fa[i][1]], va[fa[i][2]],
+        //   false, intersect, normal) then begin
         if RayTriangleIntersect(rayStart, RayDir,
            va[fa[i][0]], va[fa[i][1]], va[fa[i][2]],
            false, intersect, normal) then begin
+
           if (not findClosest) or (intersect=nil) then begin
             result:=i; exit;
           end else begin

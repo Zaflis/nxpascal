@@ -36,8 +36,10 @@ type
   pRGB = ^TRGB;
   pRGBA = ^TRGBA;
 
-  TByteArray = array[0..0] of byte;
+  TByteArray = array[0..255] of byte;
   PByteArray = ^TByteArray;
+  TWordArray = array[0..255] of word;
+  PWordArray = ^TWordArray;
 
   TVector2fArray = array of TVector2f;
   TVector3fArray = array of TVector3f;
@@ -48,11 +50,17 @@ type
   TMatrix4f = array[0..3,0..3] of single;
   TMatrix4d = array[0..3,0..3] of double;
   TMatrix = TMatrix4f;
+  PMatrix = ^TMatrix;
+  PMatrix3f = ^TMatrix3f;
 
   TTextureLoadOptions = set of (toMipMap, toAlphaColor, toKeepData,
     toScale, toFitScale, toCustomScale, toColorKey, toFileName, toNoLoad);
 
   TPathingMode = (pmInterpolate, pmSmooth, pmCatmull);
+
+  TMouseRay = record
+    start, dir: TVector;
+  end;
 
   TTexturePart = record
     r: TRecti; center: TVector2f; name: string;

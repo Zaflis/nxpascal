@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 302
+  Left = 298
   Height = 405
   Top = 124
   Width = 511
@@ -14,6 +14,7 @@ object Form1: TForm1
   OnMouseDown = FormMouseDown
   OnMouseMove = FormMouseMove
   OnMouseUp = FormMouseUp
+  OnMouseWheel = FormMouseWheel
   OnPaint = FormPaint
   Position = poScreenCenter
   LCLVersion = '1.1'
@@ -150,13 +151,16 @@ object Form1: TForm1
       object mnuOpenWorkspace: TMenuItem
         Caption = 'Open workspace...'
         ShortCut = 114
+        OnClick = mnuOpenWorkspaceClick
       end
       object mnuSaveWorkspace: TMenuItem
         Caption = 'Save workspace'
         ShortCut = 113
+        OnClick = mnuSaveWorkspaceClick
       end
       object mnuSaveWorkspaceAs: TMenuItem
         Caption = 'Save workspace as...'
+        OnClick = mnuSaveWorkspaceAsClick
       end
       object MenuItem13: TMenuItem
         Caption = '-'
@@ -179,9 +183,10 @@ object Form1: TForm1
     end
     object MenuItem2: TMenuItem
       Caption = 'Edit'
-      object MenuItem14: TMenuItem
+      object mnuUndo: TMenuItem
         Caption = 'Undo'
         ShortCut = 16474
+        OnClick = mnuUndoClick
       end
       object MenuItem22: TMenuItem
         Caption = '-'
@@ -193,6 +198,7 @@ object Form1: TForm1
       object mnuPaste: TMenuItem
         Caption = 'Paste'
         ShortCut = 16470
+        OnClick = mnuPasteClick
       end
       object mnuDelete: TMenuItem
         Caption = 'Delete'
@@ -201,7 +207,7 @@ object Form1: TForm1
       object MenuItem26: TMenuItem
         Caption = '-'
       end
-      object MenuItem27: TMenuItem
+      object mnuSelAll: TMenuItem
         Caption = 'Select all'
         ShortCut = 16449
       end
@@ -228,17 +234,25 @@ object Form1: TForm1
       end
       object MenuItem31: TMenuItem
         Caption = 'Visuals'
-        object MenuItem38: TMenuItem
-          Caption = 'Wireframe'
+        object mnuWire: TMenuItem
+          Caption = 'Toggle wireframe modes'
+          ShortCut = 32855
         end
-        object MenuItem39: TMenuItem
+        object mnuGrid: TMenuItem
+          AutoCheck = True
           Caption = 'Grid'
+          Checked = True
+          ShortCut = 32839
         end
-        object MenuItem40: TMenuItem
+        object mnuBothSided: TMenuItem
+          AutoCheck = True
           Caption = 'Both sided faces'
+          ShortCut = 32834
         end
-        object MenuItem41: TMenuItem
+        object mnuNormals: TMenuItem
+          AutoCheck = True
           Caption = 'Normals'
+          ShortCut = 32846
         end
       end
       object MenuItem32: TMenuItem
@@ -248,7 +262,7 @@ object Form1: TForm1
           Checked = True
           RadioItem = True
         end
-        object MenuItem37: TMenuItem
+        object mnuLoadImage: TMenuItem
           Caption = 'Load image...'
           RadioItem = True
         end
@@ -257,6 +271,7 @@ object Form1: TForm1
         Caption = '-'
       end
       object MenuItem34: TMenuItem
+        AutoCheck = True
         Caption = 'Snapping'
         ShortCut = 32851
       end
@@ -273,74 +288,74 @@ object Form1: TForm1
       Caption = 'Actions'
       object MenuItem18: TMenuItem
         Caption = 'Mirror'
-        object MenuItem50: TMenuItem
+        object mnuMirrorX: TMenuItem
           Caption = 'X'
         end
-        object MenuItem55: TMenuItem
+        object mnuMirrorY: TMenuItem
           Caption = 'Y'
         end
-        object MenuItem56: TMenuItem
+        object mnuMirrorZ: TMenuItem
           Caption = 'Z'
         end
       end
-      object MenuItem35: TMenuItem
+      object mnuScale: TMenuItem
         Caption = 'Scale...'
       end
-      object MenuItem44: TMenuItem
+      object mnuFlip: TMenuItem
         Caption = 'Flip face(s)'
       end
       object MenuItem45: TMenuItem
         Caption = 'Triangle actions'
-        object MenuItem52: TMenuItem
+        object mnuPolyToTri: TMenuItem
           Caption = 'Polygons to triangles'
         end
-        object MenuItem53: TMenuItem
+        object mnuSplit4: TMenuItem
           Caption = 'Split in 4'
         end
-        object MenuItem54: TMenuItem
+        object mnuSplit3: TMenuItem
           Caption = 'Split in 3 "crystallize"'
         end
       end
       object MenuItem46: TMenuItem
         Caption = 'Normals'
-        object MenuItem57: TMenuItem
+        object mnuFlattenNorm: TMenuItem
           Caption = 'Flatten'
         end
-        object MenuItem58: TMenuItem
+        object mnuSmoothNorm: TMenuItem
           Caption = 'Smooth'
         end
       end
     end
     object MenuItem5: TMenuItem
       Caption = 'Effects'
-      object MenuItem19: TMenuItem
+      object mnuSmoothen: TMenuItem
         Caption = 'Smoothen'
       end
-      object MenuItem47: TMenuItem
+      object mnuCirculate: TMenuItem
         Caption = 'Circulate...'
       end
-      object MenuItem48: TMenuItem
+      object mnuNoise: TMenuItem
         Caption = 'Noise...'
       end
-      object MenuItem49: TMenuItem
+      object mnuSpiral: TMenuItem
         Caption = 'Spiral...'
       end
-      object MenuItem59: TMenuItem
+      object mnuSnapVert: TMenuItem
         Caption = 'Snap vertices...'
       end
     end
     object MenuItem6: TMenuItem
       Caption = 'Tools'
-      object MenuItem21: TMenuItem
+      object mnuMemory: TMenuItem
         Caption = 'Memory usage...'
-        OnClick = MenuItem21Click
+        OnClick = mnuMemoryClick
       end
-      object MenuItem20: TMenuItem
+      object mnuListExt: TMenuItem
         Caption = 'List GL extensions of your card...'
-        OnClick = MenuItem20Click
+        OnClick = mnuListExtClick
       end
     end
-    object MenuItem7: TMenuItem
+    object mnuHelp: TMenuItem
       Caption = 'Help'
       Visible = False
     end

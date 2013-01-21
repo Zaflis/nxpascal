@@ -83,7 +83,8 @@ implementation
 
 constructor TDataStore.Create(_blockSize: integer; _level: TCompressionlevel);
 begin
-  blockSize:=_blockSize; MaxTime:=1000*15;
+  blockSize:=_blockSize;
+  MaxTime:=1000*15; // 15 seconds default expiration time
   tick:=(nxEngine.GetTick div 1000)*1000;
   level:=_level;
 end;
@@ -313,6 +314,7 @@ var i: integer;
 begin
   tick:=(nxEngine.GetTick div 1000)*1000;
   if tick<>lastCheck then begin
+    // Compress unused and expired data blocks
     for i:=0 to count-1 do
       with block[i] do
         if (data<>nil) and (not threading) and (tick>block[i].useTime+MaxTime) then
