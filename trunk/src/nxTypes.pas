@@ -61,7 +61,7 @@ type
   TMouseRay = record
     start, dir: TVector;
   end;
-
+  PMouseRay = ^TMouseRay;
   TTexturePart = record
     r: TRecti; center: TVector2f; name: string;
   end;

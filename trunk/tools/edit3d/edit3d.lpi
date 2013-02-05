@@ -4,6 +4,9 @@
     <Version Value="9"/>
     <PathDelim Value="\"/>
     <General>
+      <Flags>
+        <AlwaysBuild Value="True"/>
+      </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
       <Title Value="Edit3D"/>
@@ -71,12 +74,23 @@
       <OtherUnitFiles Value="..\..\src"/>
       <UnitOutputDirectory Value="lib"/>
     </SearchPaths>
+    <CodeGeneration>
+      <SmartLinkUnit Value="True"/>
+      <Checks>
+        <RangeChecks Value="True"/>
+        <OverflowChecks Value="True"/>
+      </Checks>
+      <Optimizations>
+        <OptimizationLevel Value="0"/>
+      </Optimizations>
+    </CodeGeneration>
     <Linking>
       <Debugging>
         <DebugInfoType Value="dsStabs"/>
         <StripSymbols Value="True"/>
         <UseExternalDbgSyms Value="True"/>
       </Debugging>
+      <LinkSmart Value="True"/>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>

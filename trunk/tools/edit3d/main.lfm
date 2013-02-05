@@ -1,5 +1,5 @@
 object Form1: TForm1
-  Left = 298
+  Left = 292
   Height = 405
   Top = 124
   Width = 511
@@ -50,6 +50,7 @@ object Form1: TForm1
         'Bones'
         'Animation'
       )
+      OnChange = selModeChange
       Style = csDropDownList
       TabOrder = 0
       TabStop = False
@@ -67,17 +68,17 @@ object Form1: TForm1
     TabOrder = 1
     object Panel3: TPanel
       Left = 1
-      Height = 146
+      Height = 170
       Top = 1
       Width = 110
       Align = alTop
-      ClientHeight = 146
+      ClientHeight = 170
       ClientWidth = 110
       TabOrder = 0
       object btnAddObject: TButton
         Left = 5
         Height = 20
-        Top = 18
+        Top = 40
         Width = 100
         Anchors = [akTop, akLeft, akRight]
         Caption = 'Add object >'
@@ -86,8 +87,8 @@ object Form1: TForm1
       end
       object objlist: TListBox
         Left = 1
-        Height = 104
-        Top = 39
+        Height = 107
+        Top = 60
         Width = 108
         Anchors = [akTop, akLeft, akRight, akBottom]
         ItemHeight = 0
@@ -104,15 +105,107 @@ object Form1: TForm1
         Caption = 'Select'
         ParentColor = False
       end
+      object Button1: TButton
+        Left = 5
+        Height = 20
+        Top = 17
+        Width = 100
+        Caption = 'Add from file...'
+        OnClick = mnuAddObjectClick
+        TabOrder = 2
+      end
     end
     object Splitter2: TSplitter
       Cursor = crVSplit
       Left = 1
-      Height = 5
-      Top = 147
+      Height = 7
+      Top = 171
       Width = 110
       Align = alTop
       ResizeAnchor = akTop
+    end
+    object Panel4: TPanel
+      Left = 1
+      Height = 139
+      Top = 178
+      Width = 110
+      Align = alTop
+      ClientHeight = 139
+      ClientWidth = 110
+      TabOrder = 2
+      object createType: TComboBox
+        Left = 5
+        Height = 23
+        Top = 4
+        Width = 100
+        AutoSize = False
+        ItemHeight = 15
+        ItemIndex = 0
+        Items.Strings = (
+          'Cube'
+          'Sphere'
+          'Plane'
+          'Cone'
+          'Torus'
+        )
+        Style = csDropDownList
+        TabOrder = 0
+        TabStop = False
+        Text = 'Cube'
+      end
+      object btnCreateObj: TButton
+        Left = 5
+        Height = 20
+        Top = 118
+        Width = 100
+        Anchors = [akTop, akLeft, akRight]
+        Caption = 'Create'
+        TabOrder = 1
+      end
+      object val1: TLabeledEdit
+        Left = 69
+        Height = 23
+        Top = 30
+        Width = 36
+        AutoSize = False
+        EditLabel.AnchorSideTop.Control = val1
+        EditLabel.AnchorSideTop.Side = asrCenter
+        EditLabel.AnchorSideRight.Control = val1
+        EditLabel.AnchorSideBottom.Control = val1
+        EditLabel.AnchorSideBottom.Side = asrBottom
+        EditLabel.Left = 43
+        EditLabel.Height = 15
+        EditLabel.Top = 34
+        EditLabel.Width = 23
+        EditLabel.Caption = 'Cols'
+        EditLabel.ParentColor = False
+        LabelPosition = lpLeft
+        MaxLength = 8
+        TabOrder = 2
+        Text = '0'
+      end
+      object val2: TLabeledEdit
+        Left = 69
+        Height = 23
+        Top = 54
+        Width = 36
+        AutoSize = False
+        EditLabel.AnchorSideTop.Control = val2
+        EditLabel.AnchorSideTop.Side = asrCenter
+        EditLabel.AnchorSideRight.Control = val2
+        EditLabel.AnchorSideBottom.Control = val2
+        EditLabel.AnchorSideBottom.Side = asrBottom
+        EditLabel.Left = 38
+        EditLabel.Height = 15
+        EditLabel.Top = 58
+        EditLabel.Width = 28
+        EditLabel.Caption = 'Rows'
+        EditLabel.ParentColor = False
+        LabelPosition = lpLeft
+        MaxLength = 8
+        TabOrder = 3
+        Text = '0'
+      end
     end
   end
   object Splitter1: TSplitter
@@ -203,6 +296,7 @@ object Form1: TForm1
       object mnuDelete: TMenuItem
         Caption = 'Delete'
         ShortCut = 46
+        OnClick = mnuDeleteClick
       end
       object MenuItem26: TMenuItem
         Caption = '-'
@@ -237,22 +331,26 @@ object Form1: TForm1
         object mnuWire: TMenuItem
           Caption = 'Toggle wireframe modes'
           ShortCut = 32855
+          OnClick = mnuWireClick
         end
         object mnuGrid: TMenuItem
           AutoCheck = True
           Caption = 'Grid'
           Checked = True
           ShortCut = 32839
+          OnClick = mnuGridClick
         end
         object mnuBothSided: TMenuItem
           AutoCheck = True
           Caption = 'Both sided faces'
           ShortCut = 32834
+          OnClick = mnuBothSidedClick
         end
         object mnuNormals: TMenuItem
           AutoCheck = True
           Caption = 'Normals'
           ShortCut = 32846
+          OnClick = mnuNormalsClick
         end
       end
       object MenuItem32: TMenuItem
@@ -303,6 +401,11 @@ object Form1: TForm1
       end
       object mnuFlip: TMenuItem
         Caption = 'Flip face(s)'
+      end
+      object mnuResetRotation: TMenuItem
+        Caption = 'Reset object rotation'
+        ShortCut = 16466
+        OnClick = mnuResetRotationClick
       end
       object MenuItem45: TMenuItem
         Caption = 'Triangle actions'

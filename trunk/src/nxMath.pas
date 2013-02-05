@@ -284,7 +284,7 @@ var n: TVector2f;
 begin
   n.x:=rayStart.x-wallPoint.x;
   n.y:=rayStart.y-wallPoint.y;
-  result:=Reflect(rayDir,norm(n));
+  result:=Reflect(rayDir, norm(n));
 end;
 
 function Reflect(const rayDir, wallNormal: TVector2f): TVector2f;

@@ -30,9 +30,17 @@ uses Classes, dglOpenGL, Controls, Forms, ExtCtrls,
     {$IFnDEF NX_CUSTOM_WINDOW}OpenGLContext,{$ENDIF}
   {$ELSE}Windows,{$ENDIF} nxShaders, nxModel, nxTypes, nxGraph;
 
-type
+const
+  RS_COUNT = 16; // Render settings stack size
 
+type
   TRenderProc = procedure(index: integer) of object;
+
+  TGLViewDetails = record
+    modelM, projM: TGLMatrixd4;
+    viewPort: TGLVectori4;
+  end;
+  PGLViewDetails = ^TGLViewDetails;
 
   { TGLTextureSet }
 
@@ -118,6 +126,7 @@ type
     procedure Rotate(const degrees: single; const ax, ay, az: single; doSet: boolean = true); overload;
     function SaveCount: integer;
     procedure Save(n: integer);
+    procedure Scale(const s: single; doSet: boolean = true);
     procedure SetCamera;
     procedure Translate(const x, y, z: single; doSet: boolean = true); overload;
     procedure Translate(const v: TVector; doSet: boolean = true); overload;
@@ -227,13 +236,13 @@ type
   TRenderSettings = class
   private
     parent: TNXGL;
-    FAddBlend: array[0..7] of boolean;
-    FCullBack: array[0..7] of boolean;
-    FCullFront: array[0..7] of boolean;
-    FDepthTest: array[0..7] of boolean;
-    FLighting: array[0..7] of boolean;
-    FSubBlend: array[0..7] of boolean;
-    FWireFrame: array[0..7] of boolean;
+    FAddBlend: array[0..RS_COUNT-1] of boolean;
+    FCullBack: array[0..RS_COUNT-1] of boolean;
+    FCullFront: array[0..RS_COUNT-1] of boolean;
+    FDepthTest: array[0..RS_COUNT-1] of boolean;
+    FLighting: array[0..RS_COUNT-1] of boolean;
+    FSubBlend: array[0..RS_COUNT-1] of boolean;
+    FWireFrame: array[0..RS_COUNT-1] of boolean;
     stackLevel: shortint;
     function GetAddBlend: boolean;
     function GetCullBack: boolean;
@@ -262,6 +271,7 @@ type
     property WireFrame: boolean read GetWireFrame write SetWireFrame;
     function Push: boolean;
     function Pop: boolean;
+    procedure ResetStack;
   end;
 
   { TGLModel }
@@ -345,7 +355,10 @@ type
     procedure FontFromImage(TexSize: integer);
     function GetEXT: string;
     procedure GetMouseRay(mx, my: single; const p, normal: PVector;
-      rayMove: single = -100);
+      rayMove: single = -100); overload;
+    procedure GetMouseRay(mx, my: single; const ray: PMouseRay;
+      rayMove: single = -100); overload;
+    procedure GetViewDetails(pdetails: PGLViewDetails);
     function GLInfo(ext: array of string): boolean; overload;
     function GLInfo(ext: string): boolean; overload;
     function Initialized: boolean;
@@ -555,7 +568,7 @@ end;
 
 function TRenderSettings.Push: boolean;
 begin
-  if StackLevel<7 then begin
+  if StackLevel<RS_COUNT-1 then begin
     inc(StackLevel);
     FAddBlend[StackLevel]:=FAddBlend[StackLevel-1];
     FCullBack[StackLevel]:=FCullBack[StackLevel-1];
@@ -563,22 +576,37 @@ begin
     FDepthTest[StackLevel]:=FDepthTest[StackLevel-1];
     FLighting[StackLevel]:=FLighting[StackLevel-1];
     FSubBlend[StackLevel]:=FSubBlend[StackLevel-1];
+    FWireFrame[StackLevel]:=FWireFrame[StackLevel-1];
     result:=true;
   end else result:=false;
 end;
 
 function TRenderSettings.Pop: boolean;
+var n: integer;
 begin
   if StackLevel>0 then begin
-    AddBlend:=FAddBlend[StackLevel-1];
-    CullBack:=FCullBack[StackLevel-1];
-    CullFront:=FCullFront[StackLevel-1];
-    DepthTest:=FDepthTest[StackLevel-1];
-    Lighting:=FLighting[StackLevel-1];
-    SubBlend:=FSubBlend[StackLevel-1];
+    n:=StackLevel-1;
+    AddBlend:=FAddBlend[n];
+    CullBack:=FCullBack[n];
+    CullFront:=FCullFront[n];
+    DepthTest:=FDepthTest[n];
+    Lighting:=FLighting[n];
+    SubBlend:=FSubBlend[n];
+    WireFrame:=FWireFrame[n];
     dec(StackLevel);
     result:=true;
   end else result:=false;
+end;
+
+procedure TRenderSettings.ResetStack;
+begin
+  FAddBlend[0]:=AddBlend;
+  FCullBack[0]:=CullBack;
+  FCullFront[0]:=CullFront;
+  FDepthTest[0]:=DepthTest;
+  FLighting[0]:=Lighting;
+  FSubBlend[0]:=SubBlend;
+  stackLevel:=0;
 end;
 
 function TRenderSettings.GetDepthTest: boolean;
@@ -1133,26 +1161,39 @@ end;
 
 procedure TNXGL.GetMouseRay(mx, my: single; const p, normal: PVector;
   rayMove: single);
-var viewport: TGLVectori4;
-    modelM,projM: TGLMatrixd4;
+var view: TGLViewDetails;
     x1,y1,z1,x2,y2,z2: double;
     n: TVector;
 begin
   my:=Height-1-my;
-  glGetIntegerv(GL_VIEWPORT,@viewPort);
-  glGetDoublev(GL_PROJECTION_MATRIX,@projM);
-  glGetDoublev(GL_MODELVIEW_MATRIX,@modelM);
+  GetViewDetails(@view);
   {$HINTS OFF} // hints about x1..z2 not initialized
-  gluUnProject(mx,my,modelM[2,3],modelM,projM,viewport,@x1,@y1,@z1);
-  gluUnProject(mx,my,modelM[2,3]-1,modelM,projM,viewport,@x2,@y2,@z2);
+  gluUnProject(mx, my, view.modelM[2, 3], view.modelM, view.projM,
+    view.viewport, @x1, @y1, @z1);
+  gluUnProject(mx, my, view.modelM[2, 3]-1, view.modelM, view.projM,
+    view.viewport, @x2, @y2, @z2);
   {$HINTS ON}
-  n.x:=x1-x2; n.y:=y1-y2; n.z:=z1-z2; Norm(n);
+  n.x:=x1-x2; n.y:=y1-y2; n.z:=z1-z2; n:=Norm(n);
   if p<>nil then begin
     p^.x:=x1+n.x*rayMove;
     p^.y:=y1+n.y*rayMove;
     p^.z:=z1+n.z*rayMove;
   end;
   if normal<>nil then normal^:=n;
+end;
+
+procedure TNXGL.GetMouseRay(mx, my: single; const ray: PMouseRay;
+  rayMove: single);
+begin
+  GetMouseRay(mx, my, @ray^.start, @ray^.dir, rayMove);
+end;
+
+procedure TNXGL.GetViewDetails(pdetails: PGLViewDetails);
+begin
+  if pdetails=nil then exit;
+  glGetIntegerv(GL_VIEWPORT, @pdetails^.viewPort);
+  glGetDoublev(GL_PROJECTION_MATRIX, @pdetails^.projM);
+  glGetDoublev(GL_MODELVIEW_MATRIX, @pdetails^.modelM);
 end;
 
 function TNXGL.GLInfo(ext: array of string): boolean;
@@ -1207,11 +1248,13 @@ begin
   glEnd;
 end;
 
-function TNXGL.MouseRayAtPlane(const mx,my: single; const planePos,planeNormal: TVector): TVector;
+function TNXGL.MouseRayAtPlane(const mx,my: single; const planePos,
+  planeNormal: TVector): TVector;
 var rayOrigin, rayDirection: TVector;
 begin
   GetMouseRay(mx, my, @rayOrigin, @rayDirection);
-  rayPlaneIntersect(rayOrigin, rayDirection, planePos, planeNormal, @result);
+  rayPlaneIntersect(rayOrigin, rayDirection, planePos, planeNormal,
+    @result);
 end;
 
 function TNXGL.MouseRayAtXZPlane(const mx, my: single): TVector;
@@ -1239,7 +1282,8 @@ end;
 
 function TNXGL.CanRender: boolean;
 begin
-  result:=glCheckFramebufferStatus(GL_FRAMEBUFFER)=GL_FRAMEBUFFER_COMPLETE;
+  result:=glCheckFramebufferStatus(GL_FRAMEBUFFER)=
+    GL_FRAMEBUFFER_COMPLETE;
 end;
 
 constructor TNXGL.Create;
@@ -1253,7 +1297,8 @@ const d = 0.5;
 begin
   glBegin(GL_LINE_LOOP);
     glVertex2f(x+d, y+d); glVertex2f(x+d, y+d+_height-1);
-    glVertex2f(x+d+_width-1, y+d+_height-1); glVertex2f(x+d+_width-1, y+d);
+    glVertex2f(x+d+_width-1, y+d+_height-1);
+    glVertex2f(x+d+_width-1, y+d);
   glEnd;
 end;
 
@@ -2551,6 +2596,12 @@ begin
     if n>high(saved) then setlength(saved, n+1);
     saved[n]:=mat[index];
   end;
+end;
+
+procedure TCamera.Scale(const s: single; doSet: boolean);
+begin
+  mat[index]:=nxMath3D.Scale(mat[index], s);
+  if doSet then SetCamera;
 end;
 
 procedure TCamera.SetCamera;
