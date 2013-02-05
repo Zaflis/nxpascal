@@ -889,7 +889,6 @@ begin
   SetVector(rotation, position, 3);
   rotation:=invert(rotation);
   rayStart:=Multiply(rayStart, rotation);
-  rotation:=invert(rotation);
   result:=rayIntersect(rayStart, rayDir, findClosest, intersect,
     normal);
 end;
@@ -1619,7 +1618,6 @@ begin
   SetVector(rotation, position, 3);
   rotation:=invert(rotation);
   rayStart:=Multiply(rayStart, rotation);
-  rotation:=invert(rotation);
   result:=rayIntersect(rayStart, rayDir, findClosest, intersect, normal);
 end;
 

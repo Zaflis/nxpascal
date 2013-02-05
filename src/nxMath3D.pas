@@ -5,6 +5,7 @@ unit nxMath3D;
 interface
 
 { TODO:
+- function Invert(m: TMatrix3f): TMatrix3f;
 - Recheck MatrixOnPlane
 }
 
@@ -57,17 +58,23 @@ uses nxMath, nxTypes;
 
   function CreateMatrix(const axis: TVector; const radians: Single): TMatrix; overload;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function CreateMatrix(const x,y,z: TVector): TMatrix; overload;
+  function CreateMatrix(const rotation: TMatrix; const p: TVector): TMatrix; overload;
+  function CreateMatrix(const rotation: TMatrix3f; const p: TVector): TMatrix; overload;
   function CreateMatrix2(const x,y,z: TVector): TMatrix;
+  function CreateMatrix3f(const x,y,z: TVector): TMatrix3f;
   function CreateTranslateMatrix(const p: TVector): TMatrix;
   function Determinant(const M: TMatrix): Single;
   function GetAngle(const M: TMatrix; const axis: integer): single;
   function GetRotation(const mat: TMatrix): TMatrix;
   function GetRotation3(const mat: TMatrix): TMatrix3f;
-  function GetVector(const M: TMatrix; const axis: integer): TVector; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+  function GetVector(const M: TMatrix; const axis: integer): TVector; stdcall; overload;{$IFDEF CanInline}inline;{$ENDIF}
+  function GetVector(const M: TMatrix3f; const axis: integer): TVector; stdcall; overload;
   function Interpolate(const a, b: TMatrix; s: single): TMatrix; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Invert(const M: TMatrix): TMatrix; overload;
+  function Invert(m: TMatrix3f): TMatrix3f; overload;
   function LookAt(const eye, target, up: TVector): TMatrix; stdcall;
-  function Matrix(const mat: TMatrix4d): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+  function Matrix(const mat: TMatrix3f): TMatrix; stdcall; overload;{$IFDEF CanInline}inline;{$ENDIF}
+  function Matrix(const mat: TMatrix4d): TMatrix; stdcall; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function MatrixOnPlane(const cPos,cDir: TVector; radians: single = 0): TMatrix;
   function Multiply(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
   function Multiply(const A,B: TMatrix3f): TMatrix3f; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
@@ -75,6 +82,7 @@ uses nxMath, nxTypes;
   function Multiply(const A: TMatrix3f; const B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}overload;
   function MultiplyRotation(const A,B: TMatrix): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Multiply(const V: TVector; const M: TMatrix): TVector; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+  function Multiply(const V: TVector; const M: TMatrix3f): TVector; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Rotate(const M: TMatrix; const axis: TVector; const radians: Single;
     withPos: boolean = true): TMatrix; overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function Rotate(const M: TMatrix; const axis: integer; const radians: Single;
@@ -156,13 +164,6 @@ begin
     for j:=0 to 2 do
       if i=j then result[i,j]:=1
       else result[i,j]:=0;
-end;
-
-function MatrixDet(const a1, a2, a3, b1, b2, b3, c1, c2, c3: Single): Single;
-begin
-  Result:=  a1 * (b2 * c3 - b3 * c2)
-          - b1 * (a2 * c3 - a3 * c2)
-          + c1 * (a2 * b3 - a3 * b2);
 end;
 
 function PointProject(const p, origin, direction: TVector): Single;
@@ -294,7 +295,7 @@ begin
       end;
     end;
   end;
-  if n>0 then norm(result)
+  if n>0 then result:=norm(result)
   else result.y:=1;
 end;
 
@@ -493,7 +494,7 @@ begin
   if radians=0 then begin
     result:=v; exit;
   end;
-  Norm(axis);
+  axis:=Norm(axis);
   px:=v.x; py:=v.y; pz:=v.z;
   costheta := cos(radians);
   sintheta := sin(radians);
@@ -588,6 +589,18 @@ begin
   result[3,0]:=0;   result[3,1]:=0;   result[3,2]:=0;   result[3,3]:=1;
 end;
 
+function CreateMatrix(const rotation: TMatrix; const p: TVector): TMatrix;
+begin
+  result:=rotation;
+  result[3,0]:=p.x; result[3,1]:=p.y; result[3,2]:=p.z;
+end;
+
+function CreateMatrix(const rotation: TMatrix3f; const p: TVector): TMatrix;
+begin
+  result:=Matrix(rotation);
+  result[0,3]:=p.x; result[1,3]:=p.y; result[2,3]:=p.z;
+end;
+
 // Rotation matrix written with rows and columns switched
 function CreateMatrix2(const x, y, z: TVector): TMatrix;
 begin
@@ -597,10 +610,24 @@ begin
   result[0,3]:=0;   result[1,3]:=0;   result[2,3]:=0;   result[3,3]:=1;
 end;
 
+function CreateMatrix3f(const x, y, z: TVector): TMatrix3f;
+begin
+  result[0,0]:=x.x; result[0,1]:=x.y; result[0,2]:=x.z;
+  result[1,0]:=y.x; result[1,1]:=y.y; result[1,2]:=y.z;
+  result[2,0]:=z.x; result[2,1]:=z.y; result[2,2]:=z.z;
+end;
+
 function CreateTranslateMatrix(const p: TVector): TMatrix;
 begin
   result:=NewMatrix;
   result[3,0]:=p.x; result[3,1]:=p.y; result[3,2]:=p.z;
+end;
+
+function MatrixDet(const a1, a2, a3, b1, b2, b3, c1, c2, c3: Single): Single;
+begin
+  Result:=  a1 * (b2 * c3 - b3 * c2)
+          - b1 * (a2 * c3 - a3 * c2)
+          + c1 * (a2 * b3 - a3 * b2);
 end;
 
 function Determinant(const M: TMatrix): Single;
@@ -639,6 +666,11 @@ begin
 end;
 
 function GetVector(const M: TMatrix; const axis: integer): TVector;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  result.x:=M[axis,0]; result.y:=M[axis,1]; result.z:=M[axis,2];
+end;
+
+function GetVector(const M: TMatrix3f; const axis: integer): TVector; stdcall;
 begin
   result.x:=M[axis,0]; result.y:=M[axis,1]; result.z:=M[axis,2];
 end;
@@ -682,6 +714,28 @@ begin
   end;
 end;
 
+function Invert(m: TMatrix3f): TMatrix3f;
+var det: single;
+begin
+  //result:=GetRotation3(invert(matrix(m))); exit;
+  det:= m[0,0]*(m[1,1]*m[2,2]-m[2,1]*m[1,2])
+       -m[0,1]*(m[1,0]*m[2,2]-m[1,2]*m[2,0])
+       +m[0,2]*(m[1,0]*m[2,1]-m[1,1]*m[2,0]);
+  if abs(det)<EPSILON then begin
+    result:=m; exit; // Doesn't have inverse
+  end;
+  det:=1/det; // Inverse determinant
+  result[0,0]:=  (m[1,1]*m[2,2]-m[2,1]*m[1,2])*det;
+  result[1,0]:= -(m[0,1]*m[2,2]-m[0,2]*m[2,1])*det;
+  result[2,0]:=  (m[0,1]*m[1,2]-m[0,2]*m[1,1])*det;
+  result[0,1]:= -(m[1,0]*m[2,2]-m[1,2]*m[2,0])*det;
+  result[1,1]:=  (m[0,0]*m[2,2]-m[0,2]*m[2,0])*det;
+  result[2,1]:= -(m[0,0]*m[1,2]-m[1,0]*m[0,2])*det;
+  result[0,2]:=  (m[1,0]*m[2,1]-m[2,0]*m[1,1])*det;
+  result[1,2]:= -(m[0,0]*m[2,1]-m[2,0]*m[0,1])*det;
+  result[2,2]:=  (m[0,0]*m[1,1]-m[1,0]*m[0,1])*det;
+end;
+
 function LookAt(const eye, target, up: TVector): TMatrix; stdcall;
 var x,y,z: TVector;
 begin
@@ -690,6 +744,17 @@ begin
   y:=crossproduct(z, x);
   result:=CreateMatrix2(x, y, z);
   SetVector(result, vector(-dot(eye, x), -dot(eye, y), -dot(eye, z)), 3);
+end;
+
+function Matrix(const mat: TMatrix3f): TMatrix; stdcall;
+var i, j: integer;
+begin
+  for j:=0 to 2 do begin
+    for i:=0 to 2 do result[i, j]:=mat[i, j];
+    result[j, 3]:=0;
+    result[3, j]:=0;
+  end;
+  result[3, 3]:=1;
 end;
 
 function Matrix(const mat: TMatrix4d): TMatrix; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
@@ -782,6 +847,13 @@ begin
   Result.x:=V.x * M[0, 0] + V.y * M[1, 0] + V.z * M[2, 0] + M[3, 0];
   Result.y:=V.x * M[0, 1] + V.y * M[1, 1] + V.z * M[2, 1] + M[3, 1];
   Result.z:=V.x * M[0, 2] + V.y * M[1, 2] + V.z * M[2, 2] + M[3, 2];
+end;
+
+function Multiply(const V: TVector; const M: TMatrix3f): TVector; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
+begin
+  Result.x:=V.x * M[0, 0] + V.y * M[1, 0] + V.z * M[2, 0];
+  Result.y:=V.x * M[0, 1] + V.y * M[1, 1] + V.z * M[2, 1];
+  Result.z:=V.x * M[0, 2] + V.y * M[1, 2] + V.z * M[2, 2];
 end;
 
 // Make sure that axis vector length is 1
