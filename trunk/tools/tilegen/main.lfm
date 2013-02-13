@@ -1,0 +1,126 @@
+object Form1: TForm1
+  Left = 295
+  Height = 504
+  Top = 119
+  Width = 618
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
+  Caption = 'Tileset Generator'
+  ClientHeight = 484
+  ClientWidth = 618
+  Menu = MainMenu1
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnPaint = FormPaint
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object pnlWorld: TPanel
+    Left = 320
+    Height = 260
+    Top = 200
+    Width = 246
+    BevelWidth = 2
+    TabOrder = 1
+    Visible = False
+  end
+  object pnlTileSet: TPanel
+    Left = 0
+    Height = 257
+    Top = 0
+    Width = 464
+    BevelWidth = 2
+    ClientHeight = 257
+    ClientWidth = 464
+    TabOrder = 0
+    object ScrollBox1: TScrollBox
+      Left = 8
+      Height = 176
+      Top = 40
+      Width = 208
+      HorzScrollBar.Page = 204
+      VertScrollBar.Page = 172
+      ClientHeight = 172
+      ClientWidth = 204
+      TabOrder = 0
+      object Image1: TImage
+        Left = 0
+        Height = 90
+        Top = 0
+        Width = 90
+        AutoSize = True
+      end
+    end
+    object btnConfigBaseImg: TButton
+      Left = 2
+      Height = 25
+      Top = 2
+      Width = 136
+      Caption = 'Configure base image...'
+      OnClick = btnConfigBaseImgClick
+      TabOrder = 1
+    end
+  end
+  object MainMenu1: TMainMenu
+    left = 208
+    top = 312
+    object mnuFile: TMenuItem
+      Caption = 'File'
+      object mnuNewTileset: TMenuItem
+        Caption = 'New tileset'
+        OnClick = mnuNewTilesetClick
+      end
+      object mnuNewWorld: TMenuItem
+        Caption = 'New world'
+        OnClick = mnuNewWorldClick
+      end
+      object mnu0: TMenuItem
+        Caption = '-'
+      end
+      object mnuOpen: TMenuItem
+        Caption = 'Open...'
+        OnClick = mnuOpenClick
+      end
+      object mnuSaveAs: TMenuItem
+        Caption = 'Save as...'
+        OnClick = mnuSaveAsClick
+      end
+      object mnuSave: TMenuItem
+        Caption = 'Save'
+        OnClick = mnuSaveClick
+      end
+      object mnu1: TMenuItem
+        Caption = '-'
+      end
+      object mnuExit: TMenuItem
+        Caption = 'Exit'
+        OnClick = mnuExitClick
+      end
+    end
+    object mnuTileSet: TMenuItem
+      Caption = 'Tileset'
+      object mnuChooseImage: TMenuItem
+        Caption = 'Choose base image...'
+      end
+    end
+    object mnuWorld: TMenuItem
+      Caption = 'World'
+    end
+  end
+  object openD: TOpenDialog
+    left = 48
+    top = 312
+  end
+  object saveD: TSaveDialog
+    left = 48
+    top = 368
+  end
+  object openPic: TOpenPictureDialog
+    left = 136
+    top = 312
+  end
+  object savePic: TSavePictureDialog
+    left = 136
+    top = 368
+  end
+end

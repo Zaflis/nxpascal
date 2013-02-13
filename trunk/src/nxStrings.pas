@@ -218,7 +218,7 @@ begin
   end;
 end;
 
-{$IFDEF fpc_fullversion > 20600}
+{$IFDEF VER2_7}
 {operator+(const s: string; i: integer): string;
 begin
   // Usage does not compile on latest FPC 2.7.1
