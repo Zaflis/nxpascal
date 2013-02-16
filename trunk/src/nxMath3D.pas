@@ -5,7 +5,6 @@ unit nxMath3D;
 interface
 
 { TODO:
-- function Invert(m: TMatrix3f): TMatrix3f;
 - Recheck MatrixOnPlane
 }
 

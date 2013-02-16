@@ -1,0 +1,260 @@
+object frmTileStyles: TfrmTileStyles
+  Left = 1075
+  Height = 266
+  Top = 181
+  Width = 270
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Tile styles'
+  ClientHeight = 266
+  ClientWidth = 270
+  KeyPreview = True
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
+  OnShow = FormShow
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object btnOk: TBitBtn
+    Left = 88
+    Height = 30
+    Top = 230
+    Width = 91
+    Default = True
+    DefaultCaption = True
+    Kind = bkOK
+    ModalResult = 1
+    TabOrder = 2
+  end
+  object GroupBox1: TGroupBox
+    Left = 0
+    Height = 85
+    Top = 0
+    Width = 270
+    Align = alTop
+    Caption = 'Styles'
+    ClientHeight = 67
+    ClientWidth = 266
+    TabOrder = 0
+    object styleList: TComboBox
+      Left = 8
+      Height = 21
+      Top = 7
+      Width = 110
+      AutoSelect = False
+      AutoSize = False
+      ItemHeight = 15
+      OnChange = styleListChange
+      OnDrawItem = styleListDrawItem
+      ReadOnly = True
+      Style = csOwnerDrawFixed
+      TabOrder = 0
+    end
+    object btnAdd: TButton
+      Left = 131
+      Height = 23
+      Top = 40
+      Width = 59
+      Caption = 'Add'
+      OnClick = btnAddClick
+      TabOrder = 1
+    end
+    object btnLoadFromSet: TButton
+      Left = 131
+      Height = 23
+      Top = 7
+      Width = 123
+      Caption = 'Load from tileset...'
+      OnClick = btnLoadFromSetClick
+      TabOrder = 2
+    end
+    object eStyleName: TEdit
+      Left = 8
+      Height = 23
+      Top = 40
+      Width = 110
+      AutoSize = False
+      MaxLength = 16
+      OnChange = eStyleNameChange
+      OnExit = eStyleNameExit
+      TabOrder = 3
+    end
+    object btnRename: TButton
+      Left = 195
+      Height = 23
+      Top = 40
+      Width = 59
+      Caption = 'Rename'
+      OnClick = btnRenameClick
+      TabOrder = 4
+    end
+  end
+  object pnlStyle: TPanel
+    Left = 0
+    Height = 136
+    Top = 85
+    Width = 270
+    Align = alTop
+    ClientHeight = 136
+    ClientWidth = 270
+    Enabled = False
+    TabOrder = 1
+    object btn0: TButton
+      Left = 10
+      Height = 30
+      Top = 40
+      Width = 30
+      Font.Style = [fsBold]
+      OnMouseDown = btn4MouseDown
+      ParentFont = False
+      TabOrder = 0
+    end
+    object btn1: TButton
+      Tag = 1
+      Left = 40
+      Height = 30
+      Top = 40
+      Width = 30
+      Font.Style = [fsBold]
+      OnMouseDown = btn4MouseDown
+      ParentFont = False
+      TabOrder = 1
+    end
+    object btn2: TButton
+      Tag = 2
+      Left = 70
+      Height = 30
+      Top = 40
+      Width = 30
+      Font.Style = [fsBold]
+      OnMouseDown = btn4MouseDown
+      ParentFont = False
+      TabOrder = 2
+    end
+    object btn3: TButton
+      Tag = 3
+      Left = 10
+      Height = 30
+      Top = 70
+      Width = 30
+      Font.Style = [fsBold]
+      OnMouseDown = btn4MouseDown
+      ParentFont = False
+      TabOrder = 3
+    end
+    object btn4: TButton
+      Tag = 4
+      Left = 40
+      Height = 30
+      Top = 70
+      Width = 30
+      Caption = 'T'
+      Enabled = False
+      Font.Style = [fsBold]
+      OnMouseDown = btn4MouseDown
+      ParentFont = False
+      TabOrder = 4
+    end
+    object btn5: TButton
+      Tag = 5
+      Left = 70
+      Height = 30
+      Top = 70
+      Width = 30
+      Font.Style = [fsBold]
+      OnMouseDown = btn4MouseDown
+      ParentFont = False
+      TabOrder = 5
+    end
+    object btn6: TButton
+      Tag = 6
+      Left = 10
+      Height = 30
+      Top = 100
+      Width = 30
+      Font.Style = [fsBold]
+      OnMouseDown = btn4MouseDown
+      ParentFont = False
+      TabOrder = 6
+    end
+    object btn7: TButton
+      Tag = 7
+      Left = 40
+      Height = 30
+      Top = 100
+      Width = 30
+      Font.Style = [fsBold]
+      OnMouseDown = btn4MouseDown
+      ParentFont = False
+      TabOrder = 7
+    end
+    object btn8: TButton
+      Tag = 8
+      Left = 70
+      Height = 30
+      Top = 100
+      Width = 30
+      Font.Style = [fsBold]
+      OnMouseDown = btn4MouseDown
+      ParentFont = False
+      TabOrder = 8
+    end
+    object cTileType: TComboBox
+      Left = 10
+      Height = 23
+      Top = 7
+      Width = 246
+      AutoSize = False
+      Font.Height = -11
+      ItemHeight = 13
+      ItemIndex = 1
+      Items.Strings = (
+        'Same tile, unknown'
+        'Same tile, 1 other, unknown (default)'
+        'Same tile, 2 others, unknown'
+        'Same tile, 3 others, unknown'
+        'Same tile, 4 others, unknown'
+      )
+      OnChange = cTileTypeChange
+      ParentFont = False
+      Style = csDropDownList
+      TabOrder = 9
+      Text = 'Same tile, 1 other, unknown (default)'
+    end
+    object btnDelete: TButton
+      Left = 197
+      Height = 23
+      Top = 40
+      Width = 59
+      Caption = 'Delete'
+      OnClick = btnDeleteClick
+      TabOrder = 10
+    end
+    object Label1: TLabel
+      Left = 112
+      Height = 47
+      Top = 75
+      Width = 96
+      AutoSize = False
+      Caption = 'T = Selected tile'#13#10'? = Any tile'#13#10'Ox = Other tile'
+      ParentColor = False
+      WordWrap = True
+    end
+  end
+  object Label2: TLabel
+    Left = 200
+    Height = 32
+    Top = 224
+    Width = 64
+    AutoSize = False
+    Caption = 'PgUp/Dn -'#13#10'quick scroll'
+    ParentColor = False
+    WordWrap = True
+  end
+  object openD: TOpenDialog
+    DefaultExt = '.set'
+    Filter = 'Tileset|*.set|All files|*.*'
+    left = 224
+    top = 160
+  end
+end

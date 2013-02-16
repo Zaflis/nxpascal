@@ -1,42 +1,108 @@
 object Form1: TForm1
-  Left = 295
+  Left = 297
   Height = 504
-  Top = 119
-  Width = 618
+  Top = 123
+  Width = 608
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
   Caption = 'Tileset Generator'
   ClientHeight = 484
-  ClientWidth = 618
+  ClientWidth = 608
   Menu = MainMenu1
   OnClose = FormClose
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  OnPaint = FormPaint
   Position = poScreenCenter
   LCLVersion = '1.1'
   object pnlWorld: TPanel
-    Left = 320
+    Left = 160
     Height = 260
-    Top = 200
-    Width = 246
+    Top = 264
+    Width = 344
     BevelWidth = 2
+    ClientHeight = 260
+    ClientWidth = 344
     TabOrder = 1
     Visible = False
+    object Panel2: TPanel
+      Left = 2
+      Height = 38
+      Top = 2
+      Width = 340
+      Align = alTop
+      BevelWidth = 2
+      ClientHeight = 38
+      ClientWidth = 340
+      TabOrder = 0
+      object Button1: TButton
+        Left = 4
+        Height = 26
+        Top = 6
+        Width = 66
+        Caption = 'Tileset...'
+        TabOrder = 0
+      end
+      object Panel3: TPanel
+        Left = 78
+        Height = 34
+        Top = 2
+        Width = 34
+        BevelOuter = bvLowered
+        BevelWidth = 2
+        ClientHeight = 34
+        ClientWidth = 34
+        TabOrder = 1
+        object Image3: TImage
+          Left = 2
+          Height = 30
+          Top = 2
+          Width = 30
+          OnMouseDown = Image3MouseDown
+          Stretch = True
+        end
+      end
+    end
+    object Image2: TImage
+      Left = 9
+      Height = 98
+      Top = 48
+      Width = 142
+      Stretch = True
+    end
+    object pnlTiles: TPanel
+      Left = 70
+      Height = 128
+      Top = 40
+      Width = 128
+      BevelWidth = 2
+      ClientHeight = 128
+      ClientWidth = 128
+      TabOrder = 1
+      Visible = False
+      object imgTiles: TImage
+        Left = 2
+        Height = 82
+        Top = 2
+        Width = 84
+        OnMouseDown = imgTilesMouseDown
+        OnResize = imgTilesResize
+        Stretch = True
+      end
+    end
   end
   object pnlTileSet: TPanel
     Left = 0
     Height = 257
     Top = 0
-    Width = 464
+    Width = 432
     BevelWidth = 2
     ClientHeight = 257
-    ClientWidth = 464
+    ClientWidth = 432
     TabOrder = 0
     object ScrollBox1: TScrollBox
-      Left = 8
+      Left = 16
       Height = 176
-      Top = 40
+      Top = 56
       Width = 208
       HorzScrollBar.Page = 204
       VertScrollBar.Page = 172
@@ -48,22 +114,33 @@ object Form1: TForm1
         Height = 90
         Top = 0
         Width = 90
-        AutoSize = True
+        Stretch = True
       end
     end
-    object btnConfigBaseImg: TButton
+    object Panel1: TPanel
       Left = 2
-      Height = 25
+      Height = 38
       Top = 2
-      Width = 136
-      Caption = 'Configure base image...'
-      OnClick = btnConfigBaseImgClick
+      Width = 428
+      Align = alTop
+      BevelWidth = 2
+      ClientHeight = 38
+      ClientWidth = 428
       TabOrder = 1
+      object btnConfigBaseImg: TButton
+        Left = 2
+        Height = 25
+        Top = 6
+        Width = 136
+        Caption = 'Configure base image...'
+        OnClick = btnConfigBaseImgClick
+        TabOrder = 0
+      end
     end
   end
   object MainMenu1: TMainMenu
-    left = 208
-    top = 312
+    left = 560
+    top = 8
     object mnuFile: TMenuItem
       Caption = 'File'
       object mnuNewTileset: TMenuItem
@@ -101,6 +178,11 @@ object Form1: TForm1
       Caption = 'Tileset'
       object mnuChooseImage: TMenuItem
         Caption = 'Choose base image...'
+        OnClick = btnConfigBaseImgClick
+      end
+      object mnuTileStyles: TMenuItem
+        Caption = 'Edit tile styles...'
+        OnClick = mnuTileStylesClick
       end
     end
     object mnuWorld: TMenuItem
@@ -108,19 +190,19 @@ object Form1: TForm1
     end
   end
   object openD: TOpenDialog
-    left = 48
-    top = 312
+    left = 448
+    top = 8
   end
   object saveD: TSaveDialog
-    left = 48
-    top = 368
+    left = 448
+    top = 56
   end
   object openPic: TOpenPictureDialog
-    left = 136
-    top = 312
+    left = 504
+    top = 8
   end
   object savePic: TSavePictureDialog
-    left = 136
-    top = 368
+    left = 504
+    top = 56
   end
 end

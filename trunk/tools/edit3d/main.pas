@@ -357,7 +357,7 @@ begin
             true, @intersect, @normVec);
         end;
         smVertex: if scene.selObject<>nil then begin
-          nearest:=12; caption:='';
+          nearest:=12;
           scene.cam.Push;
           with scene.o[scene.selIndex] do begin
             scene.cam.Translate(position, false);
@@ -371,7 +371,6 @@ begin
               d:=hypot(p.x-mp2.x, p.y-mp2.y);
               if d<nearest then begin
                 focus:=i; nearest:=d;
-                caption:=inttostr(i);
               end;
             end;
           scene.cam.Pop;
@@ -693,6 +692,7 @@ begin
         p:=scene.selObject.GetFaceMiddle(focus);
         //scene.arrowAlpha:=0;
         scene.GetVertIndices;
+        //p:=p+scene.o[scene.selIndex].position;
       end;
       smVertex: begin
         p:=scene.selObject.va[focus];
@@ -729,7 +729,11 @@ end;
 
 procedure TForm1.SetPlaneXZ(p: TVector);
 begin
-  movePPos:=p; movePRot:=NewMatrix3f;
+  movePPos:=p;
+  if (mode<>smObject) and (scene.selObject<>nil) then begin
+    movePRot:=invert(scene.o[scene.selIndex].rotation);
+  end else
+    movePRot:=NewMatrix3f;
 end;
 
 procedure TForm1.SetPlaneY(p: TVector);
@@ -786,10 +790,9 @@ begin
       'Workspace was modified', MB_ICONQUESTION + MB_YESNOCANCEL);
     if dr<>IDYES then exit;
   end;
-  objlist.Items.Clear;
-  FreeObjects;
-  wsFilename:='';
-  ResetMode;
+  objlist.Items.Clear; FreeObjects;
+  wsFilename:=''; ResetMode;
+  modified:=false;
 end;
 
 procedure TForm1.mnuSaveWorkspaceAsClick(Sender: TObject);
