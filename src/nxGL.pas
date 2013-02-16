@@ -606,6 +606,7 @@ begin
   FDepthTest[0]:=DepthTest;
   FLighting[0]:=Lighting;
   FSubBlend[0]:=SubBlend;
+  FWireFrame[0]:=WireFrame;
   stackLevel:=0;
 end;
 
@@ -735,7 +736,7 @@ end;
 
 { TNXGL }
 
-procedure TNXGL.Clear(color,depth: boolean);
+procedure TNXGL.Clear(color, depth: boolean);
 var mask: TGLbitfield;
 begin
   if color then mask:=GL_COLOR_BUFFER_BIT

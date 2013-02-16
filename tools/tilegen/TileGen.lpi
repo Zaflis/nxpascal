@@ -35,7 +35,7 @@
         <PackageName Value="LCL"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="TileGen.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -55,13 +55,21 @@
         <UnitName Value="TileUnit"/>
       </Unit2>
       <Unit3>
-        <Filename Value="unit2.pas"/>
+        <Filename Value="uBaseConfig.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="frmBaseConfig"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="unit2"/>
+        <UnitName Value="uBaseConfig"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="uTileStyles.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="frmTileStyles"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="uTileStyles"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

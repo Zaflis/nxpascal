@@ -51,7 +51,7 @@ type
     selObject: TEditModel;
     selIndex: integer;
     wireFrame: byte;
-    showGrid, showNormals, bothSided: boolean;
+    showGrid, showNormals, bothSided, objectCam: boolean;
     constructor Create;
     destructor Destroy; override;
     procedure Render;
@@ -64,6 +64,7 @@ type
     procedure GetVertIndices;
     procedure SelectObj(index: integer);
     procedure SetCamera(addVec: PVector);
+    procedure ToggleObjectCam;
     procedure TryHighSel(index: integer);
   end;
 
@@ -431,12 +432,28 @@ begin
   if addVec<>nil then v:=camPos+addVec^
   else v:=camPos;
   with v do cam.Translate(-x, -y, -z);
-  {if (mode<>smObject) and (selObject<>nil) then begin
+  if (mode<>smObject) and (selObject<>nil) then begin
     with o[selIndex] do begin
       cam.Multiply(invert(matrix(rotation)));
       with position do cam.Translate(-x, -y, -z);
     end;
-  end;}
+  end;
+end;
+
+procedure T3DScene.ToggleObjectCam;
+var enable: boolean;
+begin
+  enable:=(mode<>smObject) and (selObject<>nil);
+  if objectCam<>enable then begin
+    objectCam:=enable;
+    if objectCam then begin
+      // Object camera view
+
+    end else begin
+      // Full view
+
+    end;
+  end;
 end;
 
 procedure T3DScene.TryHighSel(index: integer);

@@ -1,0 +1,257 @@
+object frmBaseConfig: TfrmBaseConfig
+  Left = 635
+  Height = 496
+  Top = 255
+  Width = 606
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
+  BorderIcons = [biSystemMenu, biMaximize]
+  Caption = 'Base image configuration'
+  ClientHeight = 496
+  ClientWidth = 606
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object Panel2: TPanel
+    Left = 0
+    Height = 458
+    Top = 0
+    Width = 130
+    Align = alLeft
+    ClientHeight = 458
+    ClientWidth = 130
+    TabOrder = 0
+    object GroupBox1: TGroupBox
+      Left = 1
+      Height = 128
+      Top = 39
+      Width = 128
+      Align = alTop
+      Caption = 'Pattern'
+      ClientHeight = 110
+      ClientWidth = 124
+      TabOrder = 0
+      object tWidth: TLabeledEdit
+        Tag = 1
+        Left = 70
+        Height = 23
+        Top = 8
+        Width = 40
+        AutoSize = False
+        EditLabel.AnchorSideTop.Control = tWidth
+        EditLabel.AnchorSideTop.Side = asrCenter
+        EditLabel.AnchorSideRight.Control = tWidth
+        EditLabel.AnchorSideBottom.Control = tWidth
+        EditLabel.AnchorSideBottom.Side = asrBottom
+        EditLabel.Left = 35
+        EditLabel.Height = 15
+        EditLabel.Top = 12
+        EditLabel.Width = 32
+        EditLabel.Caption = 'Width'
+        EditLabel.ParentColor = False
+        LabelPosition = lpLeft
+        MaxLength = 4
+        TabOrder = 0
+        Text = '32'
+        OnChange = tWidthChange
+        OnExit = tWidthExit
+      end
+      object tHeight: TLabeledEdit
+        Tag = 1
+        Left = 70
+        Height = 23
+        Top = 32
+        Width = 40
+        AutoSize = False
+        EditLabel.AnchorSideTop.Control = tHeight
+        EditLabel.AnchorSideTop.Side = asrCenter
+        EditLabel.AnchorSideRight.Control = tHeight
+        EditLabel.AnchorSideBottom.Control = tHeight
+        EditLabel.AnchorSideBottom.Side = asrBottom
+        EditLabel.Left = 31
+        EditLabel.Height = 15
+        EditLabel.Top = 36
+        EditLabel.Width = 36
+        EditLabel.Caption = 'Height'
+        EditLabel.ParentColor = False
+        LabelPosition = lpLeft
+        MaxLength = 4
+        TabOrder = 1
+        Text = '32'
+        OnChange = tWidthChange
+        OnExit = tWidthExit
+      end
+      object tSkipWidth: TLabeledEdit
+        Left = 70
+        Height = 23
+        Top = 56
+        Width = 40
+        AutoSize = False
+        EditLabel.AnchorSideTop.Control = tSkipWidth
+        EditLabel.AnchorSideTop.Side = asrCenter
+        EditLabel.AnchorSideRight.Control = tSkipWidth
+        EditLabel.AnchorSideBottom.Control = tSkipWidth
+        EditLabel.AnchorSideBottom.Side = asrBottom
+        EditLabel.Left = 12
+        EditLabel.Height = 15
+        EditLabel.Top = 60
+        EditLabel.Width = 55
+        EditLabel.Caption = 'Skip width'
+        EditLabel.ParentColor = False
+        LabelPosition = lpLeft
+        MaxLength = 4
+        TabOrder = 2
+        Text = '1'
+        OnChange = tWidthChange
+        OnExit = tWidthExit
+      end
+      object tSkipHeight: TLabeledEdit
+        Left = 70
+        Height = 23
+        Top = 80
+        Width = 40
+        AutoSize = False
+        EditLabel.AnchorSideTop.Control = tSkipHeight
+        EditLabel.AnchorSideTop.Side = asrCenter
+        EditLabel.AnchorSideRight.Control = tSkipHeight
+        EditLabel.AnchorSideBottom.Control = tSkipHeight
+        EditLabel.AnchorSideBottom.Side = asrBottom
+        EditLabel.Left = 8
+        EditLabel.Height = 15
+        EditLabel.Top = 84
+        EditLabel.Width = 59
+        EditLabel.Caption = 'Skip height'
+        EditLabel.ParentColor = False
+        LabelPosition = lpLeft
+        MaxLength = 4
+        TabOrder = 3
+        Text = '1'
+        OnChange = tWidthChange
+        OnExit = tWidthExit
+      end
+    end
+    object Panel3: TPanel
+      Left = 1
+      Height = 38
+      Top = 1
+      Width = 128
+      Align = alTop
+      ClientHeight = 38
+      ClientWidth = 128
+      TabOrder = 1
+      object Button1: TButton
+        Left = 6
+        Height = 25
+        Top = 6
+        Width = 115
+        Caption = 'Choose image...'
+        OnClick = Button1Click
+        TabOrder = 0
+      end
+    end
+    object GroupBox2: TGroupBox
+      Left = 1
+      Height = 75
+      Top = 167
+      Width = 128
+      Align = alTop
+      Caption = 'Tile style'
+      ClientHeight = 57
+      ClientWidth = 124
+      TabOrder = 2
+      object ComboBox1: TComboBox
+        Left = 5
+        Height = 23
+        Top = 3
+        Width = 116
+        AutoSize = False
+        ItemHeight = 15
+        ItemIndex = 0
+        Items.Strings = (
+          'Single tile'
+          'Combination'
+        )
+        Style = csDropDownList
+        TabOrder = 0
+        Text = 'Single tile'
+      end
+      object Button2: TButton
+        Left = 5
+        Height = 24
+        Top = 30
+        Width = 116
+        Caption = 'Configure styles...'
+        OnClick = Button2Click
+        TabOrder = 1
+      end
+    end
+    object GroupBox3: TGroupBox
+      Left = 1
+      Height = 122
+      Top = 242
+      Width = 128
+      Align = alTop
+      Caption = 'Groups'
+      TabOrder = 3
+    end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 38
+    Top = 458
+    Width = 606
+    Align = alBottom
+    ClientHeight = 38
+    ClientWidth = 606
+    TabOrder = 1
+    OnResize = Panel1Resize
+    object btnCancel: TBitBtn
+      Left = 216
+      Height = 30
+      Top = 4
+      Width = 80
+      Cancel = True
+      DefaultCaption = True
+      Kind = bkCancel
+      ModalResult = 2
+      TabOrder = 1
+    end
+    object btnOK: TBitBtn
+      Left = 336
+      Height = 30
+      Top = 4
+      Width = 80
+      Default = True
+      DefaultCaption = True
+      Kind = bkOK
+      ModalResult = 1
+      OnClick = btnOKClick
+      TabOrder = 0
+    end
+  end
+  object ScrollBox1: TScrollBox
+    Left = 136
+    Height = 224
+    Top = 8
+    Width = 222
+    HorzScrollBar.Page = 218
+    VertScrollBar.Page = 220
+    ClientHeight = 220
+    ClientWidth = 218
+    TabOrder = 2
+    object Image1: TImage
+      Left = 0
+      Height = 128
+      Top = 0
+      Width = 136
+      OnMouseMove = Image1MouseMove
+      OnMouseWheel = Image1MouseWheel
+      Stretch = True
+    end
+  end
+  object openPic: TOpenPictureDialog
+    left = 152
+    top = 24
+  end
+end
