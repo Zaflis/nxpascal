@@ -9,7 +9,7 @@
         <Filename Value="edit3d.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="edit3d"/>
-        <UsageCount Value="178"/>
+        <UsageCount Value="191"/>
       </Unit0>
       <Unit1>
         <Filename Value="main.pas"/>
@@ -18,12 +18,11 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="main"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="39" Y="9"/>
-        <UsageCount Value="178"/>
+        <TopLine Value="164"/>
+        <CursorPos X="3" Y="168"/>
+        <UsageCount Value="191"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -41,7 +40,7 @@
           <TopLine Value="13"/>
           <CursorPos X="5" Y="29"/>
         </ExtraEditor1>
-        <UsageCount Value="178"/>
+        <UsageCount Value="191"/>
         <Bookmarks Count="1">
           <Item0 X="17" Y="121" ID="8"/>
         </Bookmarks>
@@ -50,10 +49,12 @@
       <Unit3>
         <Filename Value="..\..\src\nxGraph.pas"/>
         <UnitName Value="nxGraph"/>
+        <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="64"/>
-        <CursorPos X="27" Y="77"/>
-        <UsageCount Value="46"/>
+        <TopLine Value="13"/>
+        <CursorPos X="8" Y="23"/>
+        <UsageCount Value="45"/>
+        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="..\..\src\nxModel.pas"/>
@@ -68,43 +69,44 @@
           <TopLine Value="904"/>
           <CursorPos X="9" Y="907"/>
         </ExtraEditor1>
-        <UsageCount Value="81"/>
+        <UsageCount Value="86"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="..\..\src\nxGL.pas"/>
         <UnitName Value="nxGL"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="412"/>
-        <CursorPos X="27" Y="609"/>
-        <UsageCount Value="91"/>
+        <TopLine Value="428"/>
+        <CursorPos X="34" Y="446"/>
+        <UsageCount Value="96"/>
         <Loaded Value="True"/>
       </Unit5>
       <Unit6>
         <Filename Value="..\..\src\nxMath.pas"/>
         <UnitName Value="nxMath"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <WindowIndex Value="0"/>
         <TopLine Value="235"/>
         <CursorPos X="3" Y="244"/>
-        <UsageCount Value="55"/>
+        <UsageCount Value="60"/>
         <Loaded Value="True"/>
       </Unit6>
       <Unit7>
         <Filename Value="..\..\src\nxTypes.pas"/>
         <UnitName Value="nxTypes"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="40"/>
-        <CursorPos X="34" Y="14"/>
-        <UsageCount Value="87"/>
+        <TopLine Value="43"/>
+        <CursorPos X="20" Y="53"/>
+        <UsageCount Value="92"/>
         <Loaded Value="True"/>
       </Unit7>
       <Unit8>
         <Filename Value="..\..\src\nxMath3D.pas"/>
         <UnitName Value="nxMath3D"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
         <TopLine Value="710"/>
         <CursorPos X="9" Y="720"/>
@@ -113,7 +115,7 @@
           <TopLine Value="593"/>
           <CursorPos X="1" Y="599"/>
         </ExtraEditor1>
-        <UsageCount Value="78"/>
+        <UsageCount Value="83"/>
         <Loaded Value="True"/>
       </Unit8>
       <Unit9>
@@ -121,29 +123,29 @@
         <WindowIndex Value="0"/>
         <TopLine Value="989"/>
         <CursorPos X="1" Y="1002"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit9>
       <Unit10>
         <Filename Value="..\..\..\fpc\svn\rtl\inc\except.inc"/>
         <WindowIndex Value="0"/>
         <TopLine Value="200"/>
         <CursorPos X="1" Y="216"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit10>
       <Unit11>
         <Filename Value="..\..\..\fpc\svn\rtl\objpas\sysutils\sysutilh.inc"/>
         <WindowIndex Value="0"/>
         <TopLine Value="86"/>
         <CursorPos X="4" Y="98"/>
-        <UsageCount Value="3"/>
+        <UsageCount Value="2"/>
       </Unit11>
       <Unit12>
         <Filename Value="..\..\src\dglOpenGL.pas"/>
         <UnitName Value="dglOpenGL"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1437"/>
-        <CursorPos X="3" Y="1450"/>
-        <UsageCount Value="9"/>
+        <TopLine Value="13576"/>
+        <CursorPos X="44" Y="13593"/>
+        <UsageCount Value="10"/>
       </Unit12>
       <Unit13>
         <Filename Value="..\..\..\fpc\svn\rtl\win32\sysinitpas.pp"/>
@@ -151,21 +153,21 @@
         <WindowIndex Value="0"/>
         <TopLine Value="31"/>
         <CursorPos X="1" Y="44"/>
-        <UsageCount Value="6"/>
+        <UsageCount Value="5"/>
       </Unit13>
       <Unit14>
         <Filename Value="..\..\..\lazarus\lcl\include\menuitem.inc"/>
         <WindowIndex Value="0"/>
         <TopLine Value="270"/>
         <CursorPos X="1" Y="283"/>
-        <UsageCount Value="7"/>
+        <UsageCount Value="6"/>
       </Unit14>
       <Unit15>
         <Filename Value="..\..\..\lazarus\lcl\include\control.inc"/>
         <WindowIndex Value="0"/>
         <TopLine Value="4174"/>
         <CursorPos X="1" Y="4187"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit15>
       <Unit16>
         <Filename Value="..\..\src\nxStrings.pas"/>
@@ -173,7 +175,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="215"/>
         <CursorPos X="29" Y="218"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit16>
       <Unit17>
         <Filename Value="..\..\..\lazarus\lcl\lcltype.pp"/>
@@ -181,7 +183,7 @@
         <WindowIndex Value="0"/>
         <TopLine Value="762"/>
         <CursorPos X="3" Y="775"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit17>
       <Unit18>
         <Filename Value="..\..\..\lazarus\lcl\forms.pp"/>
@@ -189,140 +191,36 @@
         <WindowIndex Value="0"/>
         <TopLine Value="577"/>
         <CursorPos X="15" Y="589"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit18>
       <Unit19>
         <Filename Value="..\..\..\lazarus\lcl\include\customform.inc"/>
         <WindowIndex Value="0"/>
         <TopLine Value="2060"/>
         <CursorPos X="3" Y="2068"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="9"/>
       </Unit19>
     </Units>
     <General>
       <ActiveWindowIndexAtStart Value="0"/>
     </General>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="4" HistoryIndex="3">
       <Position1>
-        <Filename Value="main.pas"/>
-        <Caret Line="725" Column="24" TopLine="710"/>
+        <Filename Value="..\..\src\nxGL.pas"/>
+        <Caret Line="360" Column="32" TopLine="8"/>
       </Position1>
       <Position2>
-        <Filename Value="main.pas"/>
-        <Caret Line="333" Column="26" TopLine="319"/>
+        <Filename Value="..\..\src\nxGL.pas"/>
+        <Caret Line="11" Column="33" TopLine="8"/>
       </Position2>
       <Position3>
-        <Filename Value="main.pas"/>
-        <Caret Line="335" Column="32" TopLine="322"/>
+        <Filename Value="..\..\src\nxGL.pas"/>
+        <Caret Line="1666" Column="13" TopLine="1653"/>
       </Position3>
       <Position4>
         <Filename Value="main.pas"/>
-        <Caret Line="457" Column="3" TopLine="452"/>
+        <Caret Line="353" Column="25" TopLine="348"/>
       </Position4>
-      <Position5>
-        <Filename Value="ModelUnit.pas"/>
-        <Caret Line="547" Column="19" TopLine="526"/>
-      </Position5>
-      <Position6>
-        <Filename Value="main.pas"/>
-        <Caret Line="370" Column="24" TopLine="349"/>
-      </Position6>
-      <Position7>
-        <Filename Value="main.pas"/>
-        <Caret Line="362" Column="44" TopLine="350"/>
-      </Position7>
-      <Position8>
-        <Filename Value="main.pas"/>
-        <Caret Line="364" Column="36" TopLine="347"/>
-      </Position8>
-      <Position9>
-        <Filename Value="main.pas"/>
-        <Caret Line="717" Column="25" TopLine="714"/>
-      </Position9>
-      <Position10>
-        <Filename Value="main.pas"/>
-        <Caret Line="333" Column="47" TopLine="320"/>
-      </Position10>
-      <Position11>
-        <Filename Value="main.pas"/>
-        <Caret Line="286" Column="24" TopLine="267"/>
-      </Position11>
-      <Position12>
-        <Filename Value="main.pas"/>
-        <Caret Line="360" Column="23" TopLine="356"/>
-      </Position12>
-      <Position13>
-        <Filename Value="main.pas"/>
-        <Caret Line="361" Column="23" TopLine="357"/>
-      </Position13>
-      <Position14>
-        <Filename Value="main.pas"/>
-        <Caret Line="360" Column="23" TopLine="356"/>
-      </Position14>
-      <Position15>
-        <Filename Value="ModelUnit.pas"/>
-        <Caret Line="67" Column="30" TopLine="44"/>
-      </Position15>
-      <Position16>
-        <Filename Value="ModelUnit.pas"/>
-        <Caret Line="445" Column="3" TopLine="436"/>
-      </Position16>
-      <Position17>
-        <Filename Value="main.pas"/>
-        <Caret Line="734" Column="3" TopLine="723"/>
-      </Position17>
-      <Position18>
-        <Filename Value="..\..\src\nxGL.pas"/>
-        <Caret Line="609" Column="27" TopLine="412"/>
-      </Position18>
-      <Position19>
-        <Filename Value="main.pas"/>
-        <Caret Line="695" Column="52" TopLine="684"/>
-      </Position19>
-      <Position20>
-        <Filename Value="main.pas"/>
-        <Caret Line="794" Column="38" TopLine="784"/>
-      </Position20>
-      <Position21>
-        <Filename Value="main.pas"/>
-        <Caret Line="213" Column="3" TopLine="210"/>
-      </Position21>
-      <Position22>
-        <Filename Value="main.pas"/>
-        <Caret Line="795" Column="3" TopLine="759"/>
-      </Position22>
-      <Position23>
-        <Filename Value="main.pas"/>
-        <Caret Line="887" Column="3" TopLine="884"/>
-      </Position23>
-      <Position24>
-        <Filename Value="main.pas"/>
-        <Caret Line="816" Column="34" TopLine="808"/>
-      </Position24>
-      <Position25>
-        <Filename Value="main.pas"/>
-        <Caret Line="805" Column="7" TopLine="783"/>
-      </Position25>
-      <Position26>
-        <Filename Value="main.pas"/>
-        <Caret Line="800" Column="33" TopLine="783"/>
-      </Position26>
-      <Position27>
-        <Filename Value="main.pas"/>
-        <Caret Line="881" Column="3" TopLine="879"/>
-      </Position27>
-      <Position28>
-        <Filename Value="main.pas"/>
-        <Caret Line="885" Column="1" TopLine="884"/>
-      </Position28>
-      <Position29>
-        <Filename Value="main.pas"/>
-        <Caret Line="636" Column="3" TopLine="634"/>
-      </Position29>
-      <Position30>
-        <Filename Value="main.pas"/>
-        <Caret Line="817" Column="40" TopLine="808"/>
-      </Position30>
     </JumpHistory>
   </ProjectSession>
   <EditorMacros Count="0"/>

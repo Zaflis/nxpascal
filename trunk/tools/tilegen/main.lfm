@@ -67,6 +67,7 @@ object Form1: TForm1
       Height = 98
       Top = 48
       Width = 142
+      OnMouseWheel = Image1MouseWheel
       Stretch = True
     end
     object pnlTiles: TPanel
@@ -109,11 +110,13 @@ object Form1: TForm1
       ClientHeight = 172
       ClientWidth = 204
       TabOrder = 0
+      OnMouseWheel = Image1MouseWheel
       object Image1: TImage
         Left = 0
         Height = 90
         Top = 0
         Width = 90
+        OnMouseWheel = Image1MouseWheel
         Stretch = True
       end
     end
@@ -124,18 +127,7 @@ object Form1: TForm1
       Width = 428
       Align = alTop
       BevelWidth = 2
-      ClientHeight = 38
-      ClientWidth = 428
       TabOrder = 1
-      object btnConfigBaseImg: TButton
-        Left = 2
-        Height = 25
-        Top = 6
-        Width = 136
-        Caption = 'Configure base image...'
-        OnClick = btnConfigBaseImgClick
-        TabOrder = 0
-      end
     end
   end
   object MainMenu1: TMainMenu
@@ -177,8 +169,12 @@ object Form1: TForm1
     object mnuTileSet: TMenuItem
       Caption = 'Tileset'
       object mnuChooseImage: TMenuItem
-        Caption = 'Choose base image...'
-        OnClick = btnConfigBaseImgClick
+        Caption = 'Configure base image...'
+        OnClick = mnuChooseImageClick
+      end
+      object mnuConfigBlends: TMenuItem
+        Caption = 'Configure blends...'
+        OnClick = mnuConfigBlendsClick
       end
       object mnuTileStyles: TMenuItem
         Caption = 'Edit tile styles...'

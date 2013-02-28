@@ -1,0 +1,102 @@
+object frmBlends: TfrmBlends
+  Left = 1099
+  Height = 344
+  Top = 21
+  Width = 456
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Configure blends'
+  ClientHeight = 344
+  ClientWidth = 456
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object ScrollBox1: TScrollBox
+    Left = 64
+    Height = 160
+    Top = 96
+    Width = 192
+    HorzScrollBar.Page = 188
+    VertScrollBar.Page = 156
+    ClientHeight = 156
+    ClientWidth = 188
+    TabOrder = 0
+    object Image1: TImage
+      Left = 0
+      Height = 90
+      Top = 0
+      Width = 90
+      Stretch = True
+    end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Height = 40
+    Top = 304
+    Width = 456
+    Align = alBottom
+    BevelOuter = bvLowered
+    ClientHeight = 40
+    ClientWidth = 456
+    TabOrder = 1
+    object btnOk: TBitBtn
+      Left = 144
+      Height = 30
+      Top = 5
+      Width = 90
+      Anchors = [akLeft, akBottom]
+      Default = True
+      DefaultCaption = True
+      Kind = bkOK
+      ModalResult = 1
+      TabOrder = 0
+    end
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 72
+    Top = 0
+    Width = 456
+    Align = alTop
+    BevelWidth = 2
+    ClientHeight = 72
+    ClientWidth = 456
+    TabOrder = 2
+    object btnConfigStyles: TButton
+      Left = 334
+      Height = 25
+      Top = 5
+      Width = 115
+      Anchors = [akTop, akRight]
+      Caption = 'Configure styles...'
+      OnClick = btnConfigStylesClick
+      TabOrder = 0
+    end
+    object blendList: TComboBox
+      Left = 8
+      Height = 23
+      Top = 8
+      Width = 120
+      ItemHeight = 15
+      TabOrder = 1
+    end
+    object Button1: TButton
+      Left = 135
+      Height = 25
+      Top = 8
+      Width = 51
+      Caption = 'Add...'
+      TabOrder = 2
+    end
+    object Button2: TButton
+      Left = 192
+      Height = 25
+      Top = 8
+      Width = 51
+      Caption = 'Delete'
+      Enabled = False
+      TabOrder = 3
+    end
+  end
+end

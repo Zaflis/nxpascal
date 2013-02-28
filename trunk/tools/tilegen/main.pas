@@ -6,7 +6,7 @@ interface
 
 uses Classes, SysUtils, FileUtil, Forms, Controls, Graphics,
   Dialogs, Menus, ExtCtrls, ExtDlgs, LCLType, StdCtrls,
-  TileUnit, uBaseConfig, uTileStyles;
+  TileUnit, uBaseConfig, uTileStyles, uBlends, types;
 
 const Title = 'Tileset Generator';
 
@@ -16,13 +16,13 @@ type
   { TForm1 }
 
   TForm1 = class(TForm)
-    btnConfigBaseImg: TButton;
     Button1: TButton;
     Image1: TImage;
     Image2: TImage;
     Image3: TImage;
     imgTiles: TImage;
     MainMenu1: TMainMenu;
+    mnuConfigBlends: TMenuItem;
     mnuTileStyles: TMenuItem;
     mnuFile: TMenuItem;
     mnuWorld: TMenuItem;
@@ -47,13 +47,15 @@ type
     saveD: TSaveDialog;
     savePic: TSavePictureDialog;
     ScrollBox1: TScrollBox;
-    procedure btnConfigBaseImgClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure Image1MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
     procedure Image3MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure imgTilesMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure imgTilesResize(Sender: TObject);
+    procedure mnuConfigBlendsClick(Sender: TObject);
+    procedure mnuChooseImageClick(Sender: TObject);
     procedure mnuExitClick(Sender: TObject);
     procedure mnuNewTilesetClick(Sender: TObject);
     procedure mnuNewWorldClick(Sender: TObject);
@@ -65,9 +67,10 @@ type
     FMode: TEditorMode;
     modified: boolean;
     wsFilename: string;
-    base: TBitmap;
     world: TWorld;
     tileset: TTileSet;
+    zoom: integer;
+    base: TPicture;
     procedure SetMode(newmode: TEditorMode);
   public
     property mode: TEditorMode read FMode write SetMode;
@@ -85,17 +88,29 @@ implementation
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-  width:=800; height:=600;
+  width:=800; height:=600; zoom:=2;
   pnlTileSet.Align:=alClient; pnlWorld.Align:=alClient;
   ScrollBox1.Align:=alClient;
   Image2.Align:=alClient;
-  base:=TBitmap.Create;
+  base:=TPicture.Create;
   mnuNewTilesetClick(nil);
+
+  if lowercase(paramstr(1))='-debug' then TILE_DEBUG:=true;
+  if TILE_DEBUG then begin
+    base.LoadFromFile('tiles.png');
+    tileset.baseWidth:=base.Width;
+    tileset.baseHeight:=base.Height;
+    tileset.patternwidth:=8;
+    tileset.patternheight:=tileset.patternwidth;
+    DrawTileset;
+  end;
 end;
 
 procedure TForm1.DrawTileset;
 begin
-  //
+  image1.Width:=zoom*image1.Picture.Width;
+  image1.Height:=zoom*image1.Picture.Height;
+
 end;
 
 procedure TForm1.DrawWorld;
@@ -134,14 +149,22 @@ var ext: string;
 begin
   if openD.Execute then begin
     ext:=lowercase(extractfileext(openD.FileName));
-    wsFilename:=openD.FileName;
+    wsFilename:=openD.FileName; modified:=false;
     caption:=title+' - '+extractfilename(openD.FileName);
     if ext='.set' then begin
       // Open tileset
-
+      mode:=eTile;
+      tileset.LoadFromFile(wsFilename);
+      if fileexists(tileset.basefile) then
+        base.LoadFromFile(tileset.basefile);
+      if fileexists(tileset.texturefile) then
+        image1.Picture.LoadFromFile(tileset.texturefile);
+      DrawTileset;
     end else if ext='map' then begin
       // Open world
-
+      mode:=eWorld;
+      world.LoadFromFile(wsFilename);
+      DrawWorld;
     end;
   end;
 end;
@@ -170,10 +193,11 @@ begin
     // Save workspace
     case mode of
       eTile: begin
-        //tileset.
+        tileset.SaveToFile(wsFilename);
+        image1.Picture.LoadFromFile(tileset.texturefile);
       end;
       eWorld: begin
-        //world.
+        world.SaveToFile(wsFilename);
       end;
     end;
 
@@ -239,19 +263,19 @@ begin
   end;
 end;
 
-procedure TForm1.btnConfigBaseImgClick(Sender: TObject);
-begin
-  frmBaseConfig.tileSet.Assign(tileset);
-  frmBaseConfig.UpdateControls;
-  if frmBaseConfig.ShowModal=mrOK then begin
-    tileset.Assign(frmBaseConfig.tileSet);
-    DrawTileset;
-  end;
-end;
-
 procedure TForm1.FormDestroy(Sender: TObject);
 begin
   tileset.Free; world.Free; base.Free;
+end;
+
+procedure TForm1.Image1MouseWheel(Sender: TObject; Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint; var Handled: Boolean);
+begin
+  WheelDelta:=WheelDelta div abs(WheelDelta);
+  zoom:=zoom+WheelDelta;
+  if zoom<1 then zoom:=1
+  else if zoom>8 then zoom:=8;
+  if mode=eTile then DrawTileSet
+  else if mode=eWorld then DrawWorld;
 end;
 
 procedure TForm1.Image3MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -269,6 +293,25 @@ procedure TForm1.imgTilesResize(Sender: TObject);
 begin
   pnlTiles.Width:=imgTiles.Width+4;
   pnlTiles.Height:=imgTiles.Height+4;
+end;
+
+procedure TForm1.mnuConfigBlendsClick(Sender: TObject);
+begin
+
+  frmBlends.ShowModal;
+
+end;
+
+procedure TForm1.mnuChooseImageClick(Sender: TObject);
+begin
+  frmBaseConfig.Image1.Picture.Assign(base);
+  frmBaseConfig.tileSet.Assign(tileset);
+  frmBaseConfig.UpdateControls;
+  if frmBaseConfig.ShowModal=mrOK then begin
+    tileset.Assign(frmBaseConfig.tileSet);
+    base.Assign(frmBaseConfig.Image1.Picture);
+    DrawTileset;
+  end;
 end;
 
 end.

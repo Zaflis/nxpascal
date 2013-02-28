@@ -18,12 +18,14 @@ uses nxTypes, math;
   function Distance2(x1,y1,x2,y2, px,py: single): single;
   function dmod(a, b: double): double;
   function Dot(const a,b: TVector2f): single;
-  function fmod(a, b: single): single;
+  function fmod(const a, b: single): single; overload;
+  function fmod(const value, vMin, vMax: single): single; overload;
   function Interpolate(const v1,v2,s: single): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Interpolatei(const v1,v2: integer; s: single): integer;
   function Interpolate(const v1,v2: TVector2f; const s: single): TVector2f; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Invert(const v: TVector2f): TVector2f; overload;
   function LinesCross(const x0, y0, x1, y1, x2, y2, x3, y3: Integer): Boolean;
+  function MinMax(const value, vMin, vMax: single): single;
   function Mod2(a,b: integer): integer;
   function Norm(const v: TVector2f; const h: PSingle = nil): TVector2f; overload;
   procedure Norm(var x,y: single; const h: PSingle = nil); overload;
@@ -43,6 +45,7 @@ uses nxTypes, math;
   function Tangent(const p1, p2: TVector2f): TVector2f; overload;
   function Vector2f(const x, y: single): TVector2f;
   function VectorAdd(const v1, v2: TVector2f): TVector2f; overload;
+  function VectorFromAngle(const radians: single; const radius: single=1.0): TVector2f;
   function VectorMatch(const a, b: TVector2f; delta: single=0.01): boolean; overload;
   function VectorSub(const v1, v2: TVector2f): TVector2f; overload;
 
@@ -122,9 +125,17 @@ begin
   result:=a.x*b.x + a.y*b.y;
 end;
 
-function fmod(a, b: single): single;
+// Wraps value to [0..b[ range
+function fmod(const a, b: single): single;
 begin
-  result:=a-int(a/b)*b;
+  if b=0 then result:=0
+  else result:=a-b*floor(a/b);
+end;
+
+// Wraps value to [vMin..vMax[ range
+function fmod(const value, vMin, vMax: single): single;
+begin
+  result:=fmod(value-vMin, vMax-vMin)+vMin;
 end;
 
 function Interpolate(const v1,v2,s: single): single;{$IFDEF CanInline}inline;{$ENDIF}
@@ -165,8 +176,15 @@ begin
   end;
 end;
 
+function MinMax(const value, vMin, vMax: single): single;
+begin
+  if value<vMin then result:=vMin
+  else if value>vMax then result:=vMax
+  else result:=value;
+end;
+
 // 11 mod2 10 = 1  |  -11 mod2 10 = -9  |  5 mod2 0 = 0
-function Mod2(a,b: integer): integer;
+function Mod2(a, b: integer): integer;
 begin
   if b=0 then result:=0
   else begin
@@ -339,6 +357,12 @@ function VectorAdd(const v1, v2: TVector2f): TVector2f;
 begin
   result.x:=v1.x+v2.x;
   result.y:=v1.y+v2.y;
+end;
+
+function VectorFromAngle(const radians: single; const radius: single): TVector2f;
+begin
+  result.x:=cos(radians)*radius;
+  result.y:=sin(radians)*radius;
 end;
 
 function VectorMatch(const a, b: TVector2f; delta: single): boolean;

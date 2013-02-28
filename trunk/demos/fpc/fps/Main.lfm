@@ -1,0 +1,25 @@
+object Form1: TForm1
+  Left = 296
+  Height = 240
+  Top = 126
+  Width = 320
+  HorzScrollBar.Visible = False
+  VertScrollBar.Visible = False
+  Caption = 'FPS Demo (work in progress)'
+  OnClose = FormClose
+  OnCreate = FormCreate
+  OnKeyDown = FormKeyDown
+  OnKeyUp = FormKeyUp
+  OnMouseDown = FormMouseDown
+  OnMouseMove = FormMouseMove
+  OnMouseUp = FormMouseUp
+  OnMouseWheel = FormMouseWheel
+  OnPaint = FormPaint
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object AppProperties: TApplicationProperties
+    OnIdle = AppPropertiesIdle
+    left = 64
+    top = 9
+  end
+end

@@ -1,4 +1,4 @@
-program TileGen;
+program FPSDemo;
 
 {$mode objfpc}{$H+}
 
@@ -7,18 +7,15 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, main, TileUnit, uBaseConfig, uTileStyles, uBlends
+  Forms, Main, lazopenglcontext, lazmouseandkeyinput, GameUnit, GraphicsUnit
   { you can add units after this };
 
 {$R *.res}
 
 begin
-  RequireDerivedFormResource := True;
+  //RequireDerivedFormResource := True;
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);
-  Application.CreateForm(TfrmBaseConfig, frmBaseConfig);
-  Application.CreateForm(TfrmTileStyles, frmTileStyles);
-  Application.CreateForm(TfrmBlends, frmBlends);
   Application.Run;
 end.
 
