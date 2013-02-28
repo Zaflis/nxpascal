@@ -1,11 +1,9 @@
 unit GameUnit;
 
-{$mode objfpc}{$H+}
-
 interface
 
 uses
-  Classes, Dialogs, SysUtils, LCLType, math, nxMath, nxMath3D,
+  Windows, Classes, Dialogs, SysUtils, math, nxMath, nxMath3D,
   nxGL, nxGame, nxTypes, nxBass;
 
 const
@@ -112,13 +110,13 @@ begin
     movement.z:=0;
     movement.y:=movement.y-0.008;
 
-    if keys[VK_W] then
+    if keys[ord('W')] then
       movement:=VectorAdd(movement, VectorXZFromAngle(rotX*toRad, MoveSpeed));
-    if keys[VK_S] then
+    if keys[ord('S')] then
       movement:=VectorSub(movement, VectorXZFromAngle(rotX*toRad, MoveSpeed));
-    if keys[VK_A] then
+    if keys[ord('A')] then
       movement:=VectorAdd(movement, VectorXZFromAngle((rotX-90)*toRad, MoveSpeed));
-    if keys[VK_D] then
+    if keys[ord('D')] then
       movement:=VectorAdd(movement, VectorXZFromAngle((rotX+90)*toRad, MoveSpeed));
     if (groundDist<0.5) and keys[VK_SPACE] and (not jumping) then begin
       movement.y:=0.15;

@@ -201,7 +201,7 @@ end;
 
 procedure TGameHandler.SetCursorPos(x, y: integer);
 begin
-  {$IFDEF fpc}mouseinput.Move(ShiftState, x, y);
+  {$IFDEF fpc}mouseinput.Move([], x, y);
   {$ELSE}windows.setcursorpos(x, y);
   {$ENDIF}
 end;
