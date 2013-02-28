@@ -6,10 +6,9 @@
     <General>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="TileGen"/>
+      <Title Value="FPSDemo"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
-      <Icon Value="0"/>
     </General>
     <i18n>
       <EnableI18N LFM="False"/>
@@ -28,76 +27,67 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="-debug"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="1">
+    <RequiredPackages Count="3">
       <Item1>
-        <PackageName Value="LCL"/>
+        <PackageName Value="lazmouseandkeyinput"/>
       </Item1>
+      <Item2>
+        <PackageName Value="LazOpenGLContext"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="LCL"/>
+      </Item3>
     </RequiredPackages>
-    <Units Count="6">
+    <Units Count="4">
       <Unit0>
-        <Filename Value="TileGen.lpr"/>
+        <Filename Value="FPSDemo.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="TileGen"/>
+        <UnitName Value="FPSDemo"/>
       </Unit0>
       <Unit1>
-        <Filename Value="main.pas"/>
+        <Filename Value="Main.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="main"/>
+        <UnitName Value="Main"/>
       </Unit1>
       <Unit2>
-        <Filename Value="TileUnit.pas"/>
+        <Filename Value="GameUnit.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="TileUnit"/>
+        <UnitName Value="GameUnit"/>
       </Unit2>
       <Unit3>
-        <Filename Value="uBaseConfig.pas"/>
+        <Filename Value="GraphicsUnit.pas"/>
         <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmBaseConfig"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="uBaseConfig"/>
+        <UnitName Value="GraphicsUnit"/>
       </Unit3>
-      <Unit4>
-        <Filename Value="uTileStyles.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmTileStyles"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="uTileStyles"/>
-      </Unit4>
-      <Unit5>
-        <Filename Value="uBlends.pas"/>
-        <IsPartOfProject Value="True"/>
-        <ComponentName Value="frmBlends"/>
-        <HasResources Value="True"/>
-        <ResourceBaseClass Value="Form"/>
-        <UnitName Value="uBlends"/>
-      </Unit5>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
-      <Filename Value="TileGen"/>
+      <Filename Value="FPSDemo"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\..\src"/>
+      <OtherUnitFiles Value="..\..\..\src"/>
       <UnitOutputDirectory Value="lib"/>
     </SearchPaths>
+    <CodeGeneration>
+      <SmartLinkUnit Value="True"/>
+      <TargetCPU Value="i386"/>
+      <TargetOS Value="win32"/>
+    </CodeGeneration>
     <Linking>
       <Debugging>
-        <DebugInfoType Value="dsStabs"/>
         <StripSymbols Value="True"/>
         <UseExternalDbgSyms Value="True"/>
       </Debugging>
+      <LinkSmart Value="True"/>
       <Options>
         <Win32>
           <GraphicApplication Value="True"/>
@@ -106,7 +96,6 @@
     </Linking>
     <Other>
       <CompilerMessages>
-        <IgnoredMessages idx5024="True"/>
         <UseMsgFile Value="True"/>
       </CompilerMessages>
       <CompilerPath Value="$(CompPath)"/>

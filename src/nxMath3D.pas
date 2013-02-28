@@ -28,6 +28,7 @@ uses nxMath, nxTypes;
   function Interpolate(const v1,v2: TVector; const s: single): TVector; overload;
   function Invert(const v: TVector): TVector; overload;
   function Multiply(const a,b: TVector): TVector; overload;
+  function NearTriPoint(t1, t2, t3, p: PVector): TVector;
   procedure Norm(var x,y,z: single; const h: PSingle = nil); overload;
   procedure Norm(var x,y,z: double; const h: PDouble = nil); overload;
   function Norm(const v: TVector; const h: PSingle = nil): TVector; overload;stdcall;{$IFDEF CanInline}inline;{$ENDIF}
@@ -49,6 +50,9 @@ uses nxMath, nxTypes;
   function VectorCombine(const V1, V2: TVector; const F2: Single): TVector;
   function VectorDist(const a, b: TVector): single; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
   function VectorDiv(const v: TVector; s: single): TVector;
+  function VectorXYFromAngle(const radians: single; const radius: single=1.0): TVector;
+  function VectorXZFromAngle(const radians: single; const radius: single=1.0): TVector;
+  function VectorZYFromAngle(const radians: single; const radius: single=1.0): TVector;
   function VectorMatch(const a, b: TVector; delta: single=0.01): boolean; overload;
   function VectorLen(const v: TVector): single; stdcall;
   function VectorSub(const a, b: TVector): TVector; overload;
@@ -334,6 +338,30 @@ begin
   result.x:=a.x*b.x; result.y:=a.y*b.y; result.z:=a.z*b.z;
 end;
 
+// Finds point inside or at the edge of triangle that
+// is nearest to point p.
+function NearTriPoint(t1, t2, t3, p: PVector): TVector;
+var pp, TriN, n1, n2, n3, is1, is2, is3: TVector;
+    d1, d2, d3: single;
+begin
+  TriN:=Tangent(t1^, t2^, t3^);
+  RayPlaneIntersect(p^, TriN, t1^, TriN, @pp);
+  n1:=CrossProduct(TriN, Vector(t1^.x-t2^.x, t1^.y-t2^.y, t1^.z-t2^.z));
+  n2:=CrossProduct(TriN, Vector(t2^.x-t3^.x, t2^.y-t3^.y, t2^.z-t3^.z));
+  n3:=CrossProduct(TriN, Vector(t3^.x-t1^.x, t3^.y-t1^.y, t3^.z-t1^.z));
+  d1:=RayPlaneIntersect(pp, n1, t1^, n1, @is1);
+  d2:=RayPlaneIntersect(pp, n2, t2^, n2, @is2);
+  d3:=RayPlaneIntersect(pp, n3, t3^, n3, @is3);
+  if (d1>=0) and (d2>=0) and (d3>=0) then result:=pp
+  else if (d1<0) and (d3<0) then result:=t1^
+  else if (d2<0) and (d1<0) then result:=t2^
+  else if (d3<0) and (d2<0) then result:=t3^
+  else if d1<0 then result:=ClosestPointOnLine(t1^, t2^, p^)
+  else if d2<0 then result:=ClosestPointOnLine(t2^, t3^, p^)
+  else if d3<0 then result:=ClosestPointOnLine(t3^, t1^, p^)
+  else result:=t1^;
+end;
+
 procedure Norm(var x,y,z: single; const h: PSingle);
 var _h: single;
 begin
@@ -536,6 +564,27 @@ end;
 function Scale(const v: TVector; s: single): TVector;
 begin
   result.x:=v.x*s; result.y:=v.y*s; result.z:=v.z*s;
+end;
+
+function VectorXYFromAngle(const radians: single; const radius: single): TVector;
+begin
+  result.x:=cos(radians)*radius;
+  result.y:=sin(radians)*radius;
+  result.z:=0;
+end;
+
+function VectorXZFromAngle(const radians: single; const radius: single): TVector;
+begin
+  result.x:=cos(radians)*radius;
+  result.y:=0;
+  result.z:=sin(radians)*radius;
+end;
+
+function VectorZYFromAngle(const radians: single; const radius: single): TVector;
+begin
+  result.x:=0;
+  result.y:=sin(radians)*radius;
+  result.z:=cos(radians)*radius;
 end;
 
 function VectorMatch(const a, b: TVector; delta: single): boolean;

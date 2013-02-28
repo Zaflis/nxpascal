@@ -1,7 +1,7 @@
 object frmBaseConfig: TfrmBaseConfig
-  Left = 635
+  Left = 573
   Height = 496
-  Top = 255
+  Top = 103
   Width = 606
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -11,6 +11,7 @@ object frmBaseConfig: TfrmBaseConfig
   ClientWidth = 606
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   Position = poScreenCenter
   LCLVersion = '1.1'
   object Panel2: TPanel
@@ -25,7 +26,7 @@ object frmBaseConfig: TfrmBaseConfig
     object GroupBox1: TGroupBox
       Left = 1
       Height = 128
-      Top = 39
+      Top = 86
       Width = 128
       Align = alTop
       Caption = 'Pattern'
@@ -133,35 +134,95 @@ object frmBaseConfig: TfrmBaseConfig
     end
     object Panel3: TPanel
       Left = 1
-      Height = 38
+      Height = 85
       Top = 1
       Width = 128
       Align = alTop
-      ClientHeight = 38
+      ClientHeight = 85
       ClientWidth = 128
       TabOrder = 1
-      object Button1: TButton
+      object btnChooseImage: TButton
         Left = 6
         Height = 25
         Top = 6
         Width = 115
         Caption = 'Choose image...'
-        OnClick = Button1Click
+        OnClick = btnChooseImageClick
         TabOrder = 0
       end
+      object btnConfigStyles: TButton
+        Left = 6
+        Height = 25
+        Top = 54
+        Width = 115
+        Caption = 'Configure styles...'
+        OnClick = btnConfigStylesClick
+        TabOrder = 1
+      end
+      object btnConfigBlends: TButton
+        Left = 6
+        Height = 25
+        Top = 30
+        Width = 115
+        Caption = 'Configure blends...'
+        OnClick = btnConfigBlendsClick
+        TabOrder = 2
+      end
     end
-    object GroupBox2: TGroupBox
+    object GroupBox3: TGroupBox
       Left = 1
-      Height = 75
-      Top = 167
+      Height = 80
+      Top = 214
       Width = 128
       Align = alTop
-      Caption = 'Tile style'
-      ClientHeight = 57
+      Caption = 'Select group'
+      ClientHeight = 62
       ClientWidth = 124
       TabOrder = 2
-      object ComboBox1: TComboBox
-        Left = 5
+      object groupList: TComboBox
+        Left = 6
+        Height = 23
+        Top = 2
+        Width = 113
+        AutoSize = False
+        ItemHeight = 15
+        OnChange = groupListChange
+        TabOrder = 0
+      end
+      object btnDelAll: TButton
+        Left = 6
+        Height = 22
+        Top = 32
+        Width = 58
+        Caption = 'Delete all'
+        Enabled = False
+        OnClick = btnDelAllClick
+        TabOrder = 1
+      end
+    end
+    object grpDetails: TGroupBox
+      Left = 1
+      Height = 90
+      Top = 294
+      Width = 128
+      Align = alTop
+      Caption = 'Details'
+      ClientHeight = 72
+      ClientWidth = 124
+      Enabled = False
+      TabOrder = 3
+      object btnDelete: TButton
+        Left = 6
+        Height = 22
+        Top = 42
+        Width = 50
+        Caption = 'Delete'
+        Enabled = False
+        OnClick = Button3Click
+        TabOrder = 0
+      end
+      object typeList: TComboBox
+        Left = 6
         Height = 23
         Top = 3
         Width = 116
@@ -173,27 +234,9 @@ object frmBaseConfig: TfrmBaseConfig
           'Combination'
         )
         Style = csDropDownList
-        TabOrder = 0
+        TabOrder = 1
         Text = 'Single tile'
       end
-      object Button2: TButton
-        Left = 5
-        Height = 24
-        Top = 30
-        Width = 116
-        Caption = 'Configure styles...'
-        OnClick = Button2Click
-        TabOrder = 1
-      end
-    end
-    object GroupBox3: TGroupBox
-      Left = 1
-      Height = 122
-      Top = 242
-      Width = 128
-      Align = alTop
-      Caption = 'Groups'
-      TabOrder = 3
     end
   end
   object Panel1: TPanel
@@ -202,6 +245,7 @@ object frmBaseConfig: TfrmBaseConfig
     Top = 458
     Width = 606
     Align = alBottom
+    BevelOuter = bvLowered
     ClientHeight = 38
     ClientWidth = 606
     TabOrder = 1
@@ -210,7 +254,7 @@ object frmBaseConfig: TfrmBaseConfig
       Left = 216
       Height = 30
       Top = 4
-      Width = 80
+      Width = 90
       Cancel = True
       DefaultCaption = True
       Kind = bkCancel
@@ -221,7 +265,7 @@ object frmBaseConfig: TfrmBaseConfig
       Left = 336
       Height = 30
       Top = 4
-      Width = 80
+      Width = 90
       Default = True
       DefaultCaption = True
       Kind = bkOK
@@ -240,6 +284,7 @@ object frmBaseConfig: TfrmBaseConfig
     ClientHeight = 220
     ClientWidth = 218
     TabOrder = 2
+    OnMouseWheel = Image1MouseWheel
     object Image1: TImage
       Left = 0
       Height = 128

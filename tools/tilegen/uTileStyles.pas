@@ -26,7 +26,6 @@ type
     btn4: TButton;
     btn5: TButton;
     btnRename: TButton;
-    cTileType: TComboBox;
     eStyleName: TEdit;
     Label1: TLabel;
     Label2: TLabel;
@@ -39,7 +38,6 @@ type
     procedure btnDeleteClick(Sender: TObject);
     procedure btnRenameClick(Sender: TObject);
     procedure btnLoadFromSetClick(Sender: TObject);
-    procedure cTileTypeChange(Sender: TObject);
     procedure eStyleNameChange(Sender: TObject);
     procedure eStyleNameExit(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -66,6 +64,7 @@ implementation
 procedure TfrmTileStyles.FormCreate(Sender: TObject);
 begin
   styles:=TTileStyles.Create;
+  btnOk.Left:=(ClientWidth-btnOk.Width) div 2;
 end;
 
 procedure TfrmTileStyles.eStyleNameChange(Sender: TObject);
@@ -86,24 +85,27 @@ begin
     styleList.Items.Add(eStyleName.Text);
     styleList.ItemIndex:=styles.Add(eStyleName.Text);
     styleListChange(nil);
+    btnRename.Enabled:=false;
     eStyleName.SetFocus;
   end else
     showmessage('Choose different name, this already exists.');
 end;
 
 procedure TfrmTileStyles.btn4MouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var i, j: integer;
+var i, j, n: integer;
 begin
   with styles.style[styleList.ItemIndex] do begin
     i:=(TButton(sender).Tag mod 3)-1;
     j:=(TButton(sender).Tag div 3)-1;
+    n:=ch[i, j];
     if button=mbLeft then begin
-      inc(ch[i, j]);
-      if ch[i, j]>tt then ch[i, j]:=-1;
+      inc(n);
+      if n>3 then n:=0;
     end else begin
-      dec(ch[i, j]);
-      if ch[i, j]<-1 then ch[i, j]:=tt;
+      dec(n);
+      if n<0 then n:=3;
     end;
+    ch[i, j]:=n;
     TButton(sender).Caption:=CHtoStr(ch[i, j]);
   end;
 end;
@@ -137,28 +139,14 @@ begin
     ts.LoadFromFile(openD.FileName);
     styles.Assign(ts.styles);
     ts.Free;
+    styleList.ItemIndex:=0; self.styleListChange(nil);
   end;
-end;
-
-procedure TfrmTileStyles.cTileTypeChange(Sender: TObject);
-var i, j: integer; modified: boolean;
-begin
-  modified:=false;
-  with styles.style[styleList.ItemIndex] do begin
-    tt:=cTileType.ItemIndex;
-    for j:=-1 to 1 do
-      for i:=-1 to 1 do
-        if ch[i, j]>tt then begin
-          ch[i, j]:=tt; modified:=true;
-        end;
-  end;
-  if modified then styleListChange(nil);
 end;
 
 procedure TfrmTileStyles.styleListChange(Sender: TObject);
 begin
   pnlStyle.Enabled:=styleList.ItemIndex>1;
-  btnRename.Enabled:=pnlStyle.Enabled;
+  btnRename.Enabled:=false;
   eStyleName.Text:=styles.style[styleList.ItemIndex].name;
   if styleList.ItemIndex>1 then
     with styles.style[styleList.ItemIndex] do begin
@@ -180,16 +168,17 @@ begin
   with styleList.Canvas do begin
     if index<2 then font.Color:=clSilver
     else font.Color:=clBlack;
-    TextOut(ARect.Left, ARect.Top, styleList.Items[index]);
+    TextOut(ARect.Left+2, ARect.Top, styleList.Items[index]);
   end;
 end;
 
 function TfrmTileStyles.CHtoStr(const ch: shortint): string;
 begin
   case ch of
-    -1: result:='?';
-    0: result:='T';
-    else result:='O'+inttostr(ch);
+    0: result:='*';
+    1: result:='T';
+    2: result:='X';
+    else result:='B';
   end;
 end;
 

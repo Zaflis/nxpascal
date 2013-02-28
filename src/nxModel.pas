@@ -106,6 +106,8 @@ type
     procedure AssignTo(poly: TPolyModel);
     procedure Clear;
     procedure DoTextureCorrection;
+    function FindNearest(const source: TVector;
+      const nearest: PVector=nil; const normal: PVector=nil): integer;
     procedure FlipFaces;
     function GetTangent(const fIndex: word): TVector;
     procedure LoadFromFile(filename: string);
@@ -1483,6 +1485,28 @@ begin
            BalanceOK(t0.y, t2.y) then BalanceOK(t1.y, t2.y);
       end;
     end; }
+end;
+
+function TTriModel.FindNearest(const source: TVector; const nearest: PVector;
+  const normal: PVector): integer;
+var i: integer; p: TVector; d, nearD: single;
+begin
+  if fCount<1 then begin
+    result:=-1; exit;
+  end;
+  result:=0;
+  p:=NearTriPoint(@va[fa[0, 0]], @va[fa[0, 1]], @va[fa[0, 2]], @source);
+  nearD:=VectorDist(source, p);
+  if nearest<>nil then nearest^:=p;
+  for i:=1 to fCount-1 do begin
+    p:=NearTriPoint(@va[fa[i, 0]], @va[fa[i, 1]], @va[fa[i, 2]], @source);
+    d:=VectorDist(source, p);
+    if d<nearD then begin
+      nearD:=d; result:=i;
+      if nearest<>nil then nearest^:=p;
+    end;
+  end;
+  if normal<>nil then normal^:=GetTangent(result);
 end;
 
 procedure TTriModel.FlipFaces;
