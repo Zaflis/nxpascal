@@ -1319,7 +1319,7 @@ end;
 procedure TModelW3D.AssignTo(const poly: TPolyModel);
 var i, j: integer;
 begin
-  //DoTextureCorrection;
+  DoTextureCorrection;
 
   poly.Clear;
   poly.UseColors:=UseColors; poly.UseMaterials:=UseMaterials;

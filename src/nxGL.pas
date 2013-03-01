@@ -53,7 +53,9 @@ type
     destructor Destroy; override;
     constructor Create;
     function AddEmptyTexture(name: string; width, height: word; transparency: boolean = false): integer;
-    function AddTexture(name, filename: string; transparency: boolean = false): integer;
+    function AddTexture(name, filename: string; transparency: boolean = false): integer; overload;
+    function AddTexture(name: string; data: PointerArrayType;
+      width, height, values: integer; format, intFormat: cardinal): integer; overload;
     function Add3DTexture(name,filename: string; cols,rows: integer; transparency: boolean = false): integer;
     procedure Clear;
     procedure Disable;
@@ -1663,6 +1665,28 @@ begin
       glGenTextures(1,@texture[result].index);
     ChangeTexMode3D(false);
     ReloadTexture(result, filename, transparency);
+  end;
+end;
+
+function TGLTextureSet.AddTexture(name: string; data: PointerArrayType;
+  width, height, values: integer; format, intFormat: cardinal): integer;
+begin
+  result:=AddTexture2(name, '', values>3);
+  if result>=0 then begin
+    texture[result].sizeX:=width;
+    texture[result].sizeY:=height;
+    texture[result].Width:=width;
+    texture[result].Height:=height;
+    texture[result].format:=format;
+    texture[result].intFormat:=intFormat;
+    texture[result].Data:=data;
+    texture[result].values:=values;
+    inc(texture[result].RefCount);
+    if texture[result].index=0 then
+      glGenTextures(1,@texture[result].index);
+    ChangeTexMode3D(false);
+    Restore(result);
+    SetPattern(result, width, height, 0, 0);
   end;
 end;
 

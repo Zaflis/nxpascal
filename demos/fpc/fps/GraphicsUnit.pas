@@ -6,7 +6,7 @@ interface
 
 uses
   SysUtils, Dialogs, dglOpenGL, nxGL, math, nxMath, nxMath3D,
-  nxTypes, GameUnit;
+  nxTypes, GameUnit, TextureGen;
 
 type
 
@@ -42,10 +42,13 @@ begin
   nx.SetLight(1, GL_DIFFUSE, 1, 0, 0);
 
   nx.CreateFont('Courier', 8, 256);
-  tex.AddTexture('glow', 'data\glow.png');
+  //tex.AddTexture('glow', 'data\glow.png');
+  AddGlowTex;
+  AddForceFieldTex;
+
   tex.AddTexture('cursor', 'data\cursor.png');
 
-  world:=TGLModel.Create('data\world.w3d');
+  world:=TWorldModel.Create('data\world.w3d');
   world.Scale(10, 10, 10);
   world.LoadTextures('data');
   weapon:=TGLModel.Create('data\weapon.w3d');
