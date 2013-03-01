@@ -40,7 +40,7 @@
         <PackageName Value="LCL"/>
       </Item3>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="FPSDemo.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -64,6 +64,11 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="GraphicsUnit"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="TextureGen.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="TextureGen"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

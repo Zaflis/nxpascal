@@ -7,7 +7,8 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, Main, lazopenglcontext, lazmouseandkeyinput, GameUnit, GraphicsUnit
+  Forms, Main, lazopenglcontext, lazmouseandkeyinput, GameUnit, GraphicsUnit,
+  TextureGen
   { you can add units after this };
 
 {$R *.res}

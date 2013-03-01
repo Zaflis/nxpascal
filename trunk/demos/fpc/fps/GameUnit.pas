@@ -35,13 +35,23 @@ type
   end;
   PPickableObject = ^TPickableObject;
 
+  { TWorldModel }
+
+  TWorldModel = class(TGLModel)
+  public
+    forcefield: TGLModel;
+    constructor Create(filename: string);
+    destructor Destroy; override;
+    procedure Render(Initialize: boolean = true);
+  end;
+
   { TGame }
 
   TGame = class(TGameHandler)
   public
     cam: TCamera;
     player: TPlayer;
-    world: TGLModel;
+    world: TWorldModel;
     cVec, mVec: TVector;
     ray: TMouseRay;
     jumping, crouching: boolean;
@@ -193,6 +203,18 @@ begin
         sound.Find('bounce').SetVelocity(movement, nx.FPS);
         sound.Find('bounce').SetOrientation(norm(movement));
         sound.Find('bounce').Play;
+      end else begin
+        world.forcefield.FindNearest(position, @nearest, @normal);
+        d:=VectorDist(position, nearest);
+        if d<0.2 then begin
+          position:=VectorSub(position, movement);
+          movement:=Reflect(movement, normal);
+          inc(bounces);
+          sound.Find('bounce').SetLocation(position);
+          sound.Find('bounce').SetVelocity(movement, nx.FPS);
+          sound.Find('bounce').SetOrientation(norm(movement));
+          sound.Find('bounce').Play;
+        end;
       end;
       if bounces>10 then begin
         bullet[i]:=bullet[high(bullet)];
@@ -223,6 +245,41 @@ procedure TGame.RemovePickable(index: integer);
 begin
   obj[index]:=obj[high(obj)];
   setlength(obj, high(obj));
+end;
+
+{ TWorldModel }
+
+constructor TWorldModel.Create(filename: string);
+var n, i: integer;
+begin
+  inherited Create(filename);
+  forcefield:=TGLModel.CreateCube;
+  forcefield.UseMaterials:=true;
+  forcefield.UseColors:=false;
+  n:=forcefield.NewMaterial(tex.IndexOf('forcefield'));
+  forcefield.mat[n].addMode:=true;
+  forcefield.mat[n].specular:=0;
+  forcefield.mat[n].shininess:=0;
+  for i:=0 to forcefield.groups-1 do
+    forcefield.grp[i].matIndex:=n;
+  forcefield.Scale(1, 2, 0);
+  forcefield.Translate(0.1, 1, 3.1);
+end;
+
+destructor TWorldModel.Destroy;
+begin
+  forcefield.Free;
+  inherited Destroy;
+end;
+
+procedure TWorldModel.Render(Initialize: boolean);
+begin
+  inherited Render(Initialize);
+  nx.rs.Push;
+  nx.rs.Lighting:=false;
+  nx.SetColor(1, 0, 0, 0.9+random*0.1); // Flashy red color
+  forcefield.Render;
+  nx.rs.Pop;
 end;
 
 end.
