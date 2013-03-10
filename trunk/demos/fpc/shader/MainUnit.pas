@@ -13,7 +13,8 @@ interface
 
 uses
   Classes, SysUtils, FileUtil, Forms, Controls, Graphics, Dialogs,
-  ExtCtrls, math, dglOpenGL, nxMath3D, nxGL, nxTypes;
+  ExtCtrls, math, dglOpenGL, nxMath3D, nxGL, nxTypes, dialogUnit,
+  LCLType;
 
 type
 
@@ -24,7 +25,9 @@ type
     procedure FormClose(Sender: TObject; var {%H-}CloseAction: TCloseAction);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: Word; {%H-}Shift: TShiftState);
     procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
+    procedure FormPaint(Sender: TObject);
     procedure Timer1Timer(Sender: TObject);
   private
     model: TGLModel;
@@ -35,8 +38,7 @@ type
   public
   end;
 
-var
-  Form1: TForm1;
+var Form1: TForm1;
 
 procedure MakeBumpTexture(index: integer; dest: TBitmap);
 
@@ -47,40 +49,44 @@ implementation
 { TForm1 }
 
 procedure TForm1.FormCreate(Sender: TObject);
-var v4: TVector4f; //bmp: TBitmap;
-    //errorStr: TStringList;
 begin
   clientwidth:=800; clientheight:=600;
   if not nx.CreateGlWindow(self) then begin
     showmessage('Cannot initialize OpenGL'); exit;
   end;
+end;
+
+procedure TForm1.FormPaint(Sender: TObject);
+var v4: TVector4f; i: integer;
+begin
+  onPaint:=nil;
 
   // Initialize shader
-  shader:=TGLShader.Create(true, true);
+  shader:=TGLShader.Create;
   if nx.LastError<>'' then begin
     showmessage(nx.LastError); exit;
   end;
 
   // Load sources
-  //errorStr:=TStringList.Create;
-  //shader.LoadVertexSource('shader\vertex.txt');
-  //shader.LoadFragmentSource('shader\fragment.txt');
-  shader.LoadDefaultVShader3D;
-  shader.LoadDefaultFShader3D(true);
-
-  //errorStr.Free;
-
-  // Link shader program
-  if not shader.Link then begin
+  shader.AddDefault3D(true);
+  for i:=0 to high(shader.shaders) do
+    if not shader.shaders[i].compiled then begin
+      shader.shaders[i].GetLastErrorInfo(errorForm.Memo1.Lines);
+    end;
+  if not shader.isCompiled then begin
+    errorForm.ShowModal; exit;
+  end else if not shader.Link then begin
     showmessage(nx.LastError); exit;
   end;
 
   // Read shader variables
   locColorMap:=shader.GetUniform('colorMap');
-  if not shader.LastUniformValid then showmessage(nx.LastError);
+  if nx.LastError<>'' then begin
+    showmessage(nx.LastError); nx.ClearError;
+  end;
 
   locNormalMap:=shader.GetUniform('normalMap');
-  if not shader.LastUniformValid then showmessage(nx.LastError);
+  if nx.LastError<>'' then showmessage(nx.LastError);
   nx.ClearError;
 
   // Use shader program
@@ -124,6 +130,11 @@ begin
   model.Free;
   shader.Free;
   nx.KillGLWindow;
+end;
+
+procedure TForm1.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if key=VK_ESCAPE then close;
 end;
 
 procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
