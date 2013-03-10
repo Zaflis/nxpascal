@@ -1,0 +1,29 @@
+object errorForm: TerrorForm
+  Left = 521
+  Height = 438
+  Top = 115
+  Width = 510
+  BorderIcons = [biSystemMenu]
+  Caption = 'Compile error details'
+  ClientHeight = 438
+  ClientWidth = 510
+  Position = poScreenCenter
+  LCLVersion = '1.1'
+  object Memo1: TMemo
+    Left = 5
+    Height = 422
+    Top = 8
+    Width = 498
+    Anchors = [akTop, akLeft, akRight, akBottom]
+    Color = clBtnFace
+    Font.CharSet = ANSI_CHARSET
+    Font.Height = -12
+    Font.Name = 'Arial'
+    Font.Pitch = fpVariable
+    Font.Quality = fqDraft
+    ParentFont = False
+    ReadOnly = True
+    ScrollBars = ssVertical
+    TabOrder = 0
+  end
+end

@@ -172,46 +172,78 @@ type
     procedure SetStatic(enable: boolean);
   end;
 
-  { TGLShader }
+  { TShaderSource }
 
-  TGLShader = class
+  TShaderSource = class
   private
-    FProgram, FVertexShader, FFragmentShader: GLhandle;
-    FUseVertex, FUseFragment: boolean;
-    LastErrorSource: GLHandle;
+    FCompiled: boolean;
   public
-    LastUniformValid: boolean;
-    constructor Create(UseVertex, UseFragment: boolean);
+    handle: GLhandle;
+    property compiled: boolean read FCompiled;
+    constructor Create(shaderType: GLenum);
+    constructor CreateFragment;
+    constructor CreateVertex;
     destructor Destroy; override;
-    procedure AttachFragmentShaderFrom(shader: TGLShader);
-    procedure AttachVertexShaderFrom(shader: TGLShader);
-    procedure DeleteProgram;
-    procedure Disable;
-    procedure Enable;
     procedure GetLastErrorInfo(target: TStrings);
-    function GetUniform(name: string): GLint;
-    function Link: boolean;
     function LoadDefaultFShader2D: boolean;
     function LoadDefaultVShader2D: boolean;
     function LoadDefaultFShader3D(bump: boolean): boolean;
     function LoadDefaultVShader3D: boolean;
-    function LoadFragmentSource(filename: string): boolean;
-    function LoadVertexSource(filename: string): boolean;
-    procedure MakeProgram(UseVertex, UseFragment: boolean);
-    function SetFragmentSource(s: string): boolean;
-    function SetVertexSource(s: string): boolean;
+    function LoadSource(filename: string): boolean;
+    function SetSource(const s: string): boolean;
+  end;
+
+  { TShaderProgram }
+
+  TShaderProgram = class
+  private
+    FLinked: boolean;
+  public
+    handle: GLhandle;
+    attached: array of TShaderSource;
+    property linked: boolean read FLinked;
+    constructor Create;
+    destructor Destroy; override;
+    function AttachShader(shader: TShaderSource): boolean;
+    procedure DetachAllShaders;
+    procedure DetachShader(index: integer);
+    procedure Disable;
+    procedure Enable;
+    function GetUniform(uname: string): GLint;
+    function isCompiled: boolean;
+    function Link: boolean;
+  end;
+
+  { TGLShader }
+
+  TGLShader = class
+  private
+  public
+    current: TShaderProgram;
+    programs: array of TShaderProgram;
+    shaders: array of TShaderSource;
+    destructor Destroy; override;
+    function AddProgram: TShaderProgram;
+    function AddShader(const s: string; isVertex: boolean): TShaderSource;
+    function AddDefault2D: TShaderProgram;
+    function AddDefault3D(bump: boolean = false): TShaderProgram;
+    procedure DeleteProgram(index: integer);
+    procedure Disable;
+    procedure Enable;
+    function GetUniform(uname: string): GLint;
+    function isCompiled: boolean;
+    function Link: boolean;
+    function LoadShader(filename: string; isVertex: boolean): TShaderSource;
+    procedure SelectProgram(index: integer; doSet: boolean = true);
   end;
 
   { TGLRenderer }
 
-  TGLRenderer = class
+  TGLRenderer = class(TGLShader)
   public
-    ShaderCount: integer;
-    shader: array of TGLShader;
-    constructor Create;
-    destructor Destroy; override;
-    function AddShader(UseVertex, UseFragment: boolean): integer;
-    procedure DeleteShader(n: integer);
+    //constructor Create;
+    //destructor Destroy; override;
+
   end;
 
   { TDisplayList }
@@ -2231,240 +2263,107 @@ end;
 
 { TGLShader }
 
-constructor TGLShader.Create(UseVertex, UseFragment: boolean);
-begin
-  MakeProgram(UseVertex, UseFragment);
-end;
-
 destructor TGLShader.Destroy;
+var i: integer;
 begin
-  DeleteProgram;
+  for i:=0 to high(programs) do programs[i].Free;
+  for i:=0 to high(shaders) do shaders[i].Free;
   inherited Destroy;
 end;
 
-procedure TGLShader.AttachFragmentShaderFrom(shader: TGLShader);
+function TGLShader.AddProgram: TShaderProgram;
 begin
-  if (shader=nil) or (shader.FFragmentShader=0) then exit;
-  glAttachShader(FProgram, shader.FFragmentShader);
+  result:=TShaderProgram.Create;
+  setlength(programs, length(programs)+1);
+  programs[high(programs)]:=result;
+  current:=result;
 end;
 
-procedure TGLShader.AttachVertexShaderFrom(shader: TGLShader);
+function TGLShader.AddShader(const s: string; isVertex: boolean): TShaderSource;
 begin
-  if (shader=nil) or (shader.FVertexShader=0) then exit;
-  glAttachShader(FProgram, shader.FVertexShader);
+  if isVertex then result:=TShaderSource.CreateVertex
+  else result:=TShaderSource.CreateFragment;
+  setlength(shaders, length(shaders)+1);
+  shaders[high(shaders)]:=result;
+  result.SetSource(s);
 end;
 
-procedure TGLShader.DeleteProgram;
+function TGLShader.AddDefault2D: TShaderProgram;
+var sl: TStringList;
 begin
-  Disable;
-  if FVertexShader<>0 then begin
-    glDetachShader(FProgram, FVertexShader);
-    glDeleteShader(FVertexShader);
-  end;
-  if FFragmentShader<>0 then begin
-    glDetachShader(FProgram, FFragmentShader);
-    glDeleteShader(FFragmentShader);
-  end;
-  if FProgram<>0 then glDeleteProgram(FProgram);
-  FProgram:=0; FVertexShader:=0; FFragmentShader:=0;
+  result:=AddProgram;
+  sl:=TStringList.Create;
+  MakeVShader2D(sl);
+  result.AttachShader(AddShader(sl.Text, true));
+  MakeFShader2D(sl);
+  result.AttachShader(AddShader(sl.Text, false));
+  sl.Free;
+end;
+
+function TGLShader.AddDefault3D(bump: boolean): TShaderProgram;
+var sl: TStringList;
+begin
+  result:=AddProgram;
+  sl:=TStringList.Create;
+  MakeVShader3D(sl);
+  result.AttachShader(AddShader(sl.Text, true));
+  MakeFShader3D(sl, bump);
+  result.AttachShader(AddShader(sl.Text, false));
+  sl.Free;
+end;
+
+procedure TGLShader.DeleteProgram(index: integer);
+var i: integer;
+begin
+  current:=nil;
+  programs[index].Free;
+  for i:=index to high(programs)-1 do
+    programs[i]:=programs[i+1];
+  setlength(programs, high(programs));
 end;
 
 procedure TGLShader.Disable;
 begin
-  glUseProgram(0);
+  if current<>nil then current.Disable;
 end;
 
 procedure TGLShader.Enable;
 begin
-  glUseProgram(FProgram);
+  if current<>nil then current.Enable;
 end;
 
-procedure TGLShader.GetLastErrorInfo(target: TStrings);
-var maxLength: GLint; s: string;
+function TGLShader.GetUniform(uname: string): GLint;
 begin
-  if (target=nil) or (LastErrorSource=0) then exit;
-  glGetShaderiv(LastErrorSource, GL_INFO_LOG_LENGTH, @maxLength);
-  setlength(s, maxLength);
-  glGetShaderInfoLog(LastErrorSource, maxLength, maxLength, @s[1]);
-  if target.Text<>'' then target.Text:=target.Text+#13+#10+s
-  else target.Text:=s;
-  LastErrorSource:=0;
+  if current<>nil then result:=current.GetUniform(uname)
+  else result:=-1;
 end;
 
-function TGLShader.GetUniform(name: string): GLint;
+function TGLShader.isCompiled: boolean;
 begin
-  result:=glGetUniformLocation(FProgram, PGLChar(name));
-  LastUniformValid:=result<>-1;
-  if not LastUniformValid then nxSetError('Shader uniform '+name+' not found');
+  if current<>nil then result:=current.isCompiled
+  else result:=false;
 end;
 
 function TGLShader.Link: boolean;
-var isCompiled: GLint;
 begin
-  glLinkProgram(FProgram);
-  isCompiled:=0;
-  glGetProgramiv(FProgram, GL_LINK_STATUS, @isCompiled);
-  result:=isCompiled=GL_TRUE;
-  if not result then nxSetError(format(
-    'GLSL linking failed with errorID %d!', [isCompiled]));
+  if (current<>nil) and current.isCompiled then result:=current.Link
+  else result:=false;
 end;
 
-function TGLShader.LoadDefaultFShader2D: boolean;
-var sl: TStringList;
-begin
-  sl:=TStringList.Create;
-  MakeFShader2D(sl);
-  result:=SetFragmentSource(sl.Text);
-  sl.Free;
-end;
-
-function TGLShader.LoadDefaultVShader2D: boolean;
-var sl: TStringList;
-begin
-  sl:=TStringList.Create;
-  MakeVShader2D(sl);
-  result:=SetVertexSource(sl.Text);
-  sl.Free;
-end;
-
-function TGLShader.LoadDefaultFShader3D(bump: boolean): boolean;
-var sl: TStringList;
-begin
-  sl:=TStringList.Create;
-  MakeFShader3D(sl, bump);
-  result:=SetFragmentSource(sl.Text);
-  sl.Free;
-end;
-
-function TGLShader.LoadDefaultVShader3D: boolean;
-var sl: TStringList;
-begin
-  sl:=TStringList.Create;
-  MakeVShader3D(sl);
-  result:=SetVertexSource(sl.Text);
-  sl.Free;
-end;
-
-function TGLShader.LoadFragmentSource(filename: string): boolean;
+function TGLShader.LoadShader(filename: string; isVertex: boolean): TShaderSource;
 var sl: TStringList;
 begin
   sl:=TStringList.Create;
   FixPath(filename);
   sl.LoadFromFile(filename);
-  result:=SetFragmentSource(sl.Text);
+  result:=AddShader(sl.Text, isVertex);
   sl.Free;
 end;
 
-function TGLShader.LoadVertexSource(filename: string): boolean;
-var sl: TStringList;
+procedure TGLShader.SelectProgram(index: integer; doSet: boolean);
 begin
-  sl:=TStringList.Create;
-  FixPath(filename);
-  sl.LoadFromFile(filename);
-  result:=SetVertexSource(sl.Text);
-  sl.Free;
-end;
-
-procedure TGLShader.MakeProgram(UseVertex, UseFragment: boolean);
-begin
-  DeleteProgram;
-  FProgram:=glCreateProgram();
-  if FProgram=0 then begin
-    nxSetError('Failed to create shader program'); exit;
-  end;
-  if UseVertex then begin
-    FVertexShader:=glCreateShader(GL_VERTEX_SHADER);
-    if FVertexShader=0 then begin
-      nxSetError('Failed to create vertex shader'); exit;
-    end;
-    glAttachShader(FProgram, FVertexShader);
-    FUseVertex:=UseVertex;
-  end;
-  if UseFragment then begin
-    FFragmentShader:=glCreateShader(GL_FRAGMENT_SHADER);
-    if FFragmentShader=0 then begin
-      nxSetError('Failed to create fragment shader'); exit;
-    end;
-    glAttachShader(FProgram, FFragmentShader);
-    FUseFragment:=UseFragment;
-  end;
-end;
-
-function TGLShader.SetFragmentSource(s: string): boolean;
-var shader_source: PAnsiChar; isCompiled: GLint;
-begin
-  result:=false;
-  if not FUseFragment then exit;
-  shader_source:=PAnsiChar(s+#0);
-  glShaderSource(FFragmentShader, 1, PPGLChar(@shader_source), nil);
-  glCompileShader(FFragmentShader);
-  isCompiled:=0;
-  glGetShaderiv(FFragmentShader, GL_COMPILE_STATUS, @isCompiled);
-  if isCompiled=GL_FALSE then begin
-    nxSetError('Fragment shader compilation failed');
-    LastErrorSource:=FFragmentShader;
-  end;
-  result:=isCompiled=GL_TRUE;
-end;
-
-function TGLShader.SetVertexSource(s: string): boolean;
-var shader_source: PAnsiChar; isCompiled: GLint;
-begin
-  result:=false;
-  if not FUseVertex then exit;
-  shader_source:=PAnsiChar(s+#0);
-  glShaderSource(FVertexShader, 1, PPGLChar(@shader_source), nil);
-  glCompileShader(FVertexShader);
-  isCompiled:=0;
-  glGetShaderiv(FVertexShader, GL_COMPILE_STATUS, @isCompiled);
-  if isCompiled=GL_FALSE then begin
-    nxSetError('Vertex shader compilation failed');
-    LastErrorSource:=FVertexShader;
-  end;
-  result:=isCompiled=GL_TRUE;
-end;
-
-{ TGLRenderer }
-
-constructor TGLRenderer.Create;
-begin
-  //
-end;
-
-destructor TGLRenderer.Destroy;
-var i: integer;
-begin
-  for i:=0 to ShaderCount-1 do
-    if shader[i]<>nil then shader[i].Free;
-  inherited Destroy;
-end;
-
-function TGLRenderer.AddShader(UseVertex, UseFragment: boolean): integer;
-var i: integer;
-begin
-  result:=-1;
-  for i:=0 to ShaderCount-1 do
-    if shader[i]=nil then begin
-      result:=i; break;
-    end;
-  if result=-1 then begin
-    result:=ShaderCount;
-    inc(ShaderCount); setlength(shader, ShaderCount);
-  end;
-  shader[result]:=TGLShader.Create(UseVertex, UseFragment);
-end;
-
-procedure TGLRenderer.DeleteShader(n: integer);
-var i: integer; oldCount: integer;
-begin
-  if (n>=0) and (n<ShaderCount) then begin
-    FreeAndNil(shader[n]);
-    oldCount:=ShaderCount;
-    for i:=ShaderCount-1 downto 0 do
-      if shader[i]=nil then dec(ShaderCount)
-      else break;
-    if ShaderCount<oldCount then setlength(shader, ShaderCount);
-  end;
+  current:=programs[index];
+  if doSet then current.Enable;
 end;
 
 { TCamera }
@@ -2856,6 +2755,182 @@ end;
 procedure TVBO.SetStatic(enable: boolean);
 begin
   FStatic:=enable;
+end;
+
+{ TShaderProgram }
+
+constructor TShaderProgram.Create;
+begin
+  handle:=glCreateProgram();
+  if handle=0 then begin
+    nxSetError('Failed to create shader program');
+  end;
+end;
+
+destructor TShaderProgram.Destroy;
+begin
+  Disable;
+  DetachAllShaders;
+  if handle<>0 then glDeleteProgram(handle);
+  inherited Destroy;
+end;
+
+function TShaderProgram.AttachShader(shader: TShaderSource): boolean;
+begin
+  if (shader=nil) or (shader.handle=0) then begin
+    result:=false; exit;
+  end;
+  setlength(attached, length(attached)+1);
+  attached[high(attached)]:=shader;
+  glAttachShader(handle, shader.handle);
+  result:=true;
+end;
+
+procedure TShaderProgram.DetachAllShaders;
+var i: integer;
+begin
+  for i:=0 to high(attached) do
+    glDetachShader(handle, attached[i].handle);
+  setlength(attached, 0);
+end;
+
+procedure TShaderProgram.DetachShader(index: integer);
+var i: integer;
+begin
+  glDetachShader(handle, attached[index].handle);
+  for i:=index to high(attached)-1 do
+    attached[i]:=attached[i+1];
+  setlength(attached, high(attached));
+end;
+
+procedure TShaderProgram.Disable;
+begin
+  glUseProgram(0);
+end;
+
+procedure TShaderProgram.Enable;
+begin
+  glUseProgram(handle);
+end;
+
+function TShaderProgram.GetUniform(uname: string): GLint;
+begin
+  result:=glGetUniformLocation(handle, PGLChar(uname));
+  if result=-1 then nxSetError('Shader uniform '+uname+' not found');
+end;
+
+function TShaderProgram.isCompiled: boolean;
+var i: integer;
+begin
+  result:=length(attached)>0;
+  for i:=0 to high(attached) do
+    result:=result and attached[i].compiled;
+end;
+
+function TShaderProgram.Link: boolean;
+var isLinked: GLint;
+begin
+  glLinkProgram(handle);
+  isLinked:=GL_FALSE;
+  glGetProgramiv(handle, GL_LINK_STATUS, @isLinked);
+  FLinked:=isLinked=GL_TRUE;
+  result:=FLinked;
+  if not FLinked then nxSetError(format(
+    'GLSL linking failed with errorID %d!', [isLinked]));
+end;
+
+{ TShaderSource }
+
+constructor TShaderSource.Create(shaderType: GLenum);
+begin
+  handle:=glCreateShader(shaderType);
+end;
+
+constructor TShaderSource.CreateFragment;
+begin
+  Create(GL_FRAGMENT_SHADER);
+end;
+
+constructor TShaderSource.CreateVertex;
+begin
+  Create(GL_VERTEX_SHADER);
+end;
+
+destructor TShaderSource.Destroy;
+begin
+
+  inherited Destroy;
+end;
+
+procedure TShaderSource.GetLastErrorInfo(target: TStrings);
+var maxLength: GLint; s: string;
+begin
+  if (target=nil) or (handle=0) then exit;
+  glGetShaderiv(handle, GL_INFO_LOG_LENGTH, @maxLength);
+  setlength(s, maxLength);
+  glGetShaderInfoLog(handle, maxLength, maxLength, @s[1]);
+  if target.Text<>'' then target.Text:=target.Text+#13+#10+s
+  else target.Text:=s;
+end;
+
+function TShaderSource.LoadDefaultFShader2D: boolean;
+var sl: TStringList;
+begin
+  sl:=TStringList.Create;
+  MakeFShader2D(sl);
+  result:=SetSource(sl.Text);
+  sl.Free;
+end;
+
+function TShaderSource.LoadDefaultVShader2D: boolean;
+var sl: TStringList;
+begin
+  sl:=TStringList.Create;
+  MakeVShader2D(sl);
+  result:=SetSource(sl.Text);
+  sl.Free;
+end;
+
+function TShaderSource.LoadDefaultFShader3D(bump: boolean): boolean;
+var sl: TStringList;
+begin
+  sl:=TStringList.Create;
+  MakeFShader3D(sl, bump);
+  result:=SetSource(sl.Text);
+  sl.Free;
+end;
+
+function TShaderSource.LoadDefaultVShader3D: boolean;
+var sl: TStringList;
+begin
+  sl:=TStringList.Create;
+  MakeVShader3D(sl);
+  result:=SetSource(sl.Text);
+  sl.Free;
+end;
+
+function TShaderSource.LoadSource(filename: string): boolean;
+var sl: TStringList;
+begin
+  sl:=TStringList.Create;
+  FixPath(filename);
+  sl.LoadFromFile(filename);
+  result:=SetSource(sl.Text);
+  sl.Free;
+end;
+
+function TShaderSource.SetSource(const s: string): boolean;
+var shader_source: PAnsiChar; isCompiled: GLint;
+begin
+  shader_source:=PAnsiChar(s+#0);
+  glShaderSource(handle, 1, PPGLChar(@shader_source), nil);
+  glCompileShader(handle);
+  isCompiled:=GL_FALSE;
+  glGetShaderiv(handle, GL_COMPILE_STATUS, @isCompiled);
+  FCompiled:=isCompiled<>GL_FALSE;
+  if not FCompiled then
+    nxSetError('Shader compilation failed');
+  result:=FCompiled;
 end;
 
 initialization
