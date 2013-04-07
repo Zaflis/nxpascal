@@ -172,15 +172,21 @@ type
     procedure SetStatic(enable: boolean);
   end;
 
+  {TShaderVBO = class
+    va: array of T3DVertex;
+  end;}
+
   { TShaderSource }
 
   TShaderSource = class
   private
     FCompiled: boolean;
+    FShaderType: GLenum;
   public
     handle: GLhandle;
     property compiled: boolean read FCompiled;
-    constructor Create(shaderType: GLenum);
+    property ShaderType: GLenum read FShaderType;
+    constructor Create(_shaderType: GLenum);
     constructor CreateFragment;
     constructor CreateVertex;
     destructor Destroy; override;
@@ -209,6 +215,7 @@ type
     procedure DetachShader(index: integer);
     procedure Disable;
     procedure Enable;
+    function GetAttrib(aname: string): GLint;
     function GetUniform(uname: string): GLint;
     function isCompiled: boolean;
     function Link: boolean;
@@ -223,10 +230,12 @@ type
     programs: array of TShaderProgram;
     shaders: array of TShaderSource;
     destructor Destroy; override;
-    function AddProgram: TShaderProgram;
+    function AddProgram(const autoAttach: boolean=true): TShaderProgram;
+    function AddProgramAndLink: boolean;
     function AddShader(const s: string; isVertex: boolean): TShaderSource;
     function AddDefault2D: TShaderProgram;
     function AddDefault3D(bump: boolean = false): TShaderProgram;
+    procedure AttachShader(index: integer);
     procedure DeleteProgram(index: integer);
     procedure Disable;
     procedure Enable;
@@ -234,16 +243,56 @@ type
     function isCompiled: boolean;
     function Link: boolean;
     function LoadShader(filename: string; isVertex: boolean): TShaderSource;
-    procedure SelectProgram(index: integer; doSet: boolean = true);
+    procedure SelectProgram(index: integer; doEnable: boolean = true); overload;
+    procedure SelectProgram(prog: TShaderProgram; doEnable: boolean = true); overload;
   end;
 
   { TGLRenderer }
 
-  TGLRenderer = class(TGLShader)
+  TGLRenderer = class
+  private
+    FisBuffer3D, FisEnabled: boolean;
+    FpolyMode: GLuint;
   public
-    //constructor Create;
-    //destructor Destroy; override;
-
+    ambient, diffuse: TfRGB;
+    color: TfRGBA;
+    shininess: single;
+    cam: TCamera;
+    shader: TGLShader;
+    va2D: array of T2DVertex;
+    va3D: array of T3DVertex;
+    program2D, program3D: TShaderProgram;
+    lights: array of T3DLight;
+    buf2D, buf3D: GLuint;
+    att_2Dpos, att_2Dtex, att_2Dcol: GLint;
+    att_3Dpos: GLint;
+    uniModel, uniNormal, uniDiffuse2D: GLint;
+    uniPmv2D, uniPmv3D, uniTex2D, uniTex3D: GLint;
+    uniLightcount, uniLights, uniAmbient3D, uniSpecular, uniShininess: GLint;
+    count, Length2D, Length3D: word;
+    property isEnabled: boolean read FisEnabled;
+    property isBuffer3D: boolean read FisBuffer3D;
+    property polyMode: GLuint read FpolyMode;
+    constructor Create; overload;
+    constructor Create(buffer2D, buffer3D: word); overload;
+    destructor Destroy; override;
+    procedure Disable;
+    function Draw(x, y: single; pattern: integer = 0): word;
+    function DrawRotateS(x,y: single; pattern: word; a,cx,cy,
+      sizeX,sizeY: single): word;
+    procedure Enable2D(ForceUpdateUniforms: boolean = false);
+    procedure Enable3D(ForceUpdateUniforms: boolean = false);
+    function NewQuad: word;
+    function NewTriangle: word;
+    procedure Render;
+    procedure Reset;
+    procedure SetColor(const r, g, b: single; const a: single = 1.0); overload;
+    procedure SetColor(const index: word; const r, g, b, a: single); overload;
+    procedure SetDiffuse(const r, g, b: single);
+    procedure SetNormal(const index: word; const nx, ny, nz: single);
+    procedure SetUniforms;
+    procedure SetVertex(const index: word; const x, y, u, v: single); overload;
+    procedure SetVertex(const index: word; const x, y, z, u, v: single); overload;
   end;
 
   { TDisplayList }
@@ -1024,7 +1073,7 @@ procedure TNXGL.DrawRotateS(x, y: single; pattern: word; a, cx, cy, sizeX,
   sizeY: single);
 var tx,ty,tw,th: single;
 begin
-  {$HINTS OFF}tex.GetPatternCoords(tx,ty,tw,th,pattern);{$HINTS ON}
+  tex.GetPatternCoords(tx,ty,tw,th,pattern);
   glPushMatrix;
   glTranslatef(x,y,0);
   glRotatef(a,0,0,1);
@@ -1041,16 +1090,16 @@ end;
 procedure TNXGL.DrawScaled(x, y, sizeX, sizeY: single; pattern: word);
 var tx,ty,tw,th: single;
 begin
-  {$HINTS OFF}tex.GetPatternCoords(tx,ty,tw,th,pattern);{$HINTS ON}
-  glPushMatrix;
-  glTranslatef(x,y,0);
+  {.$HINTS OFF}tex.GetPatternCoords(tx,ty,tw,th,pattern);{.$HINTS ON}
+  //glPushMatrix;
+  //glTranslatef(x,y,0);
   glBegin(GL_QUADS);
-    glTexCoord2f(tx,   ty);    glVertex2f(0,    0);
-    glTexCoord2f(tx,   ty+th); glVertex2f(0,    sizeY);
-    glTexCoord2f(tx+tw,ty+th); glVertex2f(sizeX,sizeY);
-    glTexCoord2f(tx+tw,ty);    glVertex2f(sizeX,0);
+    glTexCoord2f(tx,    ty);    glVertex2f(x,       y);
+    glTexCoord2f(tx,    ty+th); glVertex2f(x,       y+sizeY);
+    glTexCoord2f(tx+tw, ty+th); glVertex2f(x+sizeX, y+sizeY);
+    glTexCoord2f(tx+tw, ty);    glVertex2f(x+sizeX, y);
   glEnd;
-  glPopMatrix;
+  //glPopMatrix;
 end;
 
 procedure TNXGL.DrawTexRepeat(x, y, sizeX,sizeY: integer);
@@ -2271,12 +2320,21 @@ begin
   inherited Destroy;
 end;
 
-function TGLShader.AddProgram: TShaderProgram;
+function TGLShader.AddProgram(const autoAttach: boolean): TShaderProgram;
+var i: integer;
 begin
   result:=TShaderProgram.Create;
   setlength(programs, length(programs)+1);
   programs[high(programs)]:=result;
   current:=result;
+  if autoAttach then
+    for i:=high(shaders)-1 to high(shaders) do
+      current.AttachShader(shaders[i]);
+end;
+
+function TGLShader.AddProgramAndLink: boolean;
+begin
+  AddProgram; result:=Link;
 end;
 
 function TGLShader.AddShader(const s: string; isVertex: boolean): TShaderSource;
@@ -2291,25 +2349,27 @@ end;
 function TGLShader.AddDefault2D: TShaderProgram;
 var sl: TStringList;
 begin
-  result:=AddProgram;
   sl:=TStringList.Create;
-  MakeVShader2D(sl);
-  result.AttachShader(AddShader(sl.Text, true));
-  MakeFShader2D(sl);
-  result.AttachShader(AddShader(sl.Text, false));
+  MakeVShader2D(sl); AddShader(sl.Text, true);
+  MakeFShader2D(sl); AddShader(sl.Text, false);
   sl.Free;
+  result:=AddProgram(true);
 end;
 
 function TGLShader.AddDefault3D(bump: boolean): TShaderProgram;
 var sl: TStringList;
 begin
-  result:=AddProgram;
   sl:=TStringList.Create;
-  MakeVShader3D(sl);
-  result.AttachShader(AddShader(sl.Text, true));
-  MakeFShader3D(sl, bump);
-  result.AttachShader(AddShader(sl.Text, false));
+  MakeVShader3D(sl);       AddShader(sl.Text, true);
+  MakeFShader3D(sl, bump); AddShader(sl.Text, false);
   sl.Free;
+  result:=AddProgram(true);
+end;
+
+procedure TGLShader.AttachShader(index: integer);
+begin
+  if current<>nil then
+    current.AttachShader(shaders[index]);
 end;
 
 procedure TGLShader.DeleteProgram(index: integer);
@@ -2347,7 +2407,11 @@ end;
 function TGLShader.Link: boolean;
 begin
   if (current<>nil) and current.isCompiled then result:=current.Link
-  else result:=false;
+  else begin
+    result:=false;
+    if length(programs)=0 then nxSetError('No shader program(s) created')
+    else nxSetError('No shader program selected');
+  end;
 end;
 
 function TGLShader.LoadShader(filename: string; isVertex: boolean): TShaderSource;
@@ -2360,10 +2424,16 @@ begin
   sl.Free;
 end;
 
-procedure TGLShader.SelectProgram(index: integer; doSet: boolean);
+procedure TGLShader.SelectProgram(index: integer; doEnable: boolean);
 begin
   current:=programs[index];
-  if doSet then current.Enable;
+  if doEnable then current.Enable;
+end;
+
+procedure TGLShader.SelectProgram(prog: TShaderProgram; doEnable: boolean);
+begin
+  current:=prog;
+  if doEnable then current.Enable;
 end;
 
 { TCamera }
@@ -2813,10 +2883,16 @@ begin
   glUseProgram(handle);
 end;
 
+function TShaderProgram.GetAttrib(aname: string): GLint;
+begin
+  result:=glGetAttribLocation(handle, PGLChar(aname));
+  if result=-1 then nxSetError('Shader attrib "'+aname+'" not found');
+end;
+
 function TShaderProgram.GetUniform(uname: string): GLint;
 begin
   result:=glGetUniformLocation(handle, PGLChar(uname));
-  if result=-1 then nxSetError('Shader uniform '+uname+' not found');
+  if result=-1 then nxSetError('Shader uniform "'+uname+'" not found');
 end;
 
 function TShaderProgram.isCompiled: boolean;
@@ -2841,9 +2917,10 @@ end;
 
 { TShaderSource }
 
-constructor TShaderSource.Create(shaderType: GLenum);
+constructor TShaderSource.Create(_shaderType: GLenum);
 begin
-  handle:=glCreateShader(shaderType);
+  FShaderType:=_shaderType;
+  handle:=glCreateShader(FShaderType);
 end;
 
 constructor TShaderSource.CreateFragment;
@@ -2869,7 +2946,14 @@ begin
   glGetShaderiv(handle, GL_INFO_LOG_LENGTH, @maxLength);
   setlength(s, maxLength);
   glGetShaderInfoLog(handle, maxLength, maxLength, @s[1]);
-  if target.Text<>'' then target.Text:=target.Text+#13+#10+s
+  s:=trim(s);
+  if s<>'' then
+    case FShaderType of
+      GL_VERTEX_SHADER: s:='[Vertex shader compile error]'+#13+#10+s;
+      GL_FRAGMENT_SHADER: s:='[Fragment shader compile error]'+#13+#10+s;
+    end;
+  if (target.Text<>'') and (s<>'') then
+    target.Text:=target.Text+#13+#10+s
   else target.Text:=s;
 end;
 
@@ -2931,6 +3015,274 @@ begin
   if not FCompiled then
     nxSetError('Shader compilation failed');
   result:=FCompiled;
+end;
+
+{ TGLRenderer }
+
+constructor TGLRenderer.Create;
+begin
+  Create(300, 300); // multiple of numbers 3 and 4
+end;
+
+constructor TGLRenderer.Create(buffer2D, buffer3D: word);
+var i: integer; solidWhite: TfRGBA; nUp: TVector;
+begin
+  cam:=TCamera.Create;
+  ambient:=fRGB(0, 0, 0); diffuse:=fRGB(1, 1, 1); shininess:=10;
+  color:=fRGBA(1, 1, 1, 1);
+  shader:=TGLShader.Create;
+  if buffer2D>0 then begin
+    program2D:=shader.AddDefault2D; shader.Link;
+    setlength(va2D, buffer2D); Length2D:=buffer2D;
+    glGenBuffers(1, @buf2D);
+    uniPmv2D:=program2D.GetUniform('pmv');
+    uniTex2D:=program2D.GetUniform('texture');
+    uniDiffuse2D:=program2D.GetUniform('diffuse');
+    att_2Dtex:=program2D.GetAttrib('in_texCoord');
+    att_2Dcol:=program2D.GetAttrib('in_color');
+    att_2Dpos:=program2D.GetAttrib('in_position');
+  end;
+  if buffer3D>0 then begin
+    program3D:=shader.AddProgram(false);
+    //shader.AddDefault3D(false); shader.Link;
+    setlength(va3D, buffer3D); Length3D:=buffer3D;
+    glGenBuffers(1, @buf3D);
+    {att_3Dpos:=program3D.GetAttrib('in_position');
+    uniAmbient3D:=program3D.GetUniform('ambient');
+    uniShininess:=program3D.GetUniform('shininess');}
+    //uniLightcount:=program3D.GetUniform('lightcount');
+    //uniLights:=program3D.GetUniform('lights');
+  end;
+  FpolyMode:=GL_QUADS;
+  solidWhite:=fRGBA(1, 1, 1, 1);
+  nUp:=vector(0, 1, 0);
+  for i:=0 to high(va2D) do va2D[i].color:=solidWhite;
+  for i:=0 to high(va3D) do begin
+    va3D[i].color:=solidWhite; va3D[i].n:=nUp;
+  end;
+end;
+
+destructor TGLRenderer.Destroy;
+begin
+  cam.Free;
+  shader.Free;
+  glDeleteBuffers(1, @buf2D); glDeleteBuffers(1, @buf3D);
+  inherited Destroy;
+end;
+
+procedure TGLRenderer.Disable;
+begin
+  FisEnabled:=false; shader.Disable;
+end;
+
+function TGLRenderer.Draw(x, y: single; pattern: integer): word;
+var tx, ty, tw, th, w, h: single;
+begin
+  Enable2D; result:=NewQuad;
+  tex.GetPatternCoords(tx, ty, tw, th, pattern);
+  tex.GetImageSize(w, h);
+  SetVertex(result, x, y, tx, ty);
+  SetVertex(result+1, x, y+h, tx, ty+th);
+  SetVertex(result+2, x+w, y+h, tx+tw, ty+th);
+  SetVertex(result+3, x+w, y, tx+tw, ty);
+  with color do begin
+    SetColor(result, r, g, b, a);
+    SetColor(result+1, r, g, b, a);
+    SetColor(result+2, r, g, b, a);
+    SetColor(result+3, r, g, b, a);
+  end;
+end;
+
+function TGLRenderer.DrawRotateS(x, y: single; pattern: word; a, cx, cy, sizeX, sizeY: single): word;
+var tx, ty, tw, th, w, h: single;
+begin
+  Enable2D; result:=NewQuad;
+  tex.GetPatternCoords(tx, ty, tw, th, pattern);
+  tex.GetImageSize(w, h);
+  SetVertex(result, x, y, tx, ty);
+  SetVertex(result+1, x, y+h, tx, ty+th);
+  SetVertex(result+2, x+w, y+h, tx+tw, ty+th);
+  SetVertex(result+3, x+w, y, tx+tw, ty);
+  with color do begin
+    SetColor(result, r, g, b, a);
+    SetColor(result+1, r, g, b, a);
+    SetColor(result+2, r, g, b, a);
+    SetColor(result+3, r, g, b, a);
+  end;
+end;
+
+procedure TGLRenderer.Enable2D(ForceUpdateUniforms: boolean);
+begin
+  if FisEnabled then begin
+    if FisBuffer3D then begin
+      Render; FisBuffer3D:=false;
+      shader.SelectProgram(program2D, true);
+      SetUniforms;
+    end else if ForceUpdateUniforms then
+      SetUniforms;
+  end else begin
+    FisEnabled:=true; FisBuffer3D:=false;
+    shader.SelectProgram(program2D, true);
+    SetUniforms;
+  end;
+end;
+
+procedure TGLRenderer.Enable3D(ForceUpdateUniforms: boolean);
+begin
+  if FisEnabled then begin
+    if not FisBuffer3D then begin
+      Render; FisBuffer3D:=true;
+      shader.SelectProgram(program3D, true);
+      SetUniforms;
+    end else if ForceUpdateUniforms then
+      SetUniforms;
+  end else begin
+    FisEnabled:=true; FisBuffer3D:=true;
+    shader.SelectProgram(program3D, true);
+    SetUniforms;
+  end;
+end;
+
+// Returns index of first vertex in quad
+function TGLRenderer.NewQuad: word;
+begin
+  if polyMode<>GL_QUADS then begin
+    Render; FpolyMode:=GL_QUADS;
+  end else begin
+    if isBuffer3D then begin
+      if count>length3D-4 then Render;
+    end else begin
+      if count>length2D-4 then Render;
+    end;
+  end;
+  result:=count; inc(count, 4);
+end;
+
+// Returns index of first vertex in triangle
+function TGLRenderer.NewTriangle: word;
+begin
+  if polyMode<>GL_TRIANGLES then begin
+    Render; FpolyMode:=GL_TRIANGLES;
+  end else begin
+    if isBuffer3D then begin
+      if count>length3D-3 then Render;
+    end else begin
+      if count>length2D-3 then Render;
+    end;
+  end;
+  result:=count; inc(count, 3);
+end;
+
+procedure TGLRenderer.Render;
+var i: integer; c: TfRGBA;
+begin
+  if count=0 then exit;
+  if isBuffer3D then begin
+    shader.SelectProgram(program3D);
+    //glUniform1i(uniLightcount, length(lights));
+    {glBindBuffer(GL_ARRAY_BUFFER, buf3D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(va3D), @va3D[0], GL_STREAM_DRAW);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 12, GL_FLOAT, false, 0, nil);
+    glDisableVertexAttribArray(1); }
+  end else begin
+    //shader.SelectProgram(program2D);
+    program2D.Enable;
+    glBindBuffer(GL_ARRAY_BUFFER, buf2D);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(T2DVertex)*length2D, @va2D[0], GL_STREAM_DRAW);
+    glVertexAttribPointer(att_2Dpos, 2, GL_FLOAT, false, sizeof(T2DVertex), nil);
+    glEnableVertexAttribArray(att_2Dpos);
+    glVertexAttribPointer(att_2Dtex, 2, GL_FLOAT, false, sizeof(T2DVertex), pointer(8));
+    glEnableVertexAttribArray(att_2Dtex);
+    glVertexAttribPointer(att_2Dcol, 4, GL_FLOAT, false, sizeof(T2DVertex), pointer(16));
+    glEnableVertexAttribArray(att_2Dcol);
+    glDrawArrays(polyMode, 0, count);
+    glDisableVertexAttribArray(att_2Dpos);
+    glDisableVertexAttribArray(att_2Dtex);
+    glDisableVertexAttribArray(att_2Dcol);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+  end;
+  count:=0;
+end;
+
+procedure TGLRenderer.Reset;
+begin
+  count:=0;
+end;
+
+procedure TGLRenderer.SetColor(const r, g, b: single; const a: single);
+begin
+  color.r:=r; color.g:=g; color.b:=b; color.a:=a;
+end;
+
+procedure TGLRenderer.SetColor(const index: word; const r, g, b, a: single);
+begin
+  if isBuffer3D then begin
+    va3D[index].color.r:=r;
+    va3D[index].color.g:=g;
+    va3D[index].color.b:=b;
+    va3D[index].color.a:=a;
+  end else begin
+    va2D[index].color.r:=r;
+    va2D[index].color.g:=g;
+    va2D[index].color.b:=b;
+    va2D[index].color.a:=a;
+  end;
+end;
+
+procedure TGLRenderer.SetDiffuse(const r, g, b: single);
+begin
+  diffuse.r:=r; diffuse.g:=g; diffuse.b:=b;
+end;
+
+procedure TGLRenderer.SetNormal(const index: word; const nx, ny, nz: single);
+begin
+  if isBuffer3D then begin
+    va3D[index].n.x:=nx;
+    va3D[index].n.y:=ny;
+    va3D[index].n.z:=nz;
+  end;
+end;
+
+procedure TGLRenderer.SetUniforms;
+var pmv, modelM, projM: TMatrix; normal: TMatrix3f;
+begin
+  glGetFloatv(GL_PROJECTION_MATRIX, @projM);
+  glGetFloatv(GL_MODELVIEW_MATRIX, @modelM);
+  //cam.GetMatrix;
+  pmv:=multiply(modelM, projM);
+
+  if isBuffer3D then begin
+    //glUniformMatrix4fv(uniPmv3D, 1, bytebool(GL_FALSE), @pmv);
+    //glUniformMatrix4fv(uniModel, 1, bytebool(GL_FALSE), @modelM);
+    //glUniformMatrix3fv(uniNormal, 1, bytebool(GL_FALSE), @normal);
+
+  end else begin
+    glUniformMatrix4fv(uniPmv2D, 1, bytebool(GL_FALSE), @pmv);
+    glUniform1i(uniTex2D, 0);
+    with diffuse do glUniform3f(uniDiffuse2D, r, g, b);
+  end;
+end;
+
+procedure TGLRenderer.SetVertex(const index: word; const x, y, u, v: single);
+begin
+  if not isBuffer3D then begin
+    va2D[index].v.x:=x;
+    va2D[index].v.y:=y;
+    va2D[index].uv.x:=u;
+    va2D[index].uv.y:=v;
+  end;
+end;
+
+procedure TGLRenderer.SetVertex(const index: word; const x, y, z, u, v: single);
+begin
+  if isBuffer3D then begin
+    va3D[index].v.x:=x;
+    va3D[index].v.y:=y;
+    va3D[index].v.z:=z;
+    va3D[index].uv.x:=u;
+    va3D[index].uv.y:=v;
+  end;
 end;
 
 initialization

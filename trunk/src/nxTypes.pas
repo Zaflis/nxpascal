@@ -20,6 +20,7 @@ type
   {$ENDIF}
   TRGB = packed record r,g,b: byte; end;
   TRGBA = packed record r,g,b,a: byte; end;
+  TfRGB = record r,g,b: single; end;
   TfRGBA = record r,g,b,a: single; end;
   TVector2f = packed record x,y: single; end;
   fPoint = TVector2f;
@@ -62,9 +63,27 @@ type
     start, dir: TVector;
   end;
   PMouseRay = ^TMouseRay;
-  TTexturePart = record
-    r: TRecti; center: TVector2f; name: string;
+
+  T2DVertex = packed record // size 8 float
+    v: TVector2f;
+    uv: TVector2f;
+    color: TfRGBA;
   end;
+  T3DVertex = packed record // size 12 float
+    v, n: TVector;
+    uv: TVector2f;
+    color: TfRGBA;
+  end;
+
+  T3DLight = packed record // size 7 float
+    position: TVector;
+    radius: single;
+    color: TfRGB;
+  end;
+
+  {TTexturePart = record
+    r: TRecti; center: TVector2f; name: string;
+  end;}
 
   function pointf(const x, y: single): TVector2f;
   function rectf(const x1, y1, x2, y2: single): TRectf;
@@ -77,6 +96,7 @@ type
   function vector4f(const x, y, z: single; const w: single = 1): TVector4f;{$IFDEF CanInline}inline;{$ENDIF}
   function RGB(const r, g, b: byte): TRGB;
   function RGBA(const r, g, b: byte; const a: byte = 255): TRGBA;
+  function fRGB(const r, g, b: single): TfRGB;
   function fRGBA(const r, g, b, a: single): TfRGBA;
   procedure FixPath(var path: string);
   function getFixPath(const path: string): string;
@@ -190,6 +210,11 @@ end;
 function RGBA(const r, g, b: byte; const a: byte): TRGBA;
 begin
   result.r:=r; result.g:=g; result.b:=b; result.a:=a;
+end;
+
+function fRGB(const r, g, b: single): TfRGB;
+begin
+  result.r:=r; result.g:=g; result.b:=b;
 end;
 
 function fRGBA(const r, g, b, a: single): TfRGBA;
