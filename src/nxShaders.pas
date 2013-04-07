@@ -13,31 +13,35 @@ implementation
 
 procedure MakeVShader2D(text: TStrings);
 begin
-  text.Text:='#version 120'+#13+#10+
+  text.Text:='#version 120'+#13+
+'attribute vec2 in_position;' +
+'attribute vec2 in_texCoord;' +
+'attribute vec4 in_color;' +
 'varying vec2 texCoord;' +
-
+'varying vec4 color;' +
+'uniform mat4 pmv;' +
+'uniform vec3 diffuse;' +
 'void main() {' +
-'  texCoord = gl_MultiTexCoord0.xy;' +
-'  gl_FrontColor = gl_Color;' +
-'  gl_BackColor = gl_Color;' +
-'  gl_Position = ftransform();' +
+'  texCoord = in_texCoord;' +
+'  color = in_color * vec4(diffuse, 1.0);' +
+'  gl_Position = pmv * vec4(in_position, 0.0, 1.0);' +
 '}';
 end;
 
 procedure MakeFShader2D(text: TStrings);
 begin
-  text.Text:='#version 120'+#13+#10+
+  text.Text:='#version 120'+#13+
 'varying vec2 texCoord;' +
-'uniform sampler2D tex;' +
-
+'varying vec4 color;' +
+'uniform sampler2D texture;' +
 'void main() {' +
-'  gl_FragColor = texture2D(tex, texCoord) * gl_Color;' +
+'  gl_FragColor = texture2D(texture, texCoord) * color;' +
 '}';
 end;
 
 procedure MakeVShader3D(text: TStrings);
 begin
-  text.Text:='#version 120'+#13+#10+
+  text.Text:='#version 120'+#13+
 'varying vec3 lightVec;' +
 'varying vec3 eyeVec;' +
 'varying vec2 texCoord;' +
@@ -53,7 +57,6 @@ begin
 '  if (length(c2)>length(vTangent)) {' +
 '    vTangent=c2;' +
 '  }' +
-
 '  vTangent = normalize(vTangent);' +
 
 '  vec3 n = normalize(gl_NormalMatrix * gl_Normal);' +
@@ -76,7 +79,7 @@ end;
 
 procedure MakeFShader3D(text: TStrings; bump: boolean);
 begin
-  text.Text:='#version 120'+#13+#10+
+  text.Text:='#version 120'+#13+
 'varying vec3 lightVec;' +
 'varying vec3 eyeVec;' +
 'varying vec2 texCoord;' +

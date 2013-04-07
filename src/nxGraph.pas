@@ -6,6 +6,7 @@ unit nxGraph;
 
 { TODO:
 - TTextureSet.ReadFromFile, WriteToFile
+- Move TCustomVertexArray to nxModel
 }
 
 interface
@@ -53,7 +54,8 @@ type
   	procedure CopyArea(source, dest: PTexture; x,y: integer);
     function FindTex(tex: PTexture): integer;
     function GetMemoryUsage: cardinal;
-    procedure GetPatternCoords(var x,y,w,h: single; pattern: integer);
+    procedure GetImageSize(out w, h: single);
+    procedure GetPatternCoords(out x, y, w, h: single; pattern: integer);
     function IndexOf(name: string): integer;
     function LoadBMPDataFile(tex: PTexture; filename: string): boolean;
     function LoadBMPData(tex: PTexture; bmp: TBitmap): boolean; overload;
@@ -321,8 +323,23 @@ begin
     with texture[i] do result:=result+sizeX*sizeY*sizeZ*values;
 end;
 
+procedure TTextureSet.GetImageSize(out w, h: single);
+var pTex: PTexture;
+begin
+  if LastTexIndex>=0 then begin
+    pTex:=@texture[LastTexIndex];
+    if pTex^.PatternWidth>0 then begin
+      w:=pTex^.patternwidth; h:=pTex^.patternheight;
+    end else begin
+      w:=pTex^.Width; h:=pTex^.Height;
+    end;
+  end else begin
+    w:=1; h:=1;
+  end;
+end;
+
 // Returns texture coordinates for pattern
-procedure TTextureSet.GetPatternCoords(var x, y, w, h: single;
+procedure TTextureSet.GetPatternCoords(out x, y, w, h: single;
   pattern: integer);
 var cols, rows, mult: integer; sx, sy: single;
     pTex: PTexture;

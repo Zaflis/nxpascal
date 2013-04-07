@@ -14,11 +14,6 @@ uses SysUtils, nxTypes;
 type
   TIndexArray = array of word;
 
-  TModelVertex = packed record
-    v, n: TVector;
-    uv: TVector2f;
-  end;
-
   TMaterial = record
     name, texture: string;
     texIndex: smallint;
@@ -173,7 +168,7 @@ type
 
   TVertexModel = class
     fa: array of TTriFaceIndices;
-    va: array of TModelVertex;
+    va: array of T3DVertex;
     ca: array of TRGBA;
     grp: array of TFaceGroup;
     bone: array of TBone;
