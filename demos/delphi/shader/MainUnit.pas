@@ -153,6 +153,7 @@ begin
 end;
 
 // Optional procedure you can use to make normalmap texture
+//  (Not used in this demo)
 procedure MakeBumpTexture(index: integer; dest: TBitmap);
   function GetBr(x, y: integer): single;
   var d: integer;

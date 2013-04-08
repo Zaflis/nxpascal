@@ -20,10 +20,10 @@ begin
 'varying vec2 texCoord;' +
 'varying vec4 color;' +
 'uniform mat4 pmv;' +
-'uniform vec3 diffuse;' +
+'uniform vec4 diffuse;' +
 'void main() {' +
 '  texCoord = in_texCoord;' +
-'  color = in_color * vec4(diffuse, 1.0);' +
+'  color = in_color * diffuse;' +
 '  gl_Position = pmv * vec4(in_position, 0.0, 1.0);' +
 '}';
 end;

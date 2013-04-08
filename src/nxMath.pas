@@ -10,8 +10,9 @@ interface
 
 uses nxTypes, math;
 
-  function Angle(const px1,py1,px2,py2: single): single; overload;
+  function Angle(const px1, py1, px2, py2: single): single; overload;
   function Angle(srcRadian, destRadian: single): single; overload;
+  function Angle(const v1, v2: TVector2f): single; overload;
   function Catmull(const p0,p1,p2,p3,t: single): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Catmull(const a,b,c,d: TVector2f; const delta: single): TVector2f; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Distance(x1,y1,x2,y2, px,py: single): single;
@@ -73,6 +74,13 @@ begin
   result:=srcRadian-destRadian;
   while result<-PI do result:=result+PI*2;
   while result>PI do result:=result-PI*2;
+end;
+
+// Angle from 1 point to another, given in radians
+function Angle(const v1, v2: TVector2f): single;
+begin
+  result:=arctan2(v2.y-v1.y, v2.x-v1.x);
+  if result<0 then result:=result+PI*2;
 end;
 
 function Catmull(const p0,p1,p2,p3,t: single): single;{$IFDEF CanInline}inline;{$ENDIF}
