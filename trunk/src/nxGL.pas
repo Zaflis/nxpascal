@@ -254,7 +254,7 @@ type
     FisBuffer3D, FisEnabled: boolean;
     FpolyMode: GLuint;
   public
-    ambient, diffuse: TfRGB;
+    ambient, diffuse: TfRGBA;
     color: TfRGBA;
     shininess: single;
     cam: TCamera;
@@ -278,8 +278,8 @@ type
     destructor Destroy; override;
     procedure Disable;
     function Draw(x, y: single; pattern: integer = 0): word;
-    function DrawRotateS(x,y: single; pattern: word; a,cx,cy,
-      sizeX,sizeY: single): word;
+    function DrawRotateS(x, y: single; pattern: word; radians, cx, cy,
+      sizeX, sizeY: single): word;
     procedure Enable2D(ForceUpdateUniforms: boolean = false);
     procedure Enable3D(ForceUpdateUniforms: boolean = false);
     function NewQuad: word;
@@ -288,7 +288,7 @@ type
     procedure Reset;
     procedure SetColor(const r, g, b: single; const a: single = 1.0); overload;
     procedure SetColor(const index: word; const r, g, b, a: single); overload;
-    procedure SetDiffuse(const r, g, b: single);
+    procedure SetDiffuse(const r, g, b: single; const a: single = 1.0);
     procedure SetNormal(const index: word; const nx, ny, nz: single);
     procedure SetUniforms;
     procedure SetVertex(const index: word; const x, y, u, v: single); overload;
@@ -422,8 +422,8 @@ type
     procedure DeleteFont(index: integer);
     procedure Disable2D;
     procedure Draw(x,y: integer; pattern: word = 0);
-    procedure DrawRotate(x,y: single; pattern: word; a,cx,cy: single);
-    procedure DrawRotateS(x,y: single; pattern: word; a,cx,cy,
+    procedure DrawRotate(x,y: single; pattern: word; degrees,cx,cy: single);
+    procedure DrawRotateS(x,y: single; pattern: word; degrees,cx,cy,
       sizeX,sizeY: single);
     procedure DrawScaled(x,y,sizeX,sizeY: single; pattern: word = 0);
     procedure DrawSections(x,y,sizeX,sizeY,pattern: integer; bdSize: single = 0.25);
@@ -1033,7 +1033,7 @@ begin
   glEnd;
 end;
 
-procedure TNXGL.DrawRotate(x, y: single; pattern: word; a, cx, cy: single);
+procedure TNXGL.DrawRotate(x, y: single; pattern: word; degrees, cx, cy: single);
 var w,h,cols,rows: integer; tx,ty,tw,th,sx,sy: single;
     pTex: PTexture;
 begin
@@ -1058,7 +1058,7 @@ begin
   end;
   glPushMatrix;
   glTranslatef(x,y,0);
-  glRotatef(a,0,0,1);
+  glRotatef(degrees,0,0,1);
   glTranslatef(-cx*w,-cy*h,0);
   glBegin(GL_QUADS);
     glTexCoord2f(tx,ty); glVertex2f(0,0);
@@ -1069,14 +1069,13 @@ begin
   glPopMatrix;
 end;
 
-procedure TNXGL.DrawRotateS(x, y: single; pattern: word; a, cx, cy, sizeX,
-  sizeY: single);
+procedure TNXGL.DrawRotateS(x, y: single; pattern: word; degrees, cx, cy, sizeX, sizeY: single);
 var tx,ty,tw,th: single;
 begin
   tex.GetPatternCoords(tx,ty,tw,th,pattern);
   glPushMatrix;
   glTranslatef(x,y,0);
-  glRotatef(a,0,0,1);
+  glRotatef(degrees,0,0,1);
   glTranslatef(-cx*sizeX,-cy*sizeY,0);
   glBegin(GL_QUADS);
     glTexCoord2f(tx,ty); glVertex2f(0,0);
@@ -3028,7 +3027,7 @@ constructor TGLRenderer.Create(buffer2D, buffer3D: word);
 var i: integer; solidWhite: TfRGBA; nUp: TVector;
 begin
   cam:=TCamera.Create;
-  ambient:=fRGB(0, 0, 0); diffuse:=fRGB(1, 1, 1); shininess:=10;
+  ambient:=fRGBA(0, 0, 0, 1); diffuse:=fRGBA(1, 1, 1, 1); shininess:=10;
   color:=fRGBA(1, 1, 1, 1);
   shader:=TGLShader.Create;
   if buffer2D>0 then begin
@@ -3093,16 +3092,22 @@ begin
   end;
 end;
 
-function TGLRenderer.DrawRotateS(x, y: single; pattern: word; a, cx, cy, sizeX, sizeY: single): word;
-var tx, ty, tw, th, w, h: single;
+function TGLRenderer.DrawRotateS(x, y: single; pattern: word; radians,
+  cx, cy, sizeX, sizeY: single): word;
+var tx, ty, tw, th, w, h: single; dx, dy: TVector2f;
 begin
   Enable2D; result:=NewQuad;
   tex.GetPatternCoords(tx, ty, tw, th, pattern);
   tex.GetImageSize(w, h);
+  dx.x:=cos(radians); dx.y:=sin(radians);
+  dy.x:=-dx.y*sizeY; dy.y:=dx.x*sizeY;
+  dx.x:=dx.x*sizeX; dx.y:=dx.y*sizeX;
+  x:=x-cx*dx.x-cy*dy.x;
+  y:=y-cx*dx.y-cy*dy.y;
   SetVertex(result, x, y, tx, ty);
-  SetVertex(result+1, x, y+h, tx, ty+th);
-  SetVertex(result+2, x+w, y+h, tx+tw, ty+th);
-  SetVertex(result+3, x+w, y, tx+tw, ty);
+  SetVertex(result+1, x+dy.x, y+dy.y, tx, ty+th);
+  SetVertex(result+2, x+dx.x+dy.x, y+dx.y+dy.y, tx+tw, ty+th);
+  SetVertex(result+3, x+dx.x, y+dx.y, tx+tw, ty);
   with color do begin
     SetColor(result, r, g, b, a);
     SetColor(result+1, r, g, b, a);
@@ -3174,7 +3179,7 @@ begin
 end;
 
 procedure TGLRenderer.Render;
-var i: integer; c: TfRGBA;
+//var i: integer; c: TfRGBA;
 begin
   if count=0 then exit;
   if isBuffer3D then begin
@@ -3186,8 +3191,8 @@ begin
     glVertexAttribPointer(1, 12, GL_FLOAT, false, 0, nil);
     glDisableVertexAttribArray(1); }
   end else begin
-    //shader.SelectProgram(program2D);
-    program2D.Enable;
+    shader.SelectProgram(program2D);
+    //program2D.Enable;
     glBindBuffer(GL_ARRAY_BUFFER, buf2D);
     glBufferData(GL_ARRAY_BUFFER, sizeof(T2DVertex)*length2D, @va2D[0], GL_STREAM_DRAW);
     glVertexAttribPointer(att_2Dpos, 2, GL_FLOAT, false, sizeof(T2DVertex), nil);
@@ -3230,9 +3235,9 @@ begin
   end;
 end;
 
-procedure TGLRenderer.SetDiffuse(const r, g, b: single);
+procedure TGLRenderer.SetDiffuse(const r, g, b: single; const a: single);
 begin
-  diffuse.r:=r; diffuse.g:=g; diffuse.b:=b;
+  diffuse.r:=r; diffuse.g:=g; diffuse.b:=b; diffuse.a:=a;
 end;
 
 procedure TGLRenderer.SetNormal(const index: word; const nx, ny, nz: single);
@@ -3245,7 +3250,7 @@ begin
 end;
 
 procedure TGLRenderer.SetUniforms;
-var pmv, modelM, projM: TMatrix; normal: TMatrix3f;
+var pmv, modelM, projM: TMatrix; //normal: TMatrix3f;
 begin
   glGetFloatv(GL_PROJECTION_MATRIX, @projM);
   glGetFloatv(GL_MODELVIEW_MATRIX, @modelM);
@@ -3260,7 +3265,7 @@ begin
   end else begin
     glUniformMatrix4fv(uniPmv2D, 1, bytebool(GL_FALSE), @pmv);
     glUniform1i(uniTex2D, 0);
-    with diffuse do glUniform3f(uniDiffuse2D, r, g, b);
+    with diffuse do glUniform4f(uniDiffuse2D, r, g, b, a);
   end;
 end;
 

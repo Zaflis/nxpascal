@@ -13,7 +13,7 @@ uses nxMath, nxTypes;
   { General 3D Functions }          
 
   function Angle(const v1,v2: TVector; axis: integer): single; overload;
-  function Angle(v1,v2: TVector): single; overload;
+  function Angle(v1, v2: TVector): single; overload;
   function Bezier(const a,b: TVector; const delta: single): TVector; overload;
   function Bezier(const p: array of TVector; const count: word;
     const delta: single): TVector; overload;
