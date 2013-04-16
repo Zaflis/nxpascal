@@ -3,8 +3,6 @@ object Form1: TForm1
   Height = 512
   Top = 128
   Width = 512
-  BorderIcons = [biSystemMenu, biMinimize]
-  BorderStyle = bsSingle
   Caption = 'FrameBuffer demo'
   OnClose = FormClose
   OnCreate = FormCreate

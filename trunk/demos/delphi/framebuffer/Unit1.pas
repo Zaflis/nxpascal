@@ -63,6 +63,8 @@ end;
 procedure TForm1.Timer1Timer(Sender: TObject);
 begin
   // Draw cube to framebuffer, using framebuffer2 as texture
+  nx.SetView(0, 0, 512, 512);
+  nx.Perspective(false);
   fb.Bind;
   glClearColor(0.2,0.4,1,1);
   nx.Clear(true,true);
@@ -84,6 +86,8 @@ begin
   fb2.UnBind;
 
   // Draw framebuffer2 on screen
+  nx.SetView(0, 0, ClientWidth, ClientHeight);
+  nx.Perspective(false);
   glLoadIdentity;
   glClearColor(0,0,0,0.1);
   nx.Clear(true,true);
