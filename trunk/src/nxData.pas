@@ -2,7 +2,8 @@ unit nxData;
 
 interface
 
-uses Forms, Classes, SysUtils, {$IFDEF fpc}zstream{$ELSE}zlib{$ENDIF},
+uses {$IFDEF UNIX}cthreads,{$ENDIF}
+  Forms, Classes, SysUtils, {$IFDEF fpc}zstream{$ELSE}zlib{$ENDIF},
   nxGraph, nxTypes;
 
 type

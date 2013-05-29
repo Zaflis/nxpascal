@@ -2,7 +2,8 @@ unit nxPath;
 
 interface
 
-uses Math, Types;
+uses {$IFDEF UNIX}{cthreads,}{$ENDIF} // Uncomment if threads are used!
+  Math, Types;
 
 const MAX_NODES = 1024;
 
