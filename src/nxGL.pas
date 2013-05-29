@@ -259,6 +259,7 @@ type
     shininess: single;
     cam: TCamera;
     shader: TGLShader;
+    curTexture: integer;
     va2D: array of T2DVertex;
     va3D: array of T3DVertex;
     program2D, program3D: TShaderProgram;
@@ -290,6 +291,8 @@ type
     procedure SetColor(const index: word; const r, g, b, a: single); overload;
     procedure SetDiffuse(const r, g, b: single; const a: single = 1.0);
     procedure SetNormal(const index: word; const nx, ny, nz: single);
+    procedure SetTexture(n: integer);
+    procedure SetTexture(texname: string);
     procedure SetUniforms;
     procedure SetVertex(const index: word; const x, y, u, v: single); overload;
     procedure SetVertex(const index: word; const x, y, z, u, v: single); overload;
@@ -445,6 +448,7 @@ type
     function GLInfo(ext: array of string): boolean; overload;
     function GLInfo(ext: string): boolean; overload;
     function Initialized: boolean;
+    function IsMaxFullscreen: boolean;
     {$IFnDEF NX_CUSTOM_WINDOW}
     procedure KillGLWindow(force: boolean = false);
     {$ENDIF}
@@ -864,9 +868,12 @@ end;
 
 {$IFnDEF NX_CUSTOM_WINDOW}
 function TNXGL.CreateGlWindow(hWindow: TWinControl): boolean;
-var
-{$IFnDEF fpc}pfd: TPIXELFORMATDESCRIPTOR; pf: integer;{$ENDIF}
-  err: cardinal;
+var err: cardinal;
+{$IFnDEF fpc}
+  pfd: TPIXELFORMATDESCRIPTOR; pf: integer;
+{$ELSE}
+  parentForm: TForm;
+{$ENDIF}
 begin
   CreateGlWindow:=false;
   if hWindow=nil then begin
@@ -887,7 +894,12 @@ begin
     window.MakeCurrent(false);
     width:=window.Width; height:=window.Height;
     ReadExtensions; ReadImplementationProperties;
-    if hWindow is TForm then with TForm(hWindow) do begin
+    if hWindow is TForm then parentForm:=TForm(hWindow)
+    else if hWindow.Parent is TForm then
+      parentForm:=TForm(hWindow.Parent)
+    else parentForm:=nil;
+
+    if parentForm<>nil then with parentForm do begin
       window.Cursor:=Cursor;
       if assigned(onMouseMove) then window.OnMouseMove:=onMouseMove;
       if assigned(onMouseDown) then window.onMouseDown:=onMouseDown;
@@ -1305,6 +1317,17 @@ begin
   {$ENDIF}
 end;
 
+function TNXGL.IsMaxFullscreen: boolean;
+var parentForm: TForm;
+begin
+  result:=false;
+  if nxHWND=nil then exit
+  else if nxHWND is TForm then parentForm:=TForm(nxHWND)
+  else if nxHWND.Parent is TForm then parentForm:=TForm(nxHWND.Parent)
+  else exit;
+  result:=parentForm.WindowState=wsMaximized;
+end;
+
 {$IFnDEF NX_CUSTOM_WINDOW}
 procedure TNXGL.KillGLWindow(force: boolean);
 begin
@@ -1498,10 +1521,13 @@ begin
 end;
 
 procedure TNXGL.SetMaxFullscreen(enable: boolean);
-var hWindow: TWinControl;
+var hWindow: TWinControl; parentForm: TForm;
 begin
-  if (nxHWND=nil) or (not (nxHWND is TForm)) then exit;
-  with TForm(nxHWND) do begin
+  if nxHWND=nil then exit
+  else if nxHWND is TForm then parentForm:=TForm(nxHWND)
+  else if nxHWND.Parent is TForm then parentForm:=TForm(nxHWND.Parent)
+  else exit;
+  with parentForm do begin
     if ((BorderStyle=bsNone) and (WindowState=wsMaximized)) = enable then
       exit; // State is already set
     if enable then begin
@@ -2015,8 +2041,7 @@ end;
 procedure TGLTextureSet.SetTextureUnit(n: integer);
 begin
   if FTextureUnit<>n then begin
-    LastTexIndex:=abs(LastTexIndex)-1;
-    FTextureUnit:=n;
+    LastTexIndex:=-2; FTextureUnit:=n;
   end;
   if n>=0 then glActiveTexture(GL_TEXTURE0+n);
 end;
@@ -2409,7 +2434,8 @@ begin
   else begin
     result:=false;
     if length(programs)=0 then nxSetError('No shader program(s) created')
-    else nxSetError('No shader program selected');
+    else if current<>nil then nxSetError('No shader program selected')
+    else nxSetError('Cannot link with shader compile errors');
   end;
 end;
 
@@ -3037,9 +3063,9 @@ begin
     uniPmv2D:=program2D.GetUniform('pmv');
     uniTex2D:=program2D.GetUniform('texture');
     uniDiffuse2D:=program2D.GetUniform('diffuse');
+    att_2Dpos:=program2D.GetAttrib('in_position');
     att_2Dtex:=program2D.GetAttrib('in_texCoord');
     att_2Dcol:=program2D.GetAttrib('in_color');
-    att_2Dpos:=program2D.GetAttrib('in_position');
   end;
   if buffer3D>0 then begin
     program3D:=shader.AddProgram(false);
@@ -3128,7 +3154,7 @@ begin
   end else begin
     FisEnabled:=true; FisBuffer3D:=false;
     shader.SelectProgram(program2D, true);
-    SetUniforms;
+    SetUniforms; curTexture:=tex.LastTexIndex;
   end;
 end;
 
@@ -3144,7 +3170,7 @@ begin
   end else begin
     FisEnabled:=true; FisBuffer3D:=true;
     shader.SelectProgram(program3D, true);
-    SetUniforms;
+    SetUniforms; curTexture:=tex.LastTexIndex;
   end;
 end;
 
@@ -3247,6 +3273,18 @@ begin
     va3D[index].n.y:=ny;
     va3D[index].n.z:=nz;
   end;
+end;
+
+procedure TGLRenderer.SetTexture(n: integer);
+begin
+  if curTexture<>n then begin
+    Render; curTexture:=n; tex.SetTex(n);
+  end;
+end;
+
+procedure TGLRenderer.SetTexture(texname: string);
+begin
+  SetTexture(tex.IndexOf(texname));
 end;
 
 procedure TGLRenderer.SetUniforms;

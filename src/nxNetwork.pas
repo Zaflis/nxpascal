@@ -7,7 +7,8 @@ unit nxNetwork;
 
 interface
 
-uses Classes, SysUtils, synsock, blcksock;
+uses {$IFDEF UNIX}cthreads,{$ENDIF}
+  Classes, SysUtils, synsock, blcksock;
 
 const
   ExitCode = '#End#';
