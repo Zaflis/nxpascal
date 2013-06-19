@@ -36,30 +36,30 @@ type
 
   TTextureSet = class
   protected
-    count2: integer;
+    count2: longint;
     enable3Dtex: boolean;
     function Pow2Near(var w,h: word; out sx,sy: single): boolean;
     function Pow2Fit(var w,h: word; out sx,sy: single): boolean;
   public
-    count, LastTexIndex, TextureQuality, cols3D, rows3D: integer;
+    count, LastTexIndex, TextureQuality, cols3D, rows3D: longint;
     Options: TTextureLoadOptions;
     scaleX, scaleY: single;
     texture: array of TTexture;
     TransparentColor: TRGB;
     constructor Create;
     destructor Destroy; override;
-    function AddTexture2(name,filename: string; transparency: boolean = false): integer;
-    function Add3DTexture2(name,filename: string; cols,rows: integer; transparency: boolean = false): integer;
+    function AddTexture2(name,filename: string; transparency: boolean = false): longint;
+    function Add3DTexture2(name,filename: string; cols,rows: integer; transparency: boolean = false): longint;
     procedure Clear;
   	procedure CopyArea(source, dest: PTexture; x,y: integer);
-    function FindTex(tex: PTexture): integer;
+    function FindTex(tex: PTexture): longint;
     function GetMemoryUsage: cardinal;
     procedure GetImageSize(out w, h: single);
-    procedure GetPatternCoords(out x, y, w, h: single; pattern: integer);
-    function IndexOf(name: string): integer;
+    procedure GetPatternCoords(out x, y, w, h: single; pattern: longint);
+    function IndexOf(name: string): longint;
     function LoadBMPDataFile(tex: PTexture; filename: string): boolean;
     function LoadBMPData(tex: PTexture; bmp: TBitmap): boolean; overload;
-    function LoadBMPData(tex: integer; bmp: TBitmap): boolean; overload;
+    function LoadBMPData(tex: longint; bmp: TBitmap): boolean; overload;
     function LoadPNGData(tex: PTexture; filename: string): boolean;
     function LoadJPGData(tex: PTexture; filename: string): boolean;
     function LoadTextureData(tex: PTexture; filename: string): boolean;
@@ -68,14 +68,14 @@ type
     {$ENDIF}
     function NewName(const base: string): string;
     procedure ReadFromFile(var f: TextFile);
-    procedure RemoveTexture(n: integer);
+    procedure RemoveTexture(n: longint);
  	  procedure Resize(_texture: PTexture; newWidth, newHeight: integer);
     procedure SetColorKey(r,g,b: byte);
-    procedure SetCount(n: integer);
-    procedure SetPattern(tex: integer; PatternWidth, PatternHeight,
+    procedure SetCount(n: longint);
+    procedure SetPattern(tex: longint; PatternWidth, PatternHeight,
       SkipWidth, SkipHeight: word);
-    procedure SetSize(tex: integer; Width, Height: word; DefaultPattern: boolean = true);
-    procedure Swap(tex1,tex2: integer);
+    procedure SetSize(tex: longint; Width, Height: word; DefaultPattern: boolean = true);
+    procedure Swap(tex1,tex2: longint);
     procedure WriteToFile(f: TStringList);
   end;
 
@@ -85,7 +85,7 @@ type
   private
   public
     name: string;
-    textureI: integer;
+    textureI: longint;
     charW: array[32..255] of shortint;
     CenterH, sx, sy: shortint;
     TexSize, height: word;
@@ -95,15 +95,15 @@ type
     constructor CreateBMP(fontName: string; fontSize, _TexSize: integer);
     constructor CreateBMPAndSave(fontName: string; fontSize, _TexSize: integer; filename: string);
     procedure SetColor(const r,g,b: single; a: single = 1);
-    function TextW(s: string): integer;
-    function WrapLines(w,h: integer; s: TStrings; first: integer = 0): integer;
+    function TextW(s: string): longint;
+    function WrapLines(w,h: integer; s: TStrings; first: integer = 0): longint;
     procedure Draw(x,y: single; s: string; maxW: integer = 0); virtual; abstract;
     procedure DrawC(x,y: single; s: string; maxW: integer = 0);
     procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); virtual; abstract;
     procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); virtual; abstract;
     procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); virtual; abstract;
     procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: integer); virtual; abstract;
-    procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: integer = 0); virtual; abstract;
+    procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: longint = 0); virtual; abstract;
     procedure SetTexture; virtual; abstract;
   end;
 
@@ -115,20 +115,20 @@ type
     function TextureComponents: integer;
   public
     _textures,_normals,_colors,_AlphaColors,_3Dtextures: boolean;
-    Count, fCount, vCount: integer;
+    Count, fCount, vCount: longint;
     rendermode: Cardinal;
     fa: array of word; // Faces
     va, na: array of TVector; // Vertices, Normals
     ta: array of single; // Textures
     ca: array of byte; // Colors
-    constructor Create(Faces, Vertices: integer; _rendermode: cardinal;
+    constructor Create(Faces, Vertices: longint; _rendermode: cardinal;
       textures, normals, colors: boolean); overload;
-    constructor Create(Faces: integer; _rendermode: cardinal;
+    constructor Create(Faces: longint; _rendermode: cardinal;
       textures, normals, colors: boolean); overload;
     destructor Destroy; override;
     procedure FreeArrays;
-    function GetIndexCount: integer; overload;
-    function GetIndexCount(const faceCount: integer): integer; overload; virtual;abstract;
+    function GetIndexCount: longint; overload;
+    function GetIndexCount(const faceCount: longint): longint; overload; virtual;abstract;
     procedure MakeArrays;
     procedure MakeLinearIndices;
     procedure Set3DTextures;
@@ -145,7 +145,7 @@ type
     nxRC: HGLRC;
     {$ENDIF}
     nxHWND: TWinControl;
-    Left, Top, Width, Height, frames, FFPS: integer;
+    Left, Top, Width, Height, frames, FFPS: longint;
     secTick, FrameTick: cardinal;
     Enabled2D, RenderThreadReserved, PerspectiveStretch: boolean;
     Font: array of TNXFont;
@@ -153,7 +153,7 @@ type
     function CheckFile(const filename: string): boolean;
     procedure ClearError;
     function GetTick: cardinal; overload;
-    function GetTick(range: integer; scale: single = 1): single; overload;
+    function GetTick(range: longint; scale: single = 1): single; overload;
     function LastError: string;
     function IndexOfFont(name: string): integer;
   end;
@@ -166,7 +166,7 @@ implementation
 
 {$IFDEF fpc}uses FileUtil;{$ENDIF}
 
-{function CompareBitmap(src,dest: TCanvas): integer;
+{function CompareBitmap(src,dest: TCanvas): longint;
 var x,y,r: integer;
 begin
   r:=0;
@@ -181,9 +181,8 @@ end; }
 
 { TTextureSet }
 
-function TTextureSet.Add3DTexture2(name, filename: string; cols, rows: integer;
-  transparency: boolean): integer;
-var i: integer;
+function TTextureSet.Add3DTexture2(name, filename: string; cols, rows: integer; transparency: boolean): longint;
+var i: longint;
 begin
   result:=-1;
   if (filename<>'') and (not FileExistsUTF8(filename)) then begin
@@ -218,9 +217,8 @@ begin
   texture[result].tex3D:=true;
 end;
 
-function TTextureSet.AddTexture2(name, filename: string;
-  transparency: boolean): integer;
-var i: integer;
+function TTextureSet.AddTexture2(name, filename: string; transparency: boolean): longint;
+var i: longint;
 begin
   result:=-1;
   // File not found
@@ -260,7 +258,7 @@ begin
 end;
 
 procedure TTextureSet.Clear;
-var i: integer;
+var i: longint;
 begin
   for i:=0 to Count-1 do
     if texture[i].Data<>nil then begin
@@ -270,7 +268,7 @@ begin
 end;
 
 procedure TTextureSet.CopyArea(source, dest: PTexture; x,y: integer);
-var i,j,k,x2,y2: integer;
+var i,j,k,x2,y2: longint;
 begin
   with dest^ do begin
     Reallocmem(Data, SizeX*SizeY*values);
@@ -305,8 +303,8 @@ begin
   inherited Destroy;
 end;
 
-function TTextureSet.FindTex(tex: PTexture): integer;
-var i: integer;
+function TTextureSet.FindTex(tex: PTexture): longint;
+var i: longint;
 begin
   for i:=count-1 downto 0 do
     if tex=@texture[i] then begin
@@ -316,7 +314,7 @@ begin
 end;
 
 function TTextureSet.GetMemoryUsage: cardinal;
-var i: integer;
+var i: longint;
 begin
   result:=0;
   for i:=0 to count-1 do
@@ -339,9 +337,8 @@ begin
 end;
 
 // Returns texture coordinates for pattern
-procedure TTextureSet.GetPatternCoords(out x, y, w, h: single;
-  pattern: integer);
-var cols, rows, mult: integer; sx, sy: single;
+procedure TTextureSet.GetPatternCoords(out x, y, w, h: single; pattern: longint);
+var cols, rows, mult: longint; sx, sy: single;
     pTex: PTexture;
 begin
   if LastTexIndex>=0 then begin
@@ -366,8 +363,8 @@ begin
   x:=0; y:=0; w:=1; h:=1;
 end;
 
-function TTextureSet.IndexOf(name: string): integer;
-var i: integer;
+function TTextureSet.IndexOf(name: string): longint;
+var i: longint;
 begin
   for i:=0 to count-1 do
     if AnsiCompareStr(name, texture[i].name)=0 then begin
@@ -376,14 +373,14 @@ begin
   IndexOf:=-1;
 end;
 
-function TTextureSet.LoadBMPData(tex: integer; bmp: TBitmap): boolean;
+function TTextureSet.LoadBMPData(tex: longint; bmp: TBitmap): boolean;
 begin
   if tex>=0 then LoadBMPData:=LoadBMPData(@texture[tex], bmp)
   else LoadBMPData:=false;
 end;
 
 function TTextureSet.LoadBMPData(tex: PTexture; bmp: TBitmap): boolean;
-var sx, sy: single; n, x1, y1: integer;
+var sx, sy: single; n, x1, y1: longint;
     x, y: word; UseScale: boolean;
     {$IFDEF fpc}fpColor: TFPColor;{$ENDIF}
 begin
@@ -510,7 +507,7 @@ end;
 {$ELSE}
 function TTextureSet.LoadPNGData(tex: PTexture; filename: string): boolean;
 var png: TPNGObject; sx,sy: single;
-    x,y: word; n,x1,y1: integer;
+    x,y: word; n,x1,y1: longint;
     a: pngimage.pByteArray; col: pRGBLine; UseScale: boolean;
 begin
   result:=false;
@@ -583,7 +580,7 @@ end;
 
 {$IFDEF fpc}
 procedure TTextureSet.LoadRaw(tex: PTexture; RawImage: TRawImage);
-var sx,sy: single; n: integer; x1,y1,ny,n2: cardinal;
+var sx,sy: single; n, x1,y1,ny,n2: longint;
     x,y,r,g,b,a: word; UseScale: boolean;
     rp: TRawImagePosition;
 begin
@@ -611,10 +608,10 @@ begin
   n:=0; a:=high(word);
   for y:=0 to tex^.Height-1 do begin
     if UseScale then y1:=trunc(y*sy) else y1:=y;
-    ny:=RawImage.Description.BitsPerLine*y1;
+    ny:=y1*longint(RawImage.Description.BitsPerLine);
     for x:=0 to tex^.Width-1 do begin
       if UseScale then x1:=trunc(x*sx) else x1:=x;
-      n2:=ny+x1*RawImage.Description.BitsPerPixel;
+      n2:=ny+x1*longint(RawImage.Description.BitsPerPixel);
       rp.Byte:=n2 div 8; rp.Bit:=n2 mod 8;
       RawImage.ReadChannels(rp,r,g,b,a);
       r:=r div 256; g:=g div 256; b:=b div 256;
@@ -668,7 +665,7 @@ end;
 {$ENDIF}
 
 function TTextureSet.NewName(const base: string): string;
-var i: integer; n: cardinal; ok: boolean;
+var i: longint; n: cardinal; ok: boolean;
 begin
   n:=0; result:=base+inttostr(n);
   repeat
@@ -729,7 +726,7 @@ begin
   result:=(w<>w1) or (h<>h1);
 end;
 
-procedure TTextureSet.RemoveTexture(n: integer);
+procedure TTextureSet.RemoveTexture(n: longint);
 begin
   texture[n].Enabled:=false; texture[n].RefCount:=0;
   if LastTexIndex=n then LastTexIndex:=-1;
@@ -741,7 +738,7 @@ begin
 end;
 
 procedure TTextureSet.Resize(_texture: PTexture; newWidth, newHeight: integer);
-var tmp: TTexture; i,j,k: integer;
+var tmp: TTexture; i,j,k: longint;
 begin
   tmp.Data:=AllocMem(newWidth*newHeight*_texture^.values);
   {$R-}
@@ -777,7 +774,7 @@ begin
   TransparentColor.b:=b;
 end;
 
-procedure TTextureSet.SetCount(n: integer);
+procedure TTextureSet.SetCount(n: longint);
 begin
   count:=n; n:=nxMath.pow2fit(n);
   if n<>count2 then begin
@@ -785,8 +782,7 @@ begin
   end;
 end;
 
-procedure TTextureSet.SetPattern(tex: integer; PatternWidth, PatternHeight,
-  SkipWidth, SkipHeight: word);
+procedure TTextureSet.SetPattern(tex: longint; PatternWidth, PatternHeight, SkipWidth, SkipHeight: word);
 var t: pTexture;
 begin
   t:=@texture[tex];
@@ -800,7 +796,7 @@ begin
   t^.SkipHeight:=max(0, SkipHeight);
 end;
 
-procedure TTextureSet.SetSize(tex: integer; Width, Height: word; DefaultPattern: boolean);
+procedure TTextureSet.SetSize(tex: longint; Width, Height: word; DefaultPattern: boolean);
 var t: pTexture;
 begin
   t:=@texture[tex];
@@ -821,7 +817,7 @@ begin
   end;
 end;
 
-procedure TTextureSet.Swap(tex1, tex2: integer);
+procedure TTextureSet.Swap(tex1, tex2: longint);
 var temp: TTexture;
 begin
   temp:=texture[tex1];
@@ -926,8 +922,8 @@ begin
   color.r:=r; color.g:=g; color.b:=b; color.a:=a;
 end;
 
-function TNXFont.TextW(s: string): integer;
-var i: integer; b: byte;
+function TNXFont.TextW(s: string): longint;
+var i: longint; b: byte;
 begin
   result:=0;
   for i:=1 to length(s) do begin
@@ -936,8 +932,8 @@ begin
   end;
 end;
 
-function TNXFont.WrapLines(w,h: integer; s: TStrings; first: integer): integer;
-var i,l,x,y,c: integer;
+function TNXFont.WrapLines(w, h: integer; s: TStrings; first: integer): longint;
+var i,l,x,y,c: longint;
 begin
   result:=0; y:=0;
   for l:=first to s.Count-1 do begin
@@ -983,7 +979,7 @@ end;
 
 // Return tick value 0..range-1
 // Call with range >= 1 and scale >0
-function TNXCustomEngine.GetTick(range: integer; scale: single): single;
+function TNXCustomEngine.GetTick(range: longint; scale: single): single;
 begin
   result:=(GetTickCount mod round(range/scale))*scale;
 end;
@@ -1019,8 +1015,7 @@ begin
   else result:=2;
 end;
 
-constructor TCustomVertexArray.Create(Faces, Vertices: integer;
-  _rendermode: cardinal; textures, normals, colors: boolean);
+constructor TCustomVertexArray.Create(Faces, Vertices: longint; _rendermode: cardinal; textures, normals, colors: boolean);
 begin
   fCount:=Faces; vCount:=Vertices;
   rendermode:=_rendermode; Count:=GetIndexCount;
@@ -1028,8 +1023,7 @@ begin
   MakeArrays;
 end;
 
-constructor TCustomVertexArray.Create(Faces: integer; _rendermode: cardinal;
-  textures, normals, colors: boolean);
+constructor TCustomVertexArray.Create(Faces: longint; _rendermode: cardinal; textures, normals, colors: boolean);
 begin
   rendermode:=_rendermode;
   Create(Faces, GetIndexCount(Faces), _rendermode, textures, normals, colors);
@@ -1048,7 +1042,7 @@ begin
   setlength(ca, 0);
 end;
 
-function TCustomVertexArray.GetIndexCount: integer;
+function TCustomVertexArray.GetIndexCount: longint;
 begin
   result:=GetIndexCount(fCount);
 end;
@@ -1065,7 +1059,7 @@ begin
 end;
 
 procedure TCustomVertexArray.MakeLinearIndices;
-var i: integer;
+var i: longint;
 begin
   for i:=0 to GetIndexCount-1 do fa[i]:=i;
 end;

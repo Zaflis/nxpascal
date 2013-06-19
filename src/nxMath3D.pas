@@ -37,7 +37,7 @@ uses nxMath, nxTypes;
     planeOrigin, planeNormal: TVector; intersection: PVector): single;
   function RaySphereIntersect(const rayStart: TVector; rayDirection: TVector;
     const sphereCenter: TVector; const sphereRadius: Single;
-    const i1, i2: PVector): Integer;
+    const i1, i2: PVector): longint;
   function RayTriangleIntersect(const rayStart, rayDirection: TVector;
     const p1, p2, p3: TVector; BothSided: boolean; intersect: PVector = nil;
     intersectNormal: PVector = nil): Boolean;{$IFDEF CanInline}inline;{$ENDIF}
@@ -55,6 +55,7 @@ uses nxMath, nxTypes;
   function VectorZYFromAngle(const radians: single; const radius: single=1.0): TVector;
   function VectorMatch(const a, b: TVector; delta: single=0.01): boolean; overload;
   function VectorLen(const v: TVector): single; stdcall;
+  function VectorSqr(const v: TVector): single; overload;
   function VectorSub(const a, b: TVector): TVector; overload;
 
   { Matrix Functions }
@@ -220,7 +221,7 @@ end;
 
 // Always call with count >= 2
 function Bezier(const p: array of TVector; const count: word; const delta: single): TVector;
-var v: array of TVector; i: integer;
+var v: array of TVector; i: longint;
 begin
   if count>2 then begin
     setlength(v,count-1);
@@ -432,7 +433,7 @@ end;
   Doesn't look ray backwards. (old note, untested) }
 function RaySphereIntersect(const rayStart: TVector; rayDirection: TVector;
   const sphereCenter: TVector; const sphereRadius: Single; const i1,
-  i2: PVector): Integer;
+  i2: PVector): longint;
 var lf, s: single; h: TVector;
 begin
   result:=0;
@@ -595,6 +596,12 @@ end;
 function VectorLen(const v: TVector): single; stdcall;
 begin
   result:=hypot3d(v.x, v.y, v.z);
+end;
+
+// Vector squared
+function VectorSqr(const v: TVector): single;
+begin
+  result:=v.x*v.x + v.y*v.y + v.z*v.z;
 end;
 
 // Returns V1 - V2

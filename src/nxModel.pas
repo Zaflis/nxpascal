@@ -49,14 +49,14 @@ type
     bone: array of TBone;
     UseMaterials, UseColors: boolean;
   private
-    FvCount, FGroups, FmCount, vCount2, fCount2: integer;
+    FvCount, FGroups, FmCount, vCount2, fCount2: longint;
     procedure SetGroups(n: integer);
     procedure SetmCount(n: integer);
-    procedure SetvCount(n: integer);
+    procedure SetvCount(n: longint);
   public
     property groups: integer read FGroups write SetGroups;
     property mCount: integer read FmCount write SetmCount;
-    property vCount: integer read FvCount write SetvCount;
+    property vCount: longint read FvCount write SetvCount;
     procedure Center(_x, _y, _z: boolean);
     procedure Clear;
     function GetRadius(cubic: boolean = false): single;
@@ -87,37 +87,37 @@ type
     fa: array of TTriFaceIndices; // Faces
     frame: array of TVertexFrame;
   private
-    FfCount: integer;
-    procedure GetGrpVertices(out vi: TIndexArray; out vc: integer; group: integer);
-    procedure SetfCount(n: integer);
+    FfCount: longint;
+    procedure GetGrpVertices(out vi: TIndexArray; out vc: longint; group: integer);
+    procedure SetfCount(n: longint);
   public
-    property fCount: integer read FfCount write SetfCount;
+    property fCount: longint read FfCount write SetfCount;
     constructor Create(filename: string); overload;
     constructor CreateCube(segments: integer = 1);
     constructor CreatePlane(cols, rows: integer);
     constructor CreateSphere(cols, rows: integer);
     constructor CreateTorus(cols, rows: integer; inRadius: single);
-    function AddFace(const gIndex: word): integer;
+    function AddFace(const gIndex: word): longint;
     procedure AssignTo(poly: TPolyModel);
     procedure Clear;
     procedure DoTextureCorrection;
     function FindNearest(const source: TVector;
-      const nearest: PVector=nil; const normal: PVector=nil): integer;
+      const nearest: PVector=nil; const normal: PVector=nil): longint;
     procedure FlipFaces;
     function GetTangent(const fIndex: word): TVector;
     procedure LoadFromFile(filename: string);
     procedure LoadFromMS3D(filename: string);
     procedure LoadFromOBJ(filename: string);
-    procedure LoadFromW3D(filename: string; obj: integer = -1);
+    procedure LoadFromW3D(filename: string; obj: longint = -1);
     procedure MakeNormals;
     function rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
-      const intersect: PVector=nil; const normal: PVector=nil): integer; overload; stdcall;
+      const intersect: PVector=nil; const normal: PVector=nil): longint; overload; stdcall;
     function rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
       const position: TVector; const intersect: PVector=nil;
-      const normal: PVector=nil): integer; overload; stdcall;
+      const normal: PVector=nil): longint; overload; stdcall;
     function rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
       const position: TVector; rotation: TMatrix;
-      const intersect: PVector=nil; const normal: PVector=nil): integer; overload; stdcall;
+      const intersect: PVector=nil; const normal: PVector=nil): longint; overload; stdcall;
     procedure RotateUV(_angle, centerX, centerY: single; group: integer); overload;
     procedure ScaleUV(x, y: single; group: integer); overload;
     procedure SaveToFile(filename: string);
@@ -134,10 +134,10 @@ type
   TPolyModel = class(T3DModel)
     fa: array of TPolyFaceIndices; // Faces
   private
-    FfCount: integer;
-    procedure SetfCount(n: integer);
+    FfCount: longint;
+    procedure SetfCount(n: longint);
   public
-    property fCount: integer read FfCount write SetfCount;
+    property fCount: longint read FfCount write SetfCount;
     function AddFace(const points: array of word; _vCount: byte;
       ccw: boolean = false): word;
     procedure AssignTo(tri: TTriModel); overload;
@@ -149,15 +149,15 @@ type
     procedure LoadFromFile(filename: string);
     procedure LoadFromMS3D(filename: string);
     procedure LoadFromOBJ(filename: string);
-    procedure LoadFromW3D(filename: string; obj: integer = -1);
+    procedure LoadFromW3D(filename: string; obj: longint = -1);
     procedure MakeNormals;
     function rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
-      const intersect: PVector=nil; const normal: PVector=nil): integer; overload; stdcall;
+      const intersect: PVector=nil; const normal: PVector=nil): longint; overload; stdcall;
     function rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
       const position: TVector; rotation: TMatrix;
-      const intersect: PVector=nil; const normal: PVector=nil): integer; overload; stdcall;
+      const intersect: PVector=nil; const normal: PVector=nil): longint; overload; stdcall;
     function RayPolyIntersect(const rayStart, rayDirection: TVector;
-      const vi: PWordArray; Count: integer; BothSided: boolean;
+      const vi: PWordArray; Count: longint; BothSided: boolean;
       intersect: PVector; intersectNormal: PVector): Boolean; stdcall;
     procedure SaveToFile(filename: string);
     procedure SaveToOBJ(filename: string);
@@ -200,11 +200,11 @@ type
   TModelW3D = class(T3DModel)
     fa: array of TW3DFace; // Faces
   private
-    FfCount: integer;
-    procedure SetfCount(n: integer);
+    FfCount: longint;
+    procedure SetfCount(n: longint);
   public
-    property fCount: integer read FfCount write SetfCount;
-    procedure LoadFromFile(filename: string; obj: integer = -1);
+    property fCount: longint read FfCount write SetfCount;
+    procedure LoadFromFile(filename: string; obj: longint = -1);
     destructor Destroy; override;
     procedure AssignTo(const poly: TPolyModel); overload;
     procedure AssignTo(const tri: TTriModel); overload;
@@ -216,7 +216,7 @@ type
 // http://local.wasp.uwa.edu.au/~pbourke/dataformats/ms3d/ms3dspec.h
   TMS3DHeader = packed record
     id: array[0..9] of char;    // always "MS3D000000"
-    version: integer;           // 3
+    version: longint;           // 3
   end;
   TMS3DVertex = packed record
     flags: byte; // SELECTED(1) | SELECTED2(4) | HIDDEN(2)
@@ -264,7 +264,7 @@ type
   TModelMS3D = class
     vCount, fCount, groups, mats, joints: word;
     AnimationFPS, CurrentTime: single;
-    TotalFrames: integer;
+    TotalFrames: longint;
     va: array of TMS3DVertex; // Vertices
     fa: array of TMS3DTri;
     grp: array of TMS3DGroup;
@@ -299,7 +299,7 @@ function T3DModel.GetRadius(cubic: boolean): single;
     value:=abs(value);
     if value>original then original:=value;
   end;
-var i: integer; d: single;
+var i: longint; d: single;
 begin
   result:=0;
   for i:=0 to vCount-1 do begin
@@ -315,7 +315,7 @@ begin
 end;
 
 function T3DModel.GetRadiusX: single;
-var i: integer; d: single;
+var i: longint; d: single;
 begin
   result:=0;
   for i:=0 to vCount-1 do begin
@@ -325,7 +325,7 @@ begin
 end;
 
 function T3DModel.GetRadiusY: single;
-var i: integer; d: single;
+var i: longint; d: single;
 begin
   result:=0;
   for i:=0 to vCount-1 do begin
@@ -335,7 +335,7 @@ begin
 end;
 
 function T3DModel.GetRadiusZ: single;
-var i: integer; d: single;
+var i: longint; d: single;
 begin
   result:=0;
   for i:=0 to vCount-1 do begin
@@ -345,7 +345,7 @@ begin
 end;
 
 procedure T3DModel.Rotate(_radians: single; axis: TVector);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to vCount-1 do begin
     va[i]:=nxMath3D.Rotate(va[i], _radians, axis);
@@ -354,14 +354,14 @@ begin
 end;
 
 procedure T3DModel.RotateUV(_radians, centerX, centerY: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to vCount-1 do
     nxMath.Rotate(ta[i].x, ta[i].y, _radians, centerX, centerY);
 end;
 
 procedure T3DModel.Scale(x, y, z: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to vCount-1 do begin
     va[i].x:=va[i].x*x; va[i].y:=va[i].y*y; va[i].z:=va[i].z*z;
@@ -369,7 +369,7 @@ begin
 end;
 
 procedure T3DModel.ScaleTo(size: single);
-var i: integer; minx,miny,minz, maxx,maxy,maxz, d,dx,dy,dz: single;
+var i: longint; minx,miny,minz, maxx,maxy,maxz, d,dx,dy,dz: single;
 begin
   if vCount<=0 then exit;
   minx:=va[0].x; maxx:=va[0].x;
@@ -397,7 +397,7 @@ begin
 end;
 
 procedure T3DModel.ScaleTo(sizeX, sizeY, sizeZ: single);
-var i: integer; minx,miny,minz, maxx,maxy,maxz, dx,dy,dz: single;
+var i: longint; minx,miny,minz, maxx,maxy,maxz, dx,dy,dz: single;
 begin
   if vCount<=0 then exit;
   minx:=va[0].x; maxx:=va[0].x;
@@ -427,7 +427,7 @@ begin
 end;
 
 procedure T3DModel.ScaleUV(x, y: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to vCount-1 do begin
     ta[i].x:=ta[i].x*x; ta[i].y:=ta[i].y*y;
@@ -435,7 +435,7 @@ begin
 end;
 
 procedure T3DModel.Translate(x, y, z: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to vCount-1 do begin
     va[i].x:=va[i].x+x; va[i].y:=va[i].y+y; va[i].z:=va[i].z+z;
@@ -443,7 +443,7 @@ begin
 end;
 
 procedure T3DModel.TranslateUV(x, y: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to vCount-1 do begin
     ta[i].x:=ta[i].x+x; ta[i].y:=ta[i].y+y;
@@ -461,7 +461,7 @@ begin
   setlength(mat, FmCount);
 end;
 
-procedure T3DModel.SetvCount(n: integer);
+procedure T3DModel.SetvCount(n: longint);
 begin
   FvCount:=n;
   if n>100 then n:=(n div 100+1)*100;
@@ -474,7 +474,7 @@ begin
 end;
 
 procedure T3DModel.Center(_x, _y, _z: boolean);
-var i: integer; minx,miny,minz, maxx,maxy,maxz, d: single;
+var i: longint; minx,miny,minz, maxx,maxy,maxz, d: single;
 begin
   if vCount<=0 then exit;
   if _x then begin
@@ -510,7 +510,7 @@ end;
 
 function TPolyModel.AddFace(const points: array of word; _vCount: byte;
   ccw: boolean): word;
-var i: integer;
+var i: longint;
 begin
   if fCount>65534 then begin
     result:=0; exit;
@@ -528,7 +528,7 @@ begin
 end;
 
 procedure TPolyModel.AssignTo(tri: TTriModel);
-var i, j: integer;
+var i, j: longint;
 begin
   tri.Clear;
   tri.UseMaterials:=UseMaterials; tri.UseColors:=UseColors;
@@ -551,7 +551,7 @@ begin
 end;
 
 procedure TPolyModel.AssignTo(w3d: TModelW3D);
-var i, j: integer;
+var i, j: longint;
 begin
   w3d.Clear;
   w3d.UseMaterials:=UseMaterials; w3d.UseColors:=UseColors;
@@ -575,7 +575,7 @@ begin
   for i:=0 to mCount-1 do w3d.mat[i]:=mat[i];
   for i:=0 to groups-1 do begin
     w3d.grp[i]:=grp[i];
-    for j:=grp[i].first to integer(grp[i].first)+grp[i].count-1 do begin
+    for j:=grp[i].first to longint(grp[i].first)+grp[i].count-1 do begin
       w3d.fa[j].SmoothGroup:=i;
       w3d.fa[j].MatIndex:=grp[i].matIndex;
     end;
@@ -584,7 +584,7 @@ begin
 end;
 
 procedure TPolyModel.AssignTo(vm: TVertexModel);
-var i, j: integer;
+var i, j: longint;
 begin
   vm.Clear;
   DivideTriangles;
@@ -614,8 +614,8 @@ end;
 procedure TPolyModel.DivideTriangles;
 var gIndex: array of word;
 
-  procedure SubDivideTriangles(const fIndex: integer);
-  var i, n: integer; pa: array[0..2] of Word;
+  procedure SubDivideTriangles(const fIndex: longint);
+  var i, n: longint; pa: array[0..2] of Word;
   begin
     if fa[fIndex].Count>3 then begin
       pa[0]:=fa[fIndex].index[0];
@@ -629,7 +629,7 @@ var gIndex: array of word;
     end;
   end;
 
-var i, j, n: integer;
+var i, j, n: longint;
 begin
   setlength(gIndex, fCount);
   if groups=0 then begin
@@ -638,7 +638,7 @@ begin
     grp[0].matIndex:=0; grp[0].visible:=true;
   end;
   for j:=0 to groups-1 do
-    for i:=grp[j].first to integer(grp[j].first+grp[j].count)-1 do
+    for i:=grp[j].first to longint(grp[j].first+grp[j].count)-1 do
       gIndex[i]:=j;
   for i:=fCount-1 downto 0 do
     SubDivideTriangles(i);
@@ -697,7 +697,7 @@ end;
 
 procedure TPolyModel.LoadFromOBJ(filename: string);
   function IndexMatch(f1, f2, index: word): boolean;
-  var i1,i2: integer;
+  var i1,i2: longint;
   begin
     i1:=fa[f1].index[index]; i2:=fa[f2].index[index];
     result:=VectorMatch(va[i1], va[i2])
@@ -706,7 +706,7 @@ procedure TPolyModel.LoadFromOBJ(filename: string);
 
 var F: TextFile; s: string; sa: array[0..127] of string;
     sa2: array[0..2] of string;
-    i,j,k,n, ttCount,vvCount,nnCount: integer; //curS: integer;
+    i,j,k,n, ttCount,vvCount,nnCount: longint; //curS: integer;
     noTex: boolean;
     tt: array of TVector2f;
     vv, nn: array of TVector;
@@ -818,7 +818,7 @@ begin
   //MakeNormals; // If skip all 'vn', then autogenerate normals
 end;
 
-procedure TPolyModel.LoadFromW3D(filename: string; obj: integer);
+procedure TPolyModel.LoadFromW3D(filename: string; obj: longint);
 var w3d: TModelW3D;
 begin
   w3d:=TModelW3D.Create;
@@ -830,14 +830,14 @@ end;
 procedure TPolyModel.MakeNormals;
 var preTangent: array of TVector;
   procedure MakeGrpNormals(const gIndex: word);
-  var f, i: integer;
+  var f, i: longint;
   begin
-    for f:=integer(grp[gIndex].first + grp[gIndex].count)-1 downto
+    for f:=longint(grp[gIndex].first + grp[gIndex].count)-1 downto
            grp[gIndex].first do
       for i:=0 to fa[f].count-1 do
         na[fa[f].index[i]]:=VectorAdd(na[fa[f].index[i]], preTangent[f]);
   end;
-var i: integer;
+var i: longint;
 begin
   setlength(preTangent, fCount);
   for i:=0 to fCount-1 do preTangent[i]:=GetTangent(i);
@@ -846,16 +846,14 @@ begin
   for i:=0 to vCount-1 do na[i]:=Norm(na[i]);
 end;
 
-function TPolyModel.rayIntersect(const rayStart, rayDir: TVector;
-  findClosest: boolean; const intersect: PVector;
-  const normal: PVector): integer; stdcall;
-var g, i: integer; d: single; nearest: single;
+function TPolyModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean; const intersect: PVector; const normal: PVector): longint; stdcall;
+var g, i: longint; d: single; nearest: single;
     vI,vN: TVector;
 begin
   result:=-1; nearest:=-2;
   for g:=0 to groups-1 do
     if grp[g].visible then with grp[g] do
-      for i:=first to integer(first)+Count-1 do
+      for i:=first to longint(first)+Count-1 do
         if RayPolyIntersect(rayStart, RayDir,
            @fa[i].index[0], fa[i].count,
            false, intersect, normal) then begin
@@ -876,9 +874,7 @@ begin
   end;
 end;
 
-function TPolyModel.rayIntersect(rayStart, rayDir: TVector;
-  findClosest: boolean; const position: TVector; rotation: TMatrix;
-  const intersect: PVector; const normal: PVector): integer; stdcall;
+function TPolyModel.rayIntersect(rayStart, rayDir: TVector; findClosest: boolean; const position: TVector; rotation: TMatrix; const intersect: PVector; const normal: PVector): longint; stdcall;
 begin
   // Correct ray
   rayDir:=Multiply(rayDir, Invert(rotation));
@@ -891,11 +887,8 @@ begin
 end;
 
 // Credits to Dan (PascalGameDev forums)
-function TPolyModel.RayPolyIntersect(const rayStart,
-  rayDirection: TVector; const vi: PWordArray; Count: integer;
-  BothSided: boolean; intersect: PVector;
-  intersectNormal: PVector): Boolean; stdcall;
-var d: Single; i: Integer;
+function TPolyModel.RayPolyIntersect(const rayStart, rayDirection: TVector; const vi: PWordArray; Count: longint; BothSided: boolean; intersect: PVector; intersectNormal: PVector): Boolean; stdcall;
+var d: Single; i: longint;
     Hit, nn, vx, vy: TVector;
     pi, pj: PVector;
     Hit2, pi2, pj2: TVector2f;
@@ -941,8 +934,8 @@ begin
 end;
 
 procedure TPolyModel.SaveToOBJ(filename: string);
-var F: TextFile; g,i,j,n,tri,poly: integer; s: string;
-    //ffirst: array of word; vIndex: integer;
+var F: TextFile; g,i,j,n,tri,poly: longint; s: string;
+    //ffirst: array of word; vIndex: longint;
 begin
   assignfile(F, filename); rewrite(F);
   writeln(F, '# OBJ exported by nxPascal');
@@ -951,7 +944,7 @@ begin
   for g:=0 to groups-1 do begin
     writeln(F);
     n:=0;
-    for i:=grp[g].first to integer(grp[g].first)+grp[g].count-1 do begin
+    for i:=grp[g].first to longint(grp[g].first)+grp[g].count-1 do begin
       ffirst[i]:=vIndex;
       for j:=0 to fa[i].Count-1 do
         writeln(F, format('v %.4f %.4f %.4f', [va[fa[i].index[j]].x*100,
@@ -962,7 +955,7 @@ begin
     writeln(F, '# ', n, ' vertices');
     writeln(F);
     n:=0;
-    for i:=grp[g].first to integer(grp[g].first)+grp[g].count-1 do begin
+    for i:=grp[g].first to longint(grp[g].first)+grp[g].count-1 do begin
       for j:=0 to fa[i].Count-1 do
         writeln(F, format('vn %.4f %.4f %.4f',
           [na[fa[i].index[j]].x, na[fa[i].index[j]].y, na[fa[i].index[j]].z]));
@@ -971,7 +964,7 @@ begin
     writeln(F, '# ', n, ' vertex normals');
     writeln(F);
     n:=0;
-    for i:=grp[g].first to integer(grp[g].first)+grp[g].count-1 do begin
+    for i:=grp[g].first to longint(grp[g].first)+grp[g].count-1 do begin
       for j:=0 to fa[i].Count-1 do
         writeln(F, format('vt %.4f %.4f %.4f',
           [ta[fa[i].index[j]].x, ta[fa[i].index[j]].y, 0.0]));
@@ -982,7 +975,7 @@ begin
     writeln(F, 'g grp', g);
     writeln(F, 's ', g+1);
     tri:=0; poly:=0;
-    for i:=grp[g].first to integer(grp[g].first)+grp[g].count-1 do begin
+    for i:=grp[g].first to longint(grp[g].first)+grp[g].count-1 do begin
       s:='';
       for j:=0 to fa[i].count-1 do begin
         n:=ffirst[i]+j;
@@ -1016,7 +1009,7 @@ begin
     writeln(F, 'g grp', g);
     writeln(F, 's ', g+1);
     tri:=0; poly:=0;
-    for i:=grp[g].first to integer(grp[g].first)+grp[g].count-1 do begin
+    for i:=grp[g].first to longint(grp[g].first)+grp[g].count-1 do begin
       s:='';
       for j:=0 to fa[i].count-1 do begin
         n:=fa[i].index[j]+1;
@@ -1043,7 +1036,7 @@ begin
   w3d.Free;
 end;
 
-procedure TPolyModel.SetfCount(n: integer);
+procedure TPolyModel.SetfCount(n: longint);
 begin
   FfCount:=n;
   if n>100 then n:=(n div 100+1)*100;
@@ -1055,7 +1048,7 @@ end;
 { TModelMS3D }
 
 constructor TModelMS3D.Create(filename: string);
-var F: TFileStream; i: integer;
+var F: TFileStream; i: longint;
 begin
   FixPath(filename);
   F:=TFileStream.Create(filename,fmOpenRead);
@@ -1088,7 +1081,7 @@ begin
 end;
 
 procedure TModelMS3D.AssignToTri(tri: TTriModel; FreeSelf: boolean);
-var i,j,g,k,n,faceN: integer;
+var i,j,g,k,n,faceN: longint;
 begin
   tri.Clear;
   tri.fCount:=fCount; tri.vCount:=fCount*3;
@@ -1126,7 +1119,7 @@ end;
 
 { TModelW3D }
 
-procedure TModelW3D.SetfCount(n: integer);
+procedure TModelW3D.SetfCount(n: longint);
 begin
   FfCount:=n;
   if n>100 then n:=(n div 100+1)*100;
@@ -1135,12 +1128,12 @@ begin
   end;
 end;
 
-procedure TModelW3D.LoadFromFile(filename: string; obj: integer);
+procedure TModelW3D.LoadFromFile(filename: string; obj: longint);
 var F: TextFile; s: string; sa: array[0..127] of string;
-    i,j,k,objCount,o,_vCount,_fCount,_nCount: integer;
-    gIndex: array of word; i2,j2: integer;
+    i,j,k,objCount,o,_vCount,_fCount,_nCount: longint;
+    gIndex: array of word; i2,j2: longint;
     tmpN: array of TVector;
-    vPos, fPos: integer;
+    vPos, fPos: longint;
     oPos: TVector; isOld: boolean;
 begin
   FixPath(filename);
@@ -1312,7 +1305,7 @@ begin
 end;
 
 procedure TModelW3D.AssignTo(const poly: TPolyModel);
-var i, j: integer;
+var i, j: longint;
 begin
   DoTextureCorrection;
 
@@ -1349,10 +1342,10 @@ begin
 end;
 
 procedure TModelW3D.DoTextureCorrection;
-var g, i: integer;
+var g, i: longint;
 
   function BalanceOK(const a, b: single): boolean;
-  var j: integer;
+  var j: longint;
   begin
     if ((a<=0) and (b>0)) or ((b<=0) and (a>0)) or
        ((a<1) and (b>=1)) or ((b<1) and (a>=1)) then begin
@@ -1373,7 +1366,7 @@ begin
   // if tex-coords loop over boundaries
   for g:=groups-1 downto 0 do
     with grp[g] do begin
-      for i:=integer(first)+count-1 downto first do begin
+      for i:=longint(first)+count-1 downto first do begin
         t0:=fa[i].uv[0];
         t1:=fa[i].uv[1];
         t2:=fa[i].uv[2];
@@ -1385,7 +1378,7 @@ begin
 end;
 
 procedure TModelW3D.SaveToFile(filename: string);
-var F: TextFile; i,j: integer; s: string;
+var F: TextFile; i,j: longint; s: string;
 begin
   try
     assignfile(F, filename); rewrite(F);
@@ -1445,10 +1438,10 @@ begin
 end;
 
 procedure TTriModel.DoTextureCorrection;
-{var g, i: integer;
+{var g, i: longint;
 
   function BalanceOK(const a, b: single): boolean;
-  var j: integer;
+  var j: longint;
   begin
     if ((a<0) and (b>=0)) or ((b<0) and (a>=0)) or
        ((a<1) and (b>=1)) or ((b<1) and (a>=1)) then begin
@@ -1471,7 +1464,7 @@ begin
   // then duplicate vertex
   for g:=groups-1 downto 0 do
     with grp[g] do begin
-      for i:=integer(first)+count-1 downto first do begin
+      for i:=longint(first)+count-1 downto first do begin
         t0:=ta[fa[i, 0]];
         t1:=ta[fa[i, 1]];
         t2:=ta[fa[i, 2]];
@@ -1482,9 +1475,8 @@ begin
     end; }
 end;
 
-function TTriModel.FindNearest(const source: TVector; const nearest: PVector;
-  const normal: PVector): integer;
-var i: integer; p: TVector; d, nearD: single;
+function TTriModel.FindNearest(const source: TVector; const nearest: PVector; const normal: PVector): longint;
+var i: longint; p: TVector; d, nearD: single;
 begin
   if fCount<1 then begin
     result:=-1; exit;
@@ -1505,7 +1497,7 @@ begin
 end;
 
 procedure TTriModel.FlipFaces;
-var f, temp, i: integer;
+var f, temp, i: longint;
 begin
   for f:=0 to fCount-1 do begin
     temp:=fa[f, 1]; fa[f, 1]:=fa[f, 2]; fa[f, 2]:=temp;
@@ -1552,7 +1544,7 @@ begin
   DoTextureCorrection;
 end;
 
-procedure TTriModel.LoadFromW3D(filename: string; obj: integer);
+procedure TTriModel.LoadFromW3D(filename: string; obj: longint);
 var w3d: TModelW3D;
 begin
   w3d:=TModelW3D.Create;
@@ -1566,15 +1558,15 @@ procedure TTriModel.MakeNormals;
 var preTangent: array of TVector;
 
   procedure MakeGrpNormals(const gIndex: word);
-  var f, i: integer;
+  var f, i: longint;
   begin
-    for f:=integer(grp[gIndex].first)+grp[gIndex].count-1 downto
+    for f:=longint(grp[gIndex].first)+grp[gIndex].count-1 downto
            grp[gIndex].first do
       for i:=0 to 2 do
         na[fa[f, i]]:=VectorAdd(na[fa[f, i]], preTangent[f]);
   end;
 
-var i: integer;
+var i: longint;
 begin
   setlength(preTangent, fCount);
   fillchar(na[0], vCount*sizeof(na[0]), 0);
@@ -1584,14 +1576,14 @@ begin
 end;
 
 // Returns >= 0 if intersects, it is index of the face
-function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean; const intersect: PVector; const normal: PVector): integer; stdcall;
-var g, i: integer; d: single; nearest: single;
+function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean; const intersect: PVector; const normal: PVector): longint; stdcall;
+var g, i: longint; d: single; nearest: single;
     vI,vN: TVector;
 begin
   result:=-1; nearest:=-2;
   for g:=0 to groups-1 do
     if grp[g].visible then with grp[g] do
-      for i:=first to integer(first)+Count-1 do
+      for i:=first to longint(first)+Count-1 do
 
         //if RayTriangleIntersect(rayStart, RayDir,
         //   va[fa[i][0]], va[fa[i][1]], va[fa[i][2]],
@@ -1619,17 +1611,14 @@ end;
 
 // Returns >= 0 if intersects, it is index of the face
 // includes parameter position for model
-function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean;
-  const position: TVector; const intersect: PVector; const normal: PVector): integer; stdcall;
+function TTriModel.rayIntersect(const rayStart, rayDir: TVector; findClosest: boolean; const position: TVector; const intersect: PVector; const normal: PVector): longint; stdcall;
 begin
   result:=rayIntersect(VectorSub(rayStart, position), rayDir, findClosest, intersect, normal);
 end;
 
 // Returns >= 0 if intersects, it is index of the face
 // includes parameters position and rotation for model
-function TTriModel.rayIntersect(rayStart, rayDir: TVector; findClosest: boolean;
-  const position: TVector; rotation: TMatrix; const intersect: PVector;
-  const normal: PVector): integer; stdcall;
+function TTriModel.rayIntersect(rayStart, rayDir: TVector; findClosest: boolean; const position: TVector; rotation: TMatrix; const intersect: PVector; const normal: PVector): longint; stdcall;
 begin
   // Correct ray
   rayDir:=Multiply(rayDir, Invert(rotation));
@@ -1640,8 +1629,8 @@ begin
   result:=rayIntersect(rayStart, rayDir, findClosest, intersect, normal);
 end;
 
-procedure TTriModel.RotateUV(_angle, centerX, centerY: single; group: integer);
-var i, vc: integer; vi: TIndexArray;
+procedure TTriModel.RotateUV(_angle, centerX, centerY: single; group: longint);
+var i, vc: longint; vi: TIndexArray;
 begin
   GetGrpVertices(vi, vc, group);
   for i:=0 to vc-1 do
@@ -1650,7 +1639,7 @@ begin
 end;
 
 procedure TTriModel.ScaleUV(x, y: single; group: integer);
-var i, vc: integer; vi: TIndexArray;
+var i, vc: longint; vi: TIndexArray;
 begin
   GetGrpVertices(vi, vc, group);
   for i:=0 to vc-1 do begin
@@ -1670,7 +1659,7 @@ begin
 end;
 
 procedure TTriModel.TranslateUV(x, y: single; group: integer);
-var i, vc: integer; vi: TIndexArray;
+var i, vc: longint; vi: TIndexArray;
 begin
   GetGrpVertices(vi, vc, group);
   for i:=0 to vc-1 do begin
@@ -1680,12 +1669,12 @@ begin
   setlength(vi, 0);
 end;
 
-procedure TTriModel.GetGrpVertices(out vi: TIndexArray; out vc: integer; group: integer);
-var i, j, k, vc2: integer; exist: boolean;
+procedure TTriModel.GetGrpVertices(out vi: TIndexArray; out vc: longint; group: integer);
+var i, j, k, vc2: longint; exist: boolean;
 begin
   vc:=0; vc2:=8; setlength(vi, vc2);
   with grp[group] do
-    for i:=first to integer(first)+count-1 do
+    for i:=first to longint(first)+count-1 do
       for j:=0 to 2 do begin
         exist:=false;
         for k:=vc-1 downto 0 do
@@ -1702,7 +1691,7 @@ begin
       end;
 end;
 
-procedure TTriModel.SetfCount(n: integer);
+procedure TTriModel.SetfCount(n: longint);
 begin
   FfCount:=n;
   if n>100 then n:=(n div 100+1)*100;
@@ -1718,27 +1707,27 @@ begin
 end;
 
 constructor TTriModel.CreateCube(segments: integer);
-var s: single; v_per_side: integer;
-  procedure _FaceIndices(fn, n: integer); // 0 | /| 3
+var s: single; v_per_side: longint;
+  procedure _FaceIndices(fn, n: longint); // 0 | /| 3
   begin                                   // 1 |/ | 2
     fa[fn  , 0]:=n+0; fa[fn  , 1]:=n+1; fa[fn  , 2]:=n+3;
     fa[fn+1, 0]:=n+3; fa[fn+1, 1]:=n+1; fa[fn+1, 2]:=n+2;
   end;
-  procedure _Normals(n: integer; x, y, z: single);
-  var i: integer;
+  procedure _Normals(n: longint; x, y, z: single);
+  var i: longint;
   begin
     for i:=n to n+v_per_side-1 do begin
       na[i].x:=x; na[i].y:=y; na[i].z:=z;
     end;
   end;
-  procedure _TexCoords(n, i, j: integer);
+  procedure _TexCoords(n, i, j: longint);
   begin
     ta[n+0].x:=(i+0)*s; ta[n+0].y:=(j+0)*s;
     ta[n+1].x:=(i+0)*s; ta[n+1].y:=(j+1)*s;
     ta[n+2].x:=(i+1)*s; ta[n+2].y:=(j+1)*s;
     ta[n+3].x:=(i+1)*s; ta[n+3].y:=(j+0)*s;
   end;
-var i, j, f_per_side, n, fn, n2, fn2: integer;
+var i, j, f_per_side, n, fn, n2, fn2: longint;
 begin
   Create;
   if segments<1 then segments:=1;
@@ -1874,7 +1863,7 @@ begin
 end;
 
 constructor TTriModel.CreatePlane(cols, rows: integer);
-var i, j, n: integer; sx, sy: single; flip: boolean;
+var i, j, n: longint; sx, sy: single; flip: boolean;
 begin
   Create;
   if cols<1 then cols:=1;
@@ -1918,7 +1907,7 @@ begin
 end;
 
 constructor TTriModel.CreateSphere(cols, rows: integer);
-var i, j, n: integer; flip: boolean; ax, ay: single;
+var i, j, n: longint; flip: boolean; ax, ay: single;
 begin
   Create;
   if cols<3 then cols:=3;
@@ -1963,7 +1952,7 @@ begin
 end;
 
 constructor TTriModel.CreateTorus(cols, rows: integer; inRadius: single);
-var i, j, n: integer; flip: boolean; radius, a1, a2: single;
+var i, j, n: longint; flip: boolean; radius, a1, a2: single;
 begin
   Create;
   if cols<3 then cols:=3;
@@ -2010,8 +1999,8 @@ begin
   end;
 end;
 
-function TTriModel.AddFace(const gIndex: word): integer;
-var i, g: integer;
+function TTriModel.AddFace(const gIndex: word): longint;
+var i, g: longint;
 begin
   if gIndex>=groups then begin
     result:=-1; exit;
@@ -2022,16 +2011,16 @@ begin
     result:=first+count;
     for i:=fCount-1 downto first+count do fa[i]:=fa[i-1];
     inc(count, 1);
-    fa[integer(first)+count-1, 0]:=vCount-3;
-    fa[integer(first)+count-1, 1]:=vCount-2;
-    fa[integer(first)+count-1, 2]:=vCount-1;
+    fa[longint(first)+count-1, 0]:=vCount-3;
+    fa[longint(first)+count-1, 1]:=vCount-2;
+    fa[longint(first)+count-1, 2]:=vCount-1;
   end;
   for g:=0 to groups-1 do
     if grp[g].first>=result then inc(grp[g].first, 1);
 end;
 
 procedure TTriModel.AssignTo(poly: TPolyModel);
-var i, j: integer;
+var i, j: longint;
 begin
   poly.Clear;
   poly.UseMaterials:=UseMaterials; poly.UseColors:=UseColors;
@@ -2055,7 +2044,7 @@ end;
 { TVertexModel }
 
 procedure TVertexModel.Center(_x, _y, _z: boolean);
-var i: integer; minx,miny,minz, maxx,maxy,maxz, d: single;
+var i: longint; minx,miny,minz, maxx,maxy,maxz, d: single;
 begin
   if length(va)<=0 then exit;
   if _x then begin
@@ -2094,7 +2083,7 @@ begin
 end;
 
 function TVertexModel.GetRadius: single;
-var i: integer; d: single;
+var i: longint; d: single;
 begin
   result:=0;
   for i:=0 to high(va) do begin
@@ -2104,7 +2093,7 @@ begin
 end;
 
 procedure TVertexModel.Rotate(_radians: single; axis: TVector);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to high(va) do begin
     va[i].v:=nxMath3D.Rotate(va[i].v, _radians, axis);
@@ -2113,14 +2102,14 @@ begin
 end;
 
 procedure TVertexModel.RotateUV(_radians, centerX, centerY: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to high(va) do
     nxMath.Rotate(va[i].uv.x, va[i].uv.y, _radians, centerX, centerY);
 end;
 
 procedure TVertexModel.Scale(x, y, z: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to high(va) do begin
     va[i].v.x:=va[i].v.x*x;
@@ -2130,7 +2119,7 @@ begin
 end;
 
 procedure TVertexModel.ScaleTo(size: single);
-var i: integer; minx,miny,minz, maxx,maxy,maxz, d,dx,dy,dz: single;
+var i: longint; minx,miny,minz, maxx,maxy,maxz, d,dx,dy,dz: single;
 begin
   if length(va)<=0 then exit;
   minx:=va[0].v.x; maxx:=va[0].v.x;
@@ -2158,7 +2147,7 @@ begin
 end;
 
 procedure TVertexModel.ScaleUV(x, y: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to high(va) do begin
     va[i].uv.x:=va[i].uv.x*x; va[i].uv.y:=va[i].uv.y*y;
@@ -2166,7 +2155,7 @@ begin
 end;
 
 procedure TVertexModel.Translate(x, y, z: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to high(va) do begin
     va[i].v.x:=va[i].v.x+x;
@@ -2176,7 +2165,7 @@ begin
 end;
 
 procedure TVertexModel.TranslateUV(x, y: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to high(va) do begin
     va[i].uv.x:=va[i].uv.x+x; va[i].uv.y:=va[i].uv.y+y;

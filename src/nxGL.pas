@@ -34,7 +34,7 @@ const
   RS_COUNT = 16; // Render settings stack size
 
 type
-  TRenderProc = procedure(index: integer) of object;
+  TRenderProc = procedure(index: longint) of object;
 
   TGLViewDetails = record
     modelM, projM: TGLMatrixd4;
@@ -52,24 +52,24 @@ type
     property TextureUnit: integer read FTextureUnit write SetTextureUnit;
     destructor Destroy; override;
     constructor Create;
-    function AddEmptyTexture(name: string; width, height: word; transparency: boolean = false): integer;
-    function AddTexture(name, filename: string; transparency: boolean = false): integer; overload;
+    function AddEmptyTexture(name: string; width, height: word; transparency: boolean = false): longint;
+    function AddTexture(name, filename: string; transparency: boolean = false): longint; overload;
     function AddTexture(name: string; data: PointerArrayType;
-      width, height, values: integer; format, intFormat: cardinal): integer; overload;
-    function Add3DTexture(name,filename: string; cols,rows: integer; transparency: boolean = false): integer;
+      width, height, values: integer; format, intFormat: cardinal): longint; overload;
+    function Add3DTexture(name,filename: string; cols,rows: integer; transparency: boolean = false): longint;
     procedure Clear;
     procedure Disable;
     procedure Enable;
     procedure ChangeTexMode3D(_enable: boolean; force: boolean = false);
-    procedure RemoveTexture(n: integer; force: boolean = false);
-    procedure ReloadTexture(n: integer; _filename: string; transparency: boolean = false);
+    procedure RemoveTexture(n: longint; force: boolean = false);
+    procedure ReloadTexture(n: longint; _filename: string; transparency: boolean = false);
     procedure Restore(tex: PTexture); overload;
     procedure Restore3D(tex: PTexture); overload;
-    procedure Restore(tex: integer); overload;
-    procedure Restore3D(tex: integer); overload;
+    procedure Restore(tex: longint); overload;
+    procedure Restore3D(tex: longint); overload;
     procedure SetByName(name: string; force: boolean = false);
     procedure SetClamp(x_repeat, y_repeat: boolean);
-    procedure SetTex(n: integer; force: boolean = false);
+    procedure SetTex(n: longint; force: boolean = false);
   end;
 
   TCamera = class;
@@ -88,8 +88,8 @@ type
     wrapping, AutoSetCamera: boolean;
     property Position: single read FPosition write SetPosition;
     constructor Create(owner: TCamera);
-    function AddNode(const _mat: TMatrix): integer;
-    function Count: integer;
+    function AddNode(const _mat: TMatrix): longint;
+    function Count: longint;
     function GetMatrix(const dTime: single): TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
     procedure SetCamera;
   end;
@@ -107,27 +107,27 @@ type
     constructor Create;
     destructor Destroy; override;
     function AddPath: TCameraPath;
-    procedure DeletePath(n: integer);
+    procedure DeletePath(n: longint);
     procedure GetFromModelView;
     function GetMatrix: TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
     function GetVector(const axis: integer): TVector;{$IFDEF CanInline}inline;{$ENDIF}
-    function IndexOfPath(p: TCameraPath): integer;
+    function IndexOfPath(p: TCameraPath): longint;
     procedure Interpolate(const mat2: TMatrix; const delta: single; doSet: boolean = true);
-    procedure Load(n: integer; doSet: boolean = true);
+    procedure Load(n: longint; doSet: boolean = true);
     procedure LookAt(const eye, target, up: TVector; doSet: boolean = true); overload; stdcall; {$IFDEF CanInline}inline;{$ENDIF}
     procedure LookAt(const target, up: TVector; doSet: boolean = true); overload;
     procedure LookAt(const target: TVector; doSet: boolean = true); overload;
     procedure Multiply(const mat2: TMatrix; doSet: boolean = true); overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
     procedure Multiply(const mat2: TMatrix3f; doSet: boolean = true); overload; stdcall;{$IFDEF CanInline}inline;{$ENDIF}
-    function PathCount: integer;
+    function PathCount: longint;
     procedure Pop(doSet: boolean = true);
     procedure Push;
     procedure Reset(doSet: boolean = true);
     procedure ResetStack;
     procedure Rotate(const degrees: single; const axis: TVector; doSet: boolean = true); overload;
     procedure Rotate(const degrees: single; const ax, ay, az: single; doSet: boolean = true); overload;
-    function SaveCount: integer;
-    procedure Save(n: integer);
+    function SaveCount: longint;
+    procedure Save(n: longint);
     procedure Scale(const s: single; doSet: boolean = true);
     procedure SetCamera;
     procedure Translate(const x, y, z: single; doSet: boolean = true); overload;
@@ -140,9 +140,9 @@ type
   public
     procedure DisableStates;
     procedure EnableStates;
-    function GetIndexCount(const faceCount: integer): integer; override;
+    function GetIndexCount(const faceCount: longint): longint; override;
     procedure Render(Indexed: boolean = true); overload;
-    procedure Render(first, _count: integer; Indexed: boolean = true); overload;
+    procedure Render(first, _count: longint; Indexed: boolean = true); overload;
     procedure SetPointers;
   end;
 
@@ -158,15 +158,15 @@ type
     bIndex, bVertex, bNormal, bTexture, bColor: cardinal;
     UseShader: boolean;
     constructor Create; overload;
-    constructor Create(Faces, Vertices: integer; _rendermode: cardinal;
+    constructor Create(Faces, Vertices: longint; _rendermode: cardinal;
       textures, normals, colors: boolean); overload;
-    constructor Create(Faces: integer; _rendermode: cardinal;
+    constructor Create(Faces: longint; _rendermode: cardinal;
       textures, normals, colors: boolean); overload;
     destructor Destroy; override;
-    function GetIndexCount(const faceCount: integer): integer; override;
+    function GetIndexCount(const faceCount: longint): longint; override;
     function IsStatic: boolean;
     procedure Render; overload;
-    procedure Render(first, _count: integer); overload;
+    procedure Render(first, _count: longint); overload;
     procedure SetData;
     procedure SetPointers;
     procedure SetStatic(enable: boolean);
@@ -259,7 +259,7 @@ type
     shininess: single;
     cam: TCamera;
     shader: TGLShader;
-    curTexture: integer;
+    curTexture: longint;
     va2D: array of T2DVertex;
     va3D: array of T3DVertex;
     program2D, program3D: TShaderProgram;
@@ -278,8 +278,8 @@ type
     constructor Create(buffer2D, buffer3D: word); overload;
     destructor Destroy; override;
     procedure Disable;
-    function Draw(x, y: single; pattern: integer = 0): word;
-    function DrawRotateS(x, y: single; pattern: word; radians, cx, cy,
+    function Draw(x, y: single; pattern: longint = 0): word;
+    function DrawRotateS(x, y: single; pattern: longint; radians, cx, cy,
       sizeX, sizeY: single): word;
     procedure Enable2D(ForceUpdateUniforms: boolean = false);
     procedure Enable3D(ForceUpdateUniforms: boolean = false);
@@ -291,8 +291,8 @@ type
     procedure SetColor(const index: word; const r, g, b, a: single); overload;
     procedure SetDiffuse(const r, g, b: single; const a: single = 1.0);
     procedure SetNormal(const index: word; const nx, ny, nz: single);
-    procedure SetTexture(n: integer);
-    procedure SetTexture(texname: string);
+    procedure SetTexture(n: longint); overload;
+    procedure SetTexture(texname: string); overload;
     procedure SetUniforms;
     procedure SetVertex(const index: word; const x, y, u, v: single); overload;
     procedure SetVertex(const index: word; const x, y, z, u, v: single); overload;
@@ -303,7 +303,7 @@ type
   TDisplayList = class
   private
     list: TGLuint;
-    texRef: array of integer;
+    texRef: array of longint;
     texRefCount: word;
   public
     constructor Create(make: boolean = false);
@@ -312,7 +312,7 @@ type
     procedure EndList;
     procedure Draw;
     procedure DrawAt(x,y,z: single);
-    procedure SetTexRef(TexN: integer; isUsed: boolean);
+    procedure SetTexRef(TexN: longint; isUsed: boolean);
   end;
 
   TNXGL = class;
@@ -373,10 +373,10 @@ type
     procedure FreeTextures;
     procedure LoadTextures(path: string);
     procedure MakeDisplayList(var list: TDisplayList);
-    function NewMaterial(_texIndex: integer): integer;
+    function NewMaterial(_texIndex: longint): integer;
     procedure Render(Initialize: boolean = true);
     procedure SetFrames(count: integer);
-    procedure SetFrame(t: single; fStart,fEnd: integer; loop: boolean);
+    procedure SetFrame(t: single; fStart,fEnd: longint; loop: boolean);
     procedure SetFrameEx(a,b,c,d: PVertexFrame; delta: single);
     procedure SetPointers;
   end;
@@ -385,14 +385,14 @@ type
 
   TGLFont = class(TNXFont)
   public
-    constructor CreateFont(fontName: string; fontSize, _TexSize: integer);
+    constructor CreateFont(fontName: string; fontSize, _TexSize: longint);
     constructor LoadFont(filename: string);
     procedure Draw(x,y: single; s: string; maxW: integer = 0); override;
     procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
     procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); override;
     procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
-    procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: integer); override;
-    procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: integer = 0); override;
+    procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: longint); override;
+    procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: longint = 0); override;
     procedure SetColor; overload;
     procedure SetTexture; override;
   end;
@@ -424,17 +424,17 @@ type
     procedure DefaultLights(Enable: boolean = true);
     procedure DeleteFont(index: integer);
     procedure Disable2D;
-    procedure Draw(x,y: integer; pattern: word = 0);
+    procedure Draw(x,y: longint; pattern: word = 0);
     procedure DrawRotate(x,y: single; pattern: word; degrees,cx,cy: single);
     procedure DrawRotateS(x,y: single; pattern: word; degrees,cx,cy,
       sizeX,sizeY: single);
     procedure DrawScaled(x,y,sizeX,sizeY: single; pattern: word = 0);
-    procedure DrawSections(x,y,sizeX,sizeY,pattern: integer; bdSize: single = 0.25);
-    procedure DrawTexRepeat(x,y,sizeX,sizeY: integer);
+    procedure DrawSections(x,y,sizeX,sizeY,pattern: longint; bdSize: single = 0.25);
+    procedure DrawTexRepeat(x,y,sizeX,sizeY: longint);
     procedure Enable2D(flip: boolean = true); overload;
     procedure Enable2D(X, Y, _Width, _Height: integer; flip: boolean = true); overload;
-    procedure FillCircle(x, y, radiusX, radiusY: single; sides: integer);
-    procedure FillRect(x, y, _width, _height: integer);
+    procedure FillCircle(x, y, radiusX, radiusY: single; sides: longint);
+    procedure FillRect(x, y, _width, _height: longint);
     {$IFnDEF NX_CUSTOM_WINDOW}
     procedure Flip;
     {$ENDIF}
@@ -452,10 +452,10 @@ type
     {$IFnDEF NX_CUSTOM_WINDOW}
     procedure KillGLWindow(force: boolean = false);
     {$ENDIF}
-    procedure Line(x, y, x2, y2: integer);
+    procedure Line(x, y, x2, y2: longint);
     function MouseRayAtPlane(const mx, my: single; const planePos,planeNormal: TVector): TVector;
     function MouseRayAtXZPlane(const mx, my: single): TVector;
-    procedure OutLine(x, y, _width, _height: integer);
+    procedure OutLine(x, y, _width, _height: longint);
     procedure Perspective(Stretch: boolean = false);
     function ProgDir: string;
     procedure RectT(x1, y1, x2, y2: single);
@@ -468,7 +468,7 @@ type
     procedure SetFont(index: integer);
     procedure SetLight(light, pname: TGLenum; x,y,z: single; w: single=1);
     procedure SetMaxFullscreen(enable: boolean);
-    procedure SetPixel(x,y: integer);
+    procedure SetPixel(x,y: longint);
     procedure SetSpecular(Enable: boolean; r, g, b, shininess: single);
     procedure SetView(X, Y, _Width, _Height: integer);
     procedure SetWireframe(enable: boolean = true);
@@ -484,13 +484,13 @@ type
     function GetWidth: integer;
     function GetHeight: integer;
   public
-    texture: integer;
-    constructor Create(const _texture: integer; _depth: boolean = false); overload;
+    texture: longint;
+    constructor Create(const _texture: longint; _depth: boolean = false); overload;
     constructor Create(const width, height: integer; transparency: boolean;
       _depth: boolean = false); overload;
     destructor Destroy; override;
     procedure Bind;
-    procedure SetTexture(const _texture: integer; _unbind: boolean = true);
+    procedure SetTexture(const _texture: longint; _unbind: boolean = true);
     procedure UnBind;
     property Height: integer read GetHeight;
     property Width: integer read GetWidth;
@@ -558,7 +558,7 @@ begin
 end;
 
 procedure nxLoadModelTextures(model: T3DModel; path: string);
-var i, n: integer;
+var i, n: longint;
 begin
   FixPath(path);
   if (path<>'') and (copy(path, length(path), 1)<>PathChar) then
@@ -586,7 +586,7 @@ begin
   result:=tex.texture[texture].sizeY;
 end;
 
-constructor TFrameBuffer.Create(const _texture: integer; _depth: boolean);
+constructor TFrameBuffer.Create(const _texture: longint; _depth: boolean);
 begin
   depth:=_depth;
   glGenFramebuffersEXT(1,@fb);
@@ -604,7 +604,7 @@ begin
 end;
 
 constructor TFrameBuffer.Create(const width, height: integer; transparency: boolean; _depth: boolean);
-var n: integer;
+var n: longint;
 begin
   n:=tex.AddEmptyTexture(tex.NewName('__fb'), width, height, transparency);
   Create(n, _depth);
@@ -632,7 +632,7 @@ begin
     glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 end;
 
-procedure TFrameBuffer.SetTexture(const _texture: integer; _unbind: boolean);
+procedure TFrameBuffer.SetTexture(const _texture: longint; _unbind: boolean);
 begin
   texture:=_texture;
   Bind;
@@ -870,7 +870,7 @@ end;
 function TNXGL.CreateGlWindow(hWindow: TWinControl): boolean;
 var err: cardinal;
 {$IFnDEF fpc}
-  pfd: TPIXELFORMATDESCRIPTOR; pf: integer;
+  pfd: TPIXELFORMATDESCRIPTOR; pf: longint;
 {$ELSE}
   parentForm: TForm;
 {$ENDIF}
@@ -1012,8 +1012,8 @@ end;
 
 {$ENDIF}
 
-procedure TNXGL.Draw(x, y: integer; pattern: word);
-var w,h,cols,rows,mult: integer; tx,ty,tw,th,sx,sy: single;
+procedure TNXGL.Draw(x, y: longint; pattern: word);
+var w,h,cols,rows,mult: longint; tx,ty,tw,th,sx,sy: single;
     pTex: PTexture;
 begin
   if tex.LastTexIndex<0 then exit;
@@ -1113,7 +1113,7 @@ begin
   //glPopMatrix;
 end;
 
-procedure TNXGL.DrawTexRepeat(x, y, sizeX,sizeY: integer);
+procedure TNXGL.DrawTexRepeat(x, y, sizeX, sizeY: longint);
 var tw,th: single; pTex: PTexture;
 begin
   if tex.LastTexIndex<0 then exit;
@@ -1129,7 +1129,7 @@ begin
   glEnd;
 end;
 
-procedure TNXGL.DrawSections(x, y, sizeX, sizeY, pattern: integer; bdSize: single);
+procedure TNXGL.DrawSections(x, y, sizeX, sizeY, pattern: longint; bdSize: single);
 var tx,ty,tw,th,bw,bh,btw,bth: single; pTex: PTexture;
 begin
   {$HINTS OFF}tex.GetPatternCoords(tx,ty,tw,th,pattern);{$HINTS ON}
@@ -1210,8 +1210,8 @@ begin
   end;
 end;
 
-procedure TNXGL.FillCircle(x, y, radiusX, radiusY: single; sides: integer);
-var n: integer; aa: single;
+procedure TNXGL.FillCircle(x, y, radiusX, radiusY: single; sides: longint);
+var n: longint; aa: single;
 begin
   if sides<3 then exit;
   aa:=-2*pi/sides;
@@ -1221,7 +1221,7 @@ begin
   glEnd;
 end;
 
-procedure TNXGL.FillRect(x, y, _width, _height: integer);
+procedure TNXGL.FillRect(x, y, _width, _height: longint);
 begin
   glBegin(GL_QUADS);
     glVertex2f(x, y); glVertex2f(x, y+_height);
@@ -1292,7 +1292,7 @@ begin
 end;
 
 function TNXGL.GLInfo(ext: array of string): boolean;
-var s: string; i: integer;
+var s: string; i: longint;
 begin
   result:=true; s:=GetEXT;
   for i:=low(ext) to high(ext) do
@@ -1346,7 +1346,7 @@ begin
 end;
 {$ENDIF}
 
-procedure TNXGL.Line(x, y, x2, y2: integer);
+procedure TNXGL.Line(x, y, x2, y2: longint);
 const d = 0.5;
 begin
   glBegin(GL_LINES);
@@ -1398,7 +1398,7 @@ begin
   FrameTick:=GetTick; secTick:=FrameTick+1000;
 end;
 
-procedure TNXGL.OutLine(x, y, _width, _height: integer);
+procedure TNXGL.OutLine(x, y, _width, _height: longint);
 const d = 0.5;
 begin
   glBegin(GL_LINE_LOOP);
@@ -1542,7 +1542,7 @@ begin
   CreateGlWindow(hWindow);
 end;
 
-procedure TNXGL.SetPixel(x, y: integer);
+procedure TNXGL.SetPixel(x, y: longint);
 begin
   glBegin(GL_QUADS);
     glVertex2i(x,y);     glVertex2i(x,y+1);
@@ -1579,7 +1579,7 @@ begin
 end;
 
 procedure TGLModel.Assign(_va: TCustomVertexArray);
-var i, j: integer;
+var i, j: longint;
 begin
   if (_va=nil) or (_va.rendermode<>GL_TRIANGLES) then exit;
   vCount:=_va.vCount;
@@ -1598,7 +1598,7 @@ begin
 end;
 
 procedure TGLModel.AssignTo(_va: TCustomVertexArray);
-var i, j: integer;
+var i, j: longint;
 begin
   if _va=nil then exit;
   _va.rendermode:=GL_TRIANGLES;
@@ -1647,7 +1647,7 @@ begin
 end;
 
 procedure TGLModel.Render(Initialize: boolean);
-var i: integer;
+var i: longint;
 begin
   if Initialize then begin
     SetPointers; EnableStates;
@@ -1669,8 +1669,8 @@ begin
   if Initialize then DisableStates;
 end;
 
-procedure TGLModel.SetFrame(t: single; fStart, fEnd: integer; loop: boolean);
-var delta: single; a,b,c,d,count: integer;
+procedure TGLModel.SetFrame(t: single; fStart, fEnd: longint; loop: boolean);
+var delta: single; a,b,c,d,count: longint;
 begin
   delta:=frac(t);
   if fStart>fEnd then begin
@@ -1697,7 +1697,7 @@ begin
 end;
 
 procedure TGLModel.SetFrameEx(a, b, c, d: PVertexFrame; delta: single);
-var i: integer;
+var i: longint;
 begin
   for i:=0 to vCount-1 do begin
     va[i]:=Catmull(a^.va[i], b^.va[i], c^.va[i], d^.va[i], delta);
@@ -1728,7 +1728,7 @@ end;
 { TTextureSet }
 
 function TGLTextureSet.AddEmptyTexture(name: string; width, height: word;
-  transparency: boolean): integer;
+  transparency: boolean): longint;
 var size,i: cardinal;
 begin
   result:=AddTexture2(name,'',transparency);
@@ -1761,7 +1761,7 @@ begin
   end;
 end;
 
-function TGLTextureSet.AddTexture(name,filename: string; transparency: boolean): integer;
+function TGLTextureSet.AddTexture(name, filename: string; transparency: boolean): longint;
 begin
   FixPath(filename);
   result:=AddTexture2(name, filename, transparency);
@@ -1775,7 +1775,7 @@ begin
 end;
 
 function TGLTextureSet.AddTexture(name: string; data: PointerArrayType;
-  width, height, values: integer; format, intFormat: cardinal): integer;
+  width, height, values: integer; format, intFormat: cardinal): longint;
 begin
   result:=AddTexture2(name, '', values>3);
   if result>=0 then begin
@@ -1796,7 +1796,7 @@ begin
   end;
 end;
 
-function TGLTextureSet.Add3DTexture(name, filename: string; cols, rows: integer; transparency: boolean): integer;
+function TGLTextureSet.Add3DTexture(name, filename: string; cols, rows: integer; transparency: boolean): longint;
 begin
   FixPath(filename);
   result:=Add3DTexture2(name,filename,cols,rows,transparency);
@@ -1822,7 +1822,7 @@ begin
 end;
 
 procedure TGLTextureSet.Clear;
-var i: integer;
+var i: longint;
 begin
   for i:=0 to Count-1 do
     if texture[i].index>0 then
@@ -1853,8 +1853,7 @@ begin
   glEnable(GL_TEXTURE_2D);
 end;
 
-procedure TGLTextureSet.ReloadTexture(n: integer; _filename: string;
-  transparency: boolean);
+procedure TGLTextureSet.ReloadTexture(n: longint; _filename: string; transparency: boolean);
 begin
   if (n>=Count) or (_filename='') then exit;
   with texture[n] do begin
@@ -1880,7 +1879,7 @@ begin
     else Restore3D(@texture[n]);
 end;
 
-procedure TGLTextureSet.RemoveTexture(n: integer; force: boolean);
+procedure TGLTextureSet.RemoveTexture(n: longint; force: boolean);
 begin
   // Uncomment for testing. Wrong n value would be error elsewhere.
   //if (n>=count) or (n<0) then exit;
@@ -1894,7 +1893,7 @@ begin
 end;
 
 procedure TGLTextureSet.Restore(tex: PTexture);
-var i: integer;
+var i: longint;
 begin
   if tex^.data<>nil then begin
     while nx.RenderThreadReserved do begin
@@ -1932,13 +1931,13 @@ begin
   end;
 end;
 
-procedure TGLTextureSet.Restore(tex: integer);
+procedure TGLTextureSet.Restore(tex: longint);
 begin
   if tex>=0 then Restore(@texture[tex]);
 end;
 
 procedure TGLTextureSet.Restore3D(tex: PTexture);
-var temp: TTexture; i,j,k,rs,dest,src: integer;
+var temp: TTexture; i,j,k,rs,dest,src: longint;
 begin
   if tex^.data<>nil then begin
     while nx.RenderThreadReserved do begin
@@ -2002,7 +2001,7 @@ begin
 end;
 
 procedure TGLTextureSet.SetByName(name: string; force: boolean);
-var i: integer;
+var i: longint;
 begin
   i:=indexof(name);
   if i>=0 then settex(i, force);
@@ -2021,12 +2020,12 @@ begin
   if y<>y2 then glTexParameteri(target, GL_TEXTURE_WRAP_T, y);
 end;
 
-procedure TGLTextureSet.Restore3D(tex: integer);
+procedure TGLTextureSet.Restore3D(tex: longint);
 begin
   if tex>=0 then Restore3D(@texture[tex]);
 end;
 
-procedure TGLTextureSet.SetTex(n: integer; force: boolean);
+procedure TGLTextureSet.SetTex(n: longint; force: boolean);
 begin
   if (n<>LastTexIndex) or force then begin
     if (n>=0) and (n<count) then begin
@@ -2046,7 +2045,7 @@ begin
   if n>=0 then glActiveTexture(GL_TEXTURE0+n);
 end;
 
-function TGLModel.NewMaterial(_texIndex: integer): integer;
+function TGLModel.NewMaterial(_texIndex: longint): integer;
 begin
   mCount:=mCount+1; result:=mCount-1;
   with mat[result] do begin
@@ -2077,7 +2076,7 @@ begin
   va_states_set:=true;
 end;
 
-function TVertexArray.GetIndexCount(const faceCount: integer): integer;
+function TVertexArray.GetIndexCount(const faceCount: longint): longint;
 begin
   if faceCount>0 then begin
     case rendermode of
@@ -2099,7 +2098,7 @@ begin
   Render(0, fCount, Indexed);
 end;
 
-procedure TVertexArray.Render(first, _count: integer; Indexed: boolean);
+procedure TVertexArray.Render(first, _count: longint; Indexed: boolean);
 begin
   if not va_states_set then EnableStates;
   if va_pointers_owner<>self then SetPointers;
@@ -2119,7 +2118,7 @@ end;
 
 { TGLFont }
 
-constructor TGLFont.CreateFont(fontName: string; fontSize, _TexSize: integer);
+constructor TGLFont.CreateFont(fontName: string; fontSize, _TexSize: longint);
 begin
   CreateBMP(fontName, fontSize, _TexSize);
   tex.texture[textureI].Format:=GL_RGBA;
@@ -2144,7 +2143,7 @@ begin
 end;
 
 procedure TGLFont.Draw(x, y: single; s: string; maxW: integer);
-var i,cw,n,x1,y1,wLimit: integer; d1,tx,ty: single;
+var i,cw,n,x1,y1,wLimit: longint; d1,tx,ty: single;
 begin
   wLimit:=0;
   //if UseUTF8 then s:=UTF8toSys(s);
@@ -2196,8 +2195,8 @@ begin
   glPopMatrix;
 end;
 
-procedure TGLFont.DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll, y_scroll: integer);
-var i,l,cw,n,x1,y1: integer; d1,tx,ty: single; s2: string;
+procedure TGLFont.DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll, y_scroll: longint);
+var i,l,cw,n,x1,y1: longint; d1,tx,ty: single; s2: string;
 begin
   y1:=r.y; d1:=1/TexSize; //s:=UTF8toSys(s);
   glBegin(GL_QUADS);
@@ -2224,8 +2223,8 @@ begin
   glEnd;
 end;
 
-procedure TGLFont.DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: integer);
-var i,l,cw,n,x1,y1: integer; d1,tx,ty: single; s2: string;
+procedure TGLFont.DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: longint);
+var i,l,cw,n,x1,y1: longint; d1,tx,ty: single; s2: string;
 begin
   y1:=r.y; d1:=1/TexSize;
   glBegin(GL_QUADS);
@@ -2275,7 +2274,7 @@ begin
 end;
 
 destructor TDisplayList.Destroy;
-var i: integer;
+var i: longint;
 begin
   for i:=TexRefCount-1 downto 0 do
     tex.RemoveTexture(texRef[i]);
@@ -2296,8 +2295,8 @@ begin
   glPopMatrix;
 end;
 
-procedure TDisplayList.SetTexRef(TexN: integer; isUsed: boolean);
-var i: integer;
+procedure TDisplayList.SetTexRef(TexN: longint; isUsed: boolean);
+var i: longint;
 begin
   if TexN<0 then exit;
   if isUsed then begin
@@ -2324,7 +2323,7 @@ begin
 end;
 
 procedure TDisplayList.UpdateList(render: boolean);
-var i: integer;
+var i: longint;
 begin
   tex.LastTexIndex:=-6; // Force first texture to show
   if render then glNewList(list, GL_COMPILE_AND_EXECUTE)
@@ -2469,7 +2468,7 @@ begin
 end;
 
 destructor TCamera.Destroy;
-var i: integer;
+var i: longint;
 begin
   for i:=0 to high(path) do path[i].Free;
   inherited Destroy;
@@ -2482,8 +2481,8 @@ begin
   path[high(path)]:=result;
 end;
 
-procedure TCamera.DeletePath(n: integer);
-var i: integer;
+procedure TCamera.DeletePath(n: longint);
+var i: longint;
 begin
   if (n>=0) and (n<length(path)) then begin
     for i:=n to high(path)-1 do
@@ -2507,8 +2506,8 @@ begin
   result:=nxMath3D.GetVector(mat[index], axis);
 end;
 
-function TCamera.IndexOfPath(p: TCameraPath): integer;
-var i: integer;
+function TCamera.IndexOfPath(p: TCameraPath): longint;
+var i: longint;
 begin
   for i:=0 to high(path) do
     if path[i]=p then begin
@@ -2523,7 +2522,7 @@ begin
   if doSet then SetCamera;
 end;
 
-procedure TCamera.Load(n: integer; doSet: boolean);
+procedure TCamera.Load(n: longint; doSet: boolean);
 begin
   if (n>=0) and (n<=high(saved)) then begin
     mat[index]:=saved[n];
@@ -2560,7 +2559,7 @@ begin
   if doSet then SetCamera;
 end;
 
-function TCamera.PathCount: integer;
+function TCamera.PathCount: longint;
 begin
   result:=length(path);
 end;
@@ -2604,12 +2603,12 @@ begin
   self.Rotate(degrees, vector(ax, ay, az), doSet);
 end;
 
-function TCamera.SaveCount: integer;
+function TCamera.SaveCount: longint;
 begin
   result:=length(saved);
 end;
 
-procedure TCamera.Save(n: integer);
+procedure TCamera.Save(n: longint);
 begin
   if n>=0 then begin
     if n>high(saved) then setlength(saved, n+1);
@@ -2648,7 +2647,7 @@ begin
 end;
 
 procedure TCameraPath.SetPosition(p: single);
-var c: integer;
+var c: longint;
 begin
   c:=Count;
   if c=0 then FPosition:=0
@@ -2661,20 +2660,20 @@ begin
   if AutoSetCamera then SetCamera;
 end;
 
-function TCameraPath.AddNode(const _mat: TMatrix): integer;
+function TCameraPath.AddNode(const _mat: TMatrix): longint;
 begin
   setlength(node, length(node)+1);
   result:=high(node); node[result]:=_mat;
   if result=0 then mat:=_mat;
 end;
 
-function TCameraPath.Count: integer;
+function TCameraPath.Count: longint;
 begin
   result:=length(node);
 end;
 
 function TCameraPath.GetMatrix(const dTime: single): TMatrix;{$IFDEF CanInline}inline;{$ENDIF}
-var i, j, m0, m1, m2, m3, c: integer; delta: single;
+var i, j, m0, m1, m2, m3, c: longint; delta: single;
 begin
   c:=Count; m0:=floor(dTime)-1; delta:=dTime-(m0+1);
   if wrapping then begin
@@ -2723,13 +2722,13 @@ begin
   if _colors then glGenBuffers(1, @bColor);
 end;
 
-constructor TVBO.Create(Faces, Vertices: integer; _rendermode: cardinal; textures, normals, colors: boolean);
+constructor TVBO.Create(Faces, Vertices: longint; _rendermode: cardinal; textures, normals, colors: boolean);
 begin
   inherited Create(Faces, Vertices, _rendermode, textures, normals, colors);
   Create;
 end;
 
-constructor TVBO.Create(Faces: integer; _rendermode: cardinal; textures, normals, colors: boolean);
+constructor TVBO.Create(Faces: longint; _rendermode: cardinal; textures, normals, colors: boolean);
 begin
   inherited Create(Faces, _rendermode, textures, normals, colors);
   Create;
@@ -2745,7 +2744,7 @@ begin
   inherited Destroy;
 end;
 
-function TVBO.GetIndexCount(const faceCount: integer): integer;
+function TVBO.GetIndexCount(const faceCount: longint): longint;
 begin
   if faceCount>0 then begin
     case rendermode of
@@ -2772,7 +2771,7 @@ begin
   Render(0, fCount);
 end;
 
-procedure TVBO.Render(first, _count: integer);
+procedure TVBO.Render(first, _count: longint);
 begin
   SetPointers;
   glDrawElements(rendermode, GetIndexCount(_count), GL_UNSIGNED_SHORT,
@@ -3050,7 +3049,7 @@ begin
 end;
 
 constructor TGLRenderer.Create(buffer2D, buffer3D: word);
-var i: integer; solidWhite: TfRGBA; nUp: TVector;
+var i: longint; solidWhite: TfRGBA; nUp: TVector;
 begin
   cam:=TCamera.Create;
   ambient:=fRGBA(0, 0, 0, 1); diffuse:=fRGBA(1, 1, 1, 1); shininess:=10;
@@ -3100,7 +3099,7 @@ begin
   FisEnabled:=false; shader.Disable;
 end;
 
-function TGLRenderer.Draw(x, y: single; pattern: integer): word;
+function TGLRenderer.Draw(x, y: single; pattern: longint): word;
 var tx, ty, tw, th, w, h: single;
 begin
   Enable2D; result:=NewQuad;
@@ -3118,8 +3117,7 @@ begin
   end;
 end;
 
-function TGLRenderer.DrawRotateS(x, y: single; pattern: word; radians,
-  cx, cy, sizeX, sizeY: single): word;
+function TGLRenderer.DrawRotateS(x, y: single; pattern: longint; radians, cx, cy, sizeX, sizeY: single): word;
 var tx, ty, tw, th, w, h: single; dx, dy: TVector2f;
 begin
   Enable2D; result:=NewQuad;
@@ -3275,7 +3273,7 @@ begin
   end;
 end;
 
-procedure TGLRenderer.SetTexture(n: integer);
+procedure TGLRenderer.SetTexture(n: longint);
 begin
   if curTexture<>n then begin
     Render; curTexture:=n; tex.SetTex(n);

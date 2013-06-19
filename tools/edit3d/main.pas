@@ -140,7 +140,7 @@ type
     mb: byte;
     wsFilename: string;
     function AddFile(filename: string): TEditModel;
-    procedure AddSelect(index: integer; value: byte = 255);
+    procedure AddSelect(index: longint; value: byte = 255);
     procedure ClearSelection;
     procedure FreeObjects;
     procedure LoadGLData;
@@ -254,7 +254,7 @@ begin
 end;
 
 procedure TForm1.mnuResetRotationClick(Sender: TObject);
-var i: integer;
+var i: longint;
 begin
   if mode=smObject then
     for i:=0 to highSel do
@@ -305,7 +305,7 @@ begin
 end;
 
 procedure TForm1.FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
-var dx, dy, d, nearest: single; i, n: integer; dV, v1: TVector;
+var dx, dy, d, nearest: single; i, n: longint; dV, v1: TVector;
     m, m2: TMatrix; oldmp: TVector2f; view: TGLViewDetails;
     p: TVector3d;
 begin
@@ -450,7 +450,7 @@ begin
 end;
 
 procedure TForm1.FormMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var i: integer; p: TVector3d; r: TRectf;
+var i: longint; p: TVector3d; r: TRectf;
     view: TGLViewDetails;
 begin
   if not Timer1.Enabled then exit;
@@ -523,7 +523,7 @@ begin
 end;
 
 procedure TForm1.mnuDeleteClick(Sender: TObject);
-var i, n: integer;
+var i, n: longint;
 begin
   if selCount>0 then begin
     n:=selCount;
@@ -571,7 +571,7 @@ begin
 end;
 
 function TForm1.AddFile(filename: string): TEditModel;
-var n: integer;
+var n: longint;
 begin
   result:=nil;
   if not fileexists(filename) then begin
@@ -593,7 +593,7 @@ begin
   SetStatus('Done');
 end;
 
-procedure TForm1.AddSelect(index: integer; value: byte);
+procedure TForm1.AddSelect(index: longint; value: byte);
 begin
   if index<0 then exit;
   if selArray[index]=0 then inc(selCount);
@@ -603,7 +603,7 @@ begin
 end;
 
 procedure TForm1.ClearSelection;
-var i: integer;
+var i: longint;
 begin
   if mode=smObject then begin
     scene.selIndex:=-1; scene.selObject:=nil;
@@ -660,7 +660,7 @@ begin
 end;
 
 procedure TForm1.mnuDeleteObjClick(Sender: TObject);
-var i, n: integer;
+var i, n: longint;
 begin
   if (objlist.Items.Count>0) and (objlist.ItemIndex>=0) then begin
     n:=objlist.ItemIndex;
@@ -822,7 +822,7 @@ begin
 end;
 
 procedure TForm1.selModeChange(Sender: TObject);
-var newmode, oldmode: TSceneMode; n: integer;
+var newmode, oldmode: TSceneMode; n: longint;
     //selArray2: array of boolean;
 begin
   oldmode:=mode;
@@ -882,7 +882,7 @@ begin
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
-var dr, i: integer;
+var dr, i: longint;
 begin
   Timer1.Enabled:=false;
   if modified then begin
@@ -906,7 +906,7 @@ begin
 end;
 
 procedure TForm1.FreeObjects;
-var i: integer;
+var i: longint;
 begin
   scene.Clear;
   for i:=0 to high(obj) do FreeAndNil(obj[i]);

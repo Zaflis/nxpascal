@@ -26,11 +26,11 @@ type
   fPoint = TVector2f;
   TVector3f = packed record x,y,z: single; end;
   TVector3d = packed record x,y,z: double; end;
-  TVector3i = packed record x,y,z: integer; end;
+  TVector3i = packed record x,y,z: longint; end;
   TVector4f = packed record x,y,z,w: single; end;
   TQuaternion = TVector4f;
-  TRecti = packed record x1,y1,x2,y2: integer; end;
-  TBoundsRect = record x,y,w,h: integer; end;
+  TRecti = packed record x1,y1,x2,y2: longint; end;
+  TBoundsRect = record x,y,w,h: longint; end;
   TRectf = packed record x1,y1,x2,y2: single; end;
   TVector = TVector3f;
   PVector = ^TVector;
@@ -87,12 +87,12 @@ type
 
   function pointf(const x, y: single): TVector2f;
   function rectf(const x1, y1, x2, y2: single): TRectf;
-  function recti(const x1, y1, x2, y2: integer): TRecti;
-  function bRect(const x, y, w, h: integer): TBoundsRect;
-  procedure switchVar(const p1, p2: Pointer; const Size: integer);
+  function recti(const x1, y1, x2, y2: longint): TRecti;
+  function bRect(const x, y, w, h: longint): TBoundsRect;
+  procedure switchVar(const p1, p2: Pointer; const Size: longint);
   function vector(const x, y: single; const z: single = 0): TVector;{$IFDEF CanInline}inline;{$ENDIF}
   function vector2f(const x, y: single): TVector2f;
-  function vector3i(const x, y, z: integer): TVector3i;
+  function vector3i(const x, y, z: longint): TVector3i;
   function vector4f(const x, y, z: single; const w: single = 1): TVector4f;{$IFDEF CanInline}inline;{$ENDIF}
   function RGB(const r, g, b: byte): TRGB;
   function RGBA(const r, g, b: byte; const a: byte = 255): TRGBA;
@@ -114,8 +114,8 @@ var
   function FileExistsUTF8(filename: string): boolean;
   function SysToUTF8(const s: string): string;
   function UTF8ToSys(const s: string): string;
-  function UTF8Length(const s: string): integer;
-  function UTF8Copy(const s: string; StartCharIndex, CharCount: integer): string;
+  function UTF8Length(const s: string): longint;
+  function UTF8Copy(const s: string; StartCharIndex, CharCount: longint): string;
 {$ENDIF}
 
 implementation
@@ -138,12 +138,12 @@ begin
   result:=s;
 end;
 
-function UTF8Length(const s: string): integer;
+function UTF8Length(const s: string): longint;
 begin
   result:=length(s);
 end;
 
-function UTF8Copy(const s: string; StartCharIndex, CharCount: integer): string;
+function UTF8Copy(const s: string; StartCharIndex, CharCount: longint): string;
 begin
   result:=copy(s, StartCharIndex, CharCount);
 end;
@@ -160,19 +160,19 @@ begin
   result.x2:=x2; result.y2:=y2;
 end;
 
-function recti(const x1, y1, x2, y2: integer): TRecti;
+function recti(const x1, y1, x2, y2: longint): TRecti;
 begin
   result.x1:=x1; result.y1:=y1;
   result.x2:=x2; result.y2:=y2;
 end;
 
-function bRect(const x, y, w, h: integer): TBoundsRect;
+function bRect(const x, y, w, h: longint): TBoundsRect;
 begin
   result.x:=x; result.y:=y;
   result.w:=w; result.h:=h;
 end;
 
-procedure switchVar(const p1, p2: Pointer; const Size: integer);
+procedure switchVar(const p1, p2: Pointer; const Size: longint);
 var temp: pointer;
 begin
   getmem(temp, size);
@@ -192,7 +192,7 @@ begin
   result.x:=x; result.y:=y;
 end;
 
-function vector3i(const x, y, z: integer): TVector3i;
+function vector3i(const x, y, z: longint): TVector3i;
 begin
   result.x:=x; result.y:=y; result.z:=z;
 end;
@@ -223,7 +223,7 @@ begin
 end;
 
 procedure FixPath(var path: string);
-var i: integer; c: char;
+var i: longint; c: char;
 begin
   for i:=1 to length(path) do begin
     c:=path[i];
