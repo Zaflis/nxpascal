@@ -22,21 +22,21 @@ uses nxTypes, math;
   function fmod(const a, b: single): single; overload;
   function fmod(const value, vMin, vMax: single): single; overload;
   function Interpolate(const v1,v2,s: single): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
-  function Interpolatei(const v1,v2: integer; s: single): integer;
+  function Interpolatei(const v1,v2: longint; s: single): longint;
   function Interpolate(const v1,v2: TVector2f; const s: single): TVector2f; overload;{$IFDEF CanInline}inline;{$ENDIF}
   function Invert(const v: TVector2f): TVector2f; overload;
-  function LinesCross(const x0, y0, x1, y1, x2, y2, x3, y3: Integer): Boolean;
+  function LinesCross(const x0, y0, x1, y1, x2, y2, x3, y3: longint): Boolean;
   function MinMax(const value, vMin, vMax: single): single;
-  function Mod2(a,b: integer): integer;
+  function Mod2(a,b: longint): longint;
   function Norm(const v: TVector2f; const h: PSingle = nil): TVector2f; overload;
   procedure Norm(var x,y: single; const h: PSingle = nil); overload;
   procedure Norm(var x,y: double; const h: PDouble); overload;
   function PointInCircle(const p,circle: TVector2f; const radius: single): boolean; overload;
   function PointInCircle(const pX,pY,circleX,circleY,radius: single): boolean; overload;
-  function PointInRect(const x, y: integer; rect: TRecti): boolean; overload;
+  function PointInRect(const x, y: longint; rect: TRecti): boolean; overload;
   function PointInRect(const x, y: single; rect: TRectf): boolean; overload;
-  function Pow2fit(n: integer): integer;
-  function Pow2near(n: integer): integer;
+  function Pow2fit(n: longint): longint;
+  function Pow2near(n: longint): longint;
   function Reflect(const rayStart, rayDir, wallPoint: TVector2f): TVector2f; overload;
   function Reflect(const rayDir, wallNormal: TVector2f): TVector2f; overload;
   function Rotate(const pt,center: TVector2f; const degrees: single): TVector2f; overload;
@@ -48,6 +48,7 @@ uses nxTypes, math;
   function VectorAdd(const v1, v2: TVector2f): TVector2f; overload;
   function VectorFromAngle(const radians: single; const radius: single=1.0): TVector2f;
   function VectorMatch(const a, b: TVector2f; delta: single=0.01): boolean; overload;
+  function VectorSqr(const v: TVector2f): single; overload;
   function VectorSub(const v1, v2: TVector2f): TVector2f; overload;
 
 // Operator overloading
@@ -151,7 +152,7 @@ begin
   result:=v1+s*(v2-v1);
 end;
 
-function Interpolatei(const v1,v2: integer; s: single): integer;
+function Interpolatei(const v1,v2: longint; s: single): longint;
 begin
   result:=round(v1+s*(v2-v1));
 end;
@@ -169,7 +170,7 @@ begin
 end;
 
 // Line1(x0,y0,x1,y1), Line2(x2,y2,x3,y3)
-function LinesCross(const x0, y0, x1, y1, x2, y2, x3, y3: Integer): Boolean;
+function LinesCross(const x0, y0, x1, y1, x2, y2, x3, y3: longint): Boolean;
 var D, AB, CD: Single;
 begin
   LinesCross:=false;
@@ -192,7 +193,7 @@ begin
 end;
 
 // 11 mod2 10 = 1  |  -11 mod2 10 = -9  |  5 mod2 0 = 0
-function Mod2(a, b: integer): integer;
+function Mod2(a, b: longint): longint;
 begin
   if b=0 then result:=0
   else begin
@@ -252,8 +253,8 @@ begin
   PointInCircle:=(x*x+y*y)<(radius*radius);
 end;
 
-function PointInRect(const x, y: integer; rect: TRecti): boolean;
-var tmp: integer;
+function PointInRect(const x, y: longint; rect: TRecti): boolean;
+var tmp: longint;
 begin
   if rect.x1>rect.x2 then begin
     tmp:=rect.x1; rect.x1:=rect.x2; rect.x2:=tmp;
@@ -276,7 +277,7 @@ begin
   result:=(x>=rect.x1) and (x<=rect.x2) and (y>=rect.y1) and (y<=rect.y2);
 end;
 
-function Pow2fit(n: integer): integer;
+function Pow2fit(n: longint): longint;
 var neg: boolean;
 begin
   if n<0 then begin
@@ -287,8 +288,8 @@ begin
   if neg then result:=-result;
 end;
 
-function Pow2near(n: integer): integer;
-var h, l: integer; neg: boolean;
+function Pow2near(n: longint): longint;
+var h, l: longint; neg: boolean;
 begin
   if n<0 then begin
     n:=-n; neg:=true;
@@ -376,6 +377,11 @@ end;
 function VectorMatch(const a, b: TVector2f; delta: single): boolean;
 begin
   result:=(abs(a.x-b.x)<delta) and (abs(a.y-b.y)<delta);
+end;
+
+function VectorSqr(const v: TVector2f): single;
+begin
+  result:=v.x*v.x + v.y*v.y;
 end;
 
 function VectorSub(const v1, v2: TVector2f): TVector2f;

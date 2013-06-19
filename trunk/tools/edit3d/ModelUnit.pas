@@ -14,17 +14,17 @@ type
 
   TEditModel = class(TPolyModel)
   public
-    procedure DeleteFace(index: integer);
-    procedure DeleteVertex(index: integer);
-    function GetFaceMiddle(index: integer): TVector;
+    procedure DeleteFace(index: longint);
+    procedure DeleteVertex(index: longint);
+    function GetFaceMiddle(index: longint): TVector;
     procedure Optimize;
     function rayIntersect2(const rayStart, rayDir: TVector; findClosest: boolean;
-      const intersect: PVector=nil; const normal: PVector=nil): integer; overload;
+      const intersect: PVector=nil; const normal: PVector=nil): longint; overload;
     function rayIntersect2(rayStart, rayDir: TVector; findClosest: boolean;
       const position: TVector; rotation: TMatrix;
-      const intersect: PVector=nil; const normal: PVector=nil): integer; overload;
+      const intersect: PVector=nil; const normal: PVector=nil): longint; overload;
     function RayPolyIntersect2(const rayStart, rayDirection: TVector;
-      const vi: PWordArray; Count: integer; BothSided: boolean;
+      const vi: PWordArray; Count: longint; BothSided: boolean;
       intersect: PVector; intersectNormal: PVector): Boolean;
   end;
 
@@ -49,7 +49,7 @@ type
     ax, ay, zoom, arrowAlpha: single;
     camPos: TVector;
     selObject: TEditModel;
-    selIndex: integer;
+    selIndex: longint;
     wireFrame: byte;
     showGrid, showNormals, bothSided, objectCam: boolean;
     constructor Create;
@@ -58,14 +58,14 @@ type
     procedure RenderObjects;
     procedure Add(obj: TEditModel);
     procedure Clear;
-    procedure Delete(objIndex: integer);
-    procedure DeSelect(index: integer);
+    procedure Delete(objIndex: longint);
+    procedure DeSelect(index: longint);
     procedure GetSelIndices;
     procedure GetVertIndices;
-    procedure SelectObj(index: integer);
+    procedure SelectObj(index: longint);
     procedure SetCamera(addVec: PVector);
     procedure ToggleObjectCam;
-    procedure TryHighSel(index: integer);
+    procedure TryHighSel(index: longint);
   end;
 
   TSceneMode = (smObject, smFace, smVertex, smBone, smAnim);
@@ -356,7 +356,7 @@ begin
   setlength(o, 0);
 end;
 
-procedure T3DScene.Delete(objIndex: integer);
+procedure T3DScene.Delete(objIndex: longint);
 var i: integer;
 begin
   o[objIndex].Free;
@@ -364,7 +364,7 @@ begin
   setlength(o, high(o));
 end;
 
-procedure T3DScene.DeSelect(index: integer);
+procedure T3DScene.DeSelect(index: longint);
 var i: integer;
 begin
   if selArray[index]>0 then begin
@@ -414,7 +414,7 @@ begin
     end;
 end;
 
-procedure T3DScene.SelectObj(index: integer);
+procedure T3DScene.SelectObj(index: longint);
 begin
   if index<0 then exit;
   selIndex:=index;
@@ -456,7 +456,7 @@ begin
   end;
 end;
 
-procedure T3DScene.TryHighSel(index: integer);
+procedure T3DScene.TryHighSel(index: longint);
 begin
   if index>highSel then highSel:=index;
 end;
@@ -481,21 +481,21 @@ end;
 
 { TEditModel }
 
-procedure TEditModel.DeleteFace(index: integer);
+procedure TEditModel.DeleteFace(index: longint);
 //var i: integer;
 begin
   //
 
 end;
 
-procedure TEditModel.DeleteVertex(index: integer);
+procedure TEditModel.DeleteVertex(index: longint);
 //var i: integer;
 begin
   //
 
 end;
 
-function TEditModel.GetFaceMiddle(index: integer): TVector;
+function TEditModel.GetFaceMiddle(index: longint): TVector;
 var i: integer;
 begin
   result:=nullVector;
@@ -525,7 +525,7 @@ begin
     end;
 end;
 
-function TEditModel.rayIntersect2(const rayStart, rayDir: TVector; findClosest: boolean; const intersect: PVector; const normal: PVector): integer;
+function TEditModel.rayIntersect2(const rayStart, rayDir: TVector; findClosest: boolean; const intersect: PVector; const normal: PVector): longint;
 var g, i: integer; d: single; nearest: single;
     vI,vN: TVector;
 begin
@@ -553,9 +553,7 @@ begin
   end;
 end;
 
-function TEditModel.rayIntersect2(rayStart, rayDir: TVector;
-  findClosest: boolean; const position: TVector; rotation: TMatrix;
-  const intersect: PVector; const normal: PVector): integer;
+function TEditModel.rayIntersect2(rayStart, rayDir: TVector; findClosest: boolean; const position: TVector; rotation: TMatrix; const intersect: PVector; const normal: PVector): longint;
 begin
   // Correct ray
   rayDir:=Multiply(rayDir, Invert(rotation));
@@ -567,9 +565,7 @@ begin
     normal);
 end;
 
-function TEditModel.RayPolyIntersect2(const rayStart, rayDirection: TVector;
-  const vi: PWordArray; Count: integer; BothSided: boolean;
-  intersect: PVector; intersectNormal: PVector): Boolean;
+function TEditModel.RayPolyIntersect2(const rayStart, rayDirection: TVector; const vi: PWordArray; Count: longint; BothSided: boolean; intersect: PVector; intersectNormal: PVector): Boolean;
 var i: integer;
 begin
   result:=false;
