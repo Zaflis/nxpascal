@@ -55,7 +55,7 @@ begin
   mdl[5].NewMaterial(mdl[2].mat[0].texIndex);
   mdl[5].Scale(3, 2, 2);
   mdl[5].ScaleUV(3, 3);
-
+  
   // Last operations
   if nx.LastError<>'' then ShowMessage(nx.LastError);
   ResetTick; Initialized:=true;
