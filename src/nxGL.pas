@@ -54,7 +54,7 @@ type
     constructor Create;
     function AddEmptyTexture(name: string; width, height: word; transparency: boolean = false): longint;
     function AddTexture(name, filename: string; transparency: boolean = false): longint; overload;
-    function AddTexture(name: string; data: PointerArrayType;
+    function AddTexture(name: string; data: DynamicByteArray;
       width, height, values: integer; format, intFormat: cardinal): longint; overload;
     function Add3DTexture(name,filename: string; cols,rows: integer; transparency: boolean = false): longint;
     procedure Clear;
@@ -1748,9 +1748,8 @@ begin
         values:=3; Format:=GL_RGB;
       end;
       intFormat:=Format;
-      if Data<>nil then FreeMem(Data);
       size:=sizeX*sizeY*values;
-      Data:=AllocMem(size);
+      setlength(Data, size);
       fillchar(data[0],size,0);
       if values=4 then begin
         for i:=0 to (size-1) div 4 do
@@ -1774,7 +1773,7 @@ begin
   end;
 end;
 
-function TGLTextureSet.AddTexture(name: string; data: PointerArrayType;
+function TGLTextureSet.AddTexture(name: string; data: DynamicByteArray;
   width, height, values: integer; format, intFormat: cardinal): longint;
 begin
   result:=AddTexture2(name, '', values>3);
@@ -1865,11 +1864,11 @@ begin
     end;
     intFormat:=Format;
     if texture[n].Data<>nil then begin
-      FreeMem(texture[n].Data); texture[n].Data:=nil;
+      setlength(texture[n].Data, 0);
     end;
     if not LoadTextureData(@texture[n],_filename) then begin
       if texture[n].Data<>nil then begin
-        FreeMem(texture[n].Data); texture[n].Data:=nil;
+        setlength(texture[n].Data, 0);
       end;
       exit;
     end;
@@ -1917,15 +1916,15 @@ begin
       if not (toMipMap in Options) then begin
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, TextureQuality);
         glTexImage2D(GL_TEXTURE_2D, 0, tex^.intFormat, tex^.sizeX, tex^.sizeY, 0,
-          tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
+          tex^.Format, GL_UNSIGNED_BYTE, @tex^.Data[0]);
       end else begin
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
         gluBuild2DMipmaps(GL_TEXTURE_2D, tex^.Values, tex^.sizeX, tex^.sizeY,
-          tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
+          tex^.Format, GL_UNSIGNED_BYTE, @tex^.Data[0]);
       end;
     end;
     if not (toKeepData in Options) then begin
-      freemem(tex^.data); tex^.data:=nil;
+      setlength(tex^.data, 0);
     end;
     nx.RenderThreadReserved:=false;
   end;
@@ -1962,8 +1961,7 @@ begin
       tex^.sizeZ:=cols3D*rows3D;
       rs:=tex^.sizeX*tex^.values; // Row size
       try
-        {$IFDEF fpc}tex^.Data:={$ENDIF}reallocmem(tex^.Data,
-          tex^.sizeX*tex^.sizeY*tex^.sizeZ*tex^.values);
+        setlength(tex^.Data, tex^.sizeX*tex^.sizeY*tex^.sizeZ*tex^.values);
         dest:=0;
         for k:=0 to tex^.sizeZ-1 do
           for j:=0 to tex^.sizeY-1 do begin
@@ -1972,7 +1970,7 @@ begin
             dest:=dest+rs;
           end;
       finally
-        freemem(temp.data);
+        setlength(temp.data, 0);
       end;
       _SetTex(tex^.index, tex^.tex3D);
       glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -1983,7 +1981,7 @@ begin
       //if not (toMipMap in Options) then begin
         glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER, TextureQuality);
         glTexImage3D(GL_TEXTURE_3D, 0, tex^.intFormat, tex^.sizeX, tex^.sizeY, tex^.sizeZ,
-          0, tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
+          0, tex^.Format, GL_UNSIGNED_BYTE, @tex^.Data[0]);
       //end else begin
 
         // insert 3D MipMapping here
@@ -1993,7 +1991,7 @@ begin
         //  tex^.Format, GL_UNSIGNED_BYTE, tex^.Data);
       //end;
       if not (toKeepData in Options) then begin
-        freemem(tex^.data); tex^.data:=nil;
+        setlength(tex^.data, 0);
       end;
     end;
     nx.RenderThreadReserved:=false;

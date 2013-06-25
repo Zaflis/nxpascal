@@ -18,6 +18,7 @@ type
   {$IFDEF fpc}PointerArrayType = PByte;
   {$ELSE}PointerArrayType = PByteArray;
   {$ENDIF}
+  DynamicByteArray = array of byte;
   TRGB = packed record r,g,b: byte; end;
   TRGBA = packed record r,g,b,a: byte; end;
   TfRGB = record r,g,b: single; end;
@@ -34,6 +35,7 @@ type
   TRectf = packed record x1,y1,x2,y2: single; end;
   TVector = TVector3f;
   PVector = ^TVector;
+  PVector2f = ^TVector2f;
   pRGB = ^TRGB;
   pRGBA = ^TRGBA;
 

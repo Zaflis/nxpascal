@@ -28,7 +28,7 @@ type
     values: byte;  // values 3 or 4
     Enabled, tex3D: boolean;
     index, format, intFormat: cardinal; // GL_RGB, GL_RGBA
-    Data: PointerArrayType; // size = sizeX*sizeY*values
+    Data: DynamicByteArray; // size = sizeX*sizeY*values
   end;
   PTexture = ^TTexture;
 
@@ -262,7 +262,7 @@ var i: longint;
 begin
   for i:=0 to Count-1 do
     if texture[i].Data<>nil then begin
-      FreeMem(texture[i].Data); texture[i].Data:=nil;
+      setlength(texture[i].Data, 0);
     end;
   SetCount(0);
 end;
@@ -271,7 +271,7 @@ procedure TTextureSet.CopyArea(source, dest: PTexture; x,y: integer);
 var i,j,k,x2,y2: longint;
 begin
   with dest^ do begin
-    Reallocmem(Data, SizeX*SizeY*values);
+    setlength(Data, SizeX*SizeY*values);
     for j:=0 to SizeY-1 do begin
       if y+j<source^.Height then y2:=y+j
       else if j=SizeY-1 then y2:=y
@@ -409,8 +409,7 @@ begin
   end;
   tex^.PatternWidth:=tex^.Width;
   tex^.PatternHeight:=tex^.Height;
-  if tex^.Data<>nil then FreeMem(tex^.Data);
-  tex^.Data:=AllocMem(tex^.sizeX*tex^.sizeY*tex^.values);
+  setlength(tex^.Data, tex^.sizeX*tex^.sizeY*tex^.values);
   n:=0;
   for y:=0 to tex^.Height-1 do begin
     if UseScale then y1:=trunc(y*sy) else y1:=y;
@@ -540,8 +539,7 @@ begin
   end;
   tex^.PatternWidth:=tex^.Width;
   tex^.PatternHeight:=tex^.Height;
-  if tex^.Data<>nil then FreeMem(tex^.Data);
-  tex^.Data:=AllocMem(tex^.sizeX*tex^.sizeY*tex^.values);
+  setlength(tex^.Data, tex^.sizeX*tex^.sizeY*tex^.values);
   n:=0; a:=nil;
   {$R-}
   for y:=0 to tex.sizeY-1 do begin
@@ -603,8 +601,7 @@ begin
   end;
   tex^.PatternWidth:=tex^.Width;
   tex^.PatternHeight:=tex^.Height;
-  if tex^.Data<>nil then FreeMem(tex^.Data);
-  tex^.Data:=AllocMem(tex^.sizeX*tex^.sizeY*tex^.values);
+  setlength(tex^.Data, tex^.sizeX*tex^.sizeY*tex^.values);
   n:=0; a:=high(word);
   for y:=0 to tex^.Height-1 do begin
     if UseScale then y1:=trunc(y*sy) else y1:=y;
@@ -731,7 +728,7 @@ begin
   texture[n].Enabled:=false; texture[n].RefCount:=0;
   if LastTexIndex=n then LastTexIndex:=-1;
   if texture[n].Data<>nil then begin
-    FreeMem(texture[n].Data); texture[n].Data:=nil;
+    setlength(texture[n].Data, 0);
   end;
   while (count>0) and (not texture[count-1].Enabled) do
     SetCount(count-1);
@@ -740,7 +737,7 @@ end;
 procedure TTextureSet.Resize(_texture: PTexture; newWidth, newHeight: integer);
 var tmp: TTexture; i,j,k: longint;
 begin
-  tmp.Data:=AllocMem(newWidth*newHeight*_texture^.values);
+  setlength(tmp.Data, newWidth*newHeight*_texture^.values);
   {$R-}
   for j:=0 to newHeight-1 do
     if j<_texture^.sizeY then begin
@@ -758,7 +755,7 @@ begin
 	      for k:=0 to _texture^.values-1 do
 	        tmp.Data[_texture^.values*(i+newWidth*j)+k]:=0;
   {$R+}
-  FreeMem(_texture^.Data);
+
   _texture^.Data:=tmp.Data; tmp.Data:=nil;
   _texture^.sizeX:=newWidth;
   _texture^.sizeY:=newHeight;
@@ -860,7 +857,7 @@ begin
   fs.ReadBuffer(charW, 256-32);
   c:=0;
   fs.ReadBuffer(c, 4);
-  tex^.Data:=allocmem(c);
+  setlength(tex^.Data, c);
   ds:=TDeCompressionStream.create(fs);
   ds.read(tex^.Data[0], c);
   ds.Free; fs.Free;
