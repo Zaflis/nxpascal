@@ -387,14 +387,14 @@ type
   public
     constructor CreateFont(fontName: string; fontSize, _TexSize: longint);
     constructor LoadFont(filename: string);
-    procedure Draw(x,y: single; s: string; maxW: integer = 0); override;
-    function Draw(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single=-1): integer;
-    function DrawC(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single=-1): integer;
+    procedure Draw(x,y: single; s: string; maxW: integer = 0); overload; override;
     procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
     procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); override;
     procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
     procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: longint); override;
     procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: longint = 0); override;
+    function RDraw(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single=-1): integer; overload;
+    function RDrawC(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single=-1): integer;
     procedure SetColor; overload;
     procedure SetTexture; override;
   end;
@@ -2195,56 +2195,6 @@ begin
   glPopMatrix;
 end;
 
-// Return vertex index of first rendered quad
-function TGLFont.Draw(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single): integer;
-var x1, y1, tx, ty, d1, tw, th, cw2, sy2, wLimit: single;
-    i, cw, n, quad: longint; UseLimiter: boolean;
-    mColor: TfRGBA;
-begin
-  result:=-1;
-  mColor:=MultiplyColor(color, renderer.color);
-  with renderer do begin
-    Enable2D;
-    wLimit:=0;
-    d1:=1/TexSize; x1:=x; y1:=y;
-    sy2:=(sy-1)*scaleY;
-    UseLimiter:=maxW>0;
-    for i:=1 to UTF8Length(s) do begin
-      n:=byte(UTFToChr(UTF8Copy(s, i, 1)));
-      cw:=charW[n]; cw2:=cw*scaleX;
-      if UseLimiter then begin
-        wLimit:=wLimit+cw2;
-        if wLimit>maxW then break;
-      end;
-      n:=n-32; tx:=(n mod 16)*sx*d1+d1; ty:=(n div 16)*sy*d1;
-      if n>0 then begin // Skip spaces
-        quad:=NewQuad;
-        if result<0 then result:=quad;
-        tw:=cw*d1; th:=(sy-1)*d1;
-        SetVertex(quad,   x1,     y1,     tx,    ty);
-        SetVertex(quad+1, x1,     y1+sy2, tx,    ty+th);
-        SetVertex(quad+2, x1+cw2, y1+sy2, tx+tw, ty+th);
-        SetVertex(quad+3, x1+cw2, y1,     tx+tw, ty);
-        with mColor do begin
-          SetColor(quad,   r, g, b, a);
-          SetColor(quad+1, r, g, b, a);
-          SetColor(quad+2, r, g, b, a);
-          SetColor(quad+3, r, g, b, a);
-        end;
-      end;
-      x1:=x1+cw2;
-    end;
-  end;
-end;
-
-function TGLFont.DrawC(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single): integer;
-var w: single;
-begin
-  w:=(TextW(s)*0.5)*scaleX;
-  if (maxW>0) and (w>maxW/2) then w:=maxW/2;
-  result:=Draw(renderer, x-w, y-CenterH*scaleY, scaleX, scaleY, s, maxW);
-end;
-
 procedure TGLFont.DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll, y_scroll: longint);
 var i,l,cw,n,x1,y1: longint; d1,tx,ty: single; s2: string;
 begin
@@ -2302,6 +2252,55 @@ begin
     if y1+height>r.y+r.h then break;
   end;
   glEnd;
+end;
+
+function TGLFont.RDraw(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single): integer;
+var x1, y1, tx, ty, d1, tw, th, cw2, sy2, wLimit: single;
+    i, cw, n, quad: longint; UseLimiter: boolean;
+    mColor: TfRGBA;
+begin
+  result:=-1;
+  mColor:=MultiplyColor(color, renderer.color);
+  with renderer do begin
+    Enable2D;
+    wLimit:=0;
+    d1:=1/TexSize; x1:=x; y1:=y;
+    sy2:=(sy-1)*scaleY;
+    UseLimiter:=maxW>0;
+    for i:=1 to UTF8Length(s) do begin
+      n:=byte(UTFToChr(UTF8Copy(s, i, 1)));
+      cw:=charW[n]; cw2:=cw*scaleX;
+      if UseLimiter then begin
+        wLimit:=wLimit+cw2;
+        if wLimit>maxW then break;
+      end;
+      n:=n-32; tx:=(n mod 16)*sx*d1+d1; ty:=(n div 16)*sy*d1;
+      if n>0 then begin // Skip spaces
+        quad:=NewQuad;
+        if result<0 then result:=quad;
+        tw:=cw*d1; th:=(sy-1)*d1;
+        SetVertex(quad,   x1,     y1,     tx,    ty);
+        SetVertex(quad+1, x1,     y1+sy2, tx,    ty+th);
+        SetVertex(quad+2, x1+cw2, y1+sy2, tx+tw, ty+th);
+        SetVertex(quad+3, x1+cw2, y1,     tx+tw, ty);
+        with mColor do begin
+          SetColor(quad,   r, g, b, a);
+          SetColor(quad+1, r, g, b, a);
+          SetColor(quad+2, r, g, b, a);
+          SetColor(quad+3, r, g, b, a);
+        end;
+      end;
+      x1:=x1+cw2;
+    end;
+  end;
+end;
+
+function TGLFont.RDrawC(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single): integer;
+var w: single;
+begin
+  w:=(TextW(s)*0.5)*scaleX;
+  if (maxW>0) and (w>maxW/2) then w:=maxW/2;
+  result:=RDraw(renderer, x-w, y-CenterH*scaleY, scaleX, scaleY, s, maxW);
 end;
 
 procedure TGLFont.SetColor;
