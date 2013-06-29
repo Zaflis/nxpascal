@@ -293,7 +293,7 @@ type
     procedure SetNormal(const index: word; const nx, ny, nz: single);
     procedure SetTexture(n: longint); overload;
     procedure SetTexture(texname: string); overload;
-    procedure SetUniforms;
+    procedure SetUniforms(camera: TCamera = nil);
     procedure SetVertex(const index: word; const x, y, u, v: single); overload;
     procedure SetVertex(const index: word; const x, y, z, u, v: single); overload;
   end;
@@ -388,6 +388,8 @@ type
     constructor CreateFont(fontName: string; fontSize, _TexSize: longint);
     constructor LoadFont(filename: string);
     procedure Draw(x,y: single; s: string; maxW: integer = 0); override;
+    function Draw(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single=-1): integer;
+    function DrawC(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single=-1): integer;
     procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
     procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); override;
     procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
@@ -2179,7 +2181,7 @@ begin
   glPushMatrix;
   glTranslatef(x, y, 0);
   glScalef(scaleX, scaleY, 1);
-  DrawC(0, 0, s, maxW);
+  inherited DrawC(0, 0, s, maxW);
   glPopMatrix;
 end;
 
@@ -2189,8 +2191,58 @@ begin
   glTranslatef(x, y, 0);
   glRotatef(_angle, 0,0,1);
   glScalef(scaleX, scaleY, 1);
-  DrawC(0, 0, s, maxW);
+  inherited DrawC(0, 0, s, maxW);
   glPopMatrix;
+end;
+
+// Return vertex index of first rendered quad
+function TGLFont.Draw(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single): integer;
+var x1, y1, tx, ty, d1, tw, th, cw2, sy2, wLimit: single;
+    i, cw, n, quad: longint; UseLimiter: boolean;
+    mColor: TfRGBA;
+begin
+  result:=-1;
+  mColor:=MultiplyColor(color, renderer.color);
+  with renderer do begin
+    Enable2D;
+    wLimit:=0;
+    d1:=1/TexSize; x1:=x; y1:=y;
+    sy2:=(sy-1)*scaleY;
+    UseLimiter:=maxW>0;
+    for i:=1 to UTF8Length(s) do begin
+      n:=byte(UTFToChr(UTF8Copy(s, i, 1)));
+      cw:=charW[n]; cw2:=cw*scaleX;
+      if UseLimiter then begin
+        wLimit:=wLimit+cw2;
+        if wLimit>maxW then break;
+      end;
+      n:=n-32; tx:=(n mod 16)*sx*d1+d1; ty:=(n div 16)*sy*d1;
+      if n>0 then begin // Skip spaces
+        quad:=NewQuad;
+        if result<0 then result:=quad;
+        tw:=cw*d1; th:=(sy-1)*d1;
+        SetVertex(quad,   x1,     y1,     tx,    ty);
+        SetVertex(quad+1, x1,     y1+sy2, tx,    ty+th);
+        SetVertex(quad+2, x1+cw2, y1+sy2, tx+tw, ty+th);
+        SetVertex(quad+3, x1+cw2, y1,     tx+tw, ty);
+        with mColor do begin
+          SetColor(quad,   r, g, b, a);
+          SetColor(quad+1, r, g, b, a);
+          SetColor(quad+2, r, g, b, a);
+          SetColor(quad+3, r, g, b, a);
+        end;
+      end;
+      x1:=x1+cw2;
+    end;
+  end;
+end;
+
+function TGLFont.DrawC(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single): integer;
+var w: single;
+begin
+  w:=(TextW(s)*0.5)*scaleX;
+  if (maxW>0) and (w>maxW/2) then w:=maxW/2;
+  result:=Draw(renderer, x-w, y-CenterH*scaleY, scaleX, scaleY, s, maxW);
 end;
 
 procedure TGLFont.DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll, y_scroll: longint);
@@ -3283,12 +3335,15 @@ begin
   SetTexture(tex.IndexOf(texname));
 end;
 
-procedure TGLRenderer.SetUniforms;
+procedure TGLRenderer.SetUniforms(camera: TCamera);
 var pmv, modelM, projM: TMatrix; //normal: TMatrix3f;
 begin
   glGetFloatv(GL_PROJECTION_MATRIX, @projM);
-  glGetFloatv(GL_MODELVIEW_MATRIX, @modelM);
-  //cam.GetMatrix;
+  if camera=nil then begin
+    glGetFloatv(GL_MODELVIEW_MATRIX, @modelM);
+  end else begin
+    //camera.GetMatrix;
+  end;
   pmv:=multiply(modelM, projM);
 
   if isBuffer3D then begin
