@@ -100,8 +100,8 @@ type
   function RGBA(const r, g, b: byte; const a: byte = 255): TRGBA;
   function fRGB(const r, g, b: single): TfRGB;
   function fRGBA(const r, g, b, a: single): TfRGBA;
-  function MultiplyColor(const a, b: TfRGB): TfRGB;
-  function MultiplyColor(const a, b: TfRGBA): TfRGBA;
+  function MultiplyColor(const a, b: TfRGB): TfRGB; overload;
+  function MultiplyColor(const a, b: TfRGBA): TfRGBA; overload;
   procedure FixPath(var path: string);
   function getFixPath(const path: string): string;
   function UTFToChr(const s: string): char;
