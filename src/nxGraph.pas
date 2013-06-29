@@ -837,7 +837,7 @@ begin
   CenterH:=_TexSize div 28;
   sx:=texSize div 16; sy:=texSize div 14;
   for i:=32 to 255 do charW[i]:=_TexSize div 16-1;
-  SetColor(1,1,1,1);
+  SetColor(1, 1, 1, 1);
   name:='unnamed';
 end;
 
@@ -953,7 +953,7 @@ end;
 procedure TNXFont.DrawC(x, y: single; s: string; maxW: integer);
 var w: single;
 begin
-  w:=TextW(s)/2;
+  w:=TextW(s)*0.5;
   if (maxW>0) and (w>maxW/2) then w:=maxW/2;
   Draw(x-w, y-CenterH, s, maxW);
 end;
