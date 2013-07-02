@@ -92,9 +92,7 @@ end;
 
 destructor TDataStore.Destroy;
 begin
-  while (nxDataThreadCount>0) do begin
-    application.ProcessMessages; sleep(1);
-  end;
+  while (nxDataThreadCount>0) do sleep(1);
   Clear;
   inherited Destroy;
 end;
@@ -112,7 +110,7 @@ begin
     if threading then
       if forced then begin
         repeat
-          application.ProcessMessages;sleep(1);
+          sleep(1);
         until not threading;
       end else exit;
     if forced or (nxDataThreadCount>=100) then begin
@@ -141,7 +139,7 @@ begin
     if threading then
       if forced then begin
         repeat
-          application.ProcessMessages; sleep(1);
+          sleep(1);
         until not threading;
       end else exit;
     if forced or (nxDataThreadCount>=100) then begin
@@ -167,7 +165,7 @@ begin
     if threading then
       if forced then begin
         repeat
-          application.ProcessMessages; sleep(1);
+          sleep(1);
         until not threading;
       end else exit;
     if data=nil then
@@ -258,9 +256,7 @@ begin
         dest.Write(bVar, sizeof(bVar));
         HasComp:=compressed<>nil;
         if data<>nil then begin
-          while threading do begin
-            application.ProcessMessages; sleep(1);
-          end;
+          while threading do sleep(1);
           Compress(i, true, true);
         end;
         intVar:=compressed.Size;
@@ -291,9 +287,7 @@ end;
 procedure TDataStore.SetSize(n: integer);
 var i: integer;
 begin
-  while nxDataThreadCount>0 do begin
-    application.ProcessMessages; sleep(1);
-  end;
+  while nxDataThreadCount>0 do sleep(1);
   // Free left out blocks
   for i:=n to FCount-1 do
     with block[i] do begin

@@ -24,24 +24,26 @@ type
   TfRGB = record r,g,b: single; end;
   TfRGBA = record r,g,b,a: single; end;
   TVector2f = packed record x,y: single; end;
-  fPoint = TVector2f;
   TVector3f = packed record x,y,z: single; end;
   TVector3d = packed record x,y,z: double; end;
   TVector3i = packed record x,y,z: longint; end;
   TVector4f = packed record x,y,z,w: single; end;
   TQuaternion = TVector4f;
+  PVector2f = ^TVector2f;
+  PVector3f = ^TVector3f;
+  PVector4f = ^TVector4f;
+  fPoint = TVector2f;
+  TVector = TVector3f;
+  PVector = PVector3f;
   TRecti = packed record x1,y1,x2,y2: longint; end;
   TBoundsRect = record x,y,w,h: longint; end;
   TRectf = packed record x1,y1,x2,y2: single; end;
-  TVector = TVector3f;
-  PVector = ^TVector;
-  PVector2f = ^TVector2f;
   pRGB = ^TRGB;
   pRGBA = ^TRGBA;
 
-  TByteArray = array[0..255] of byte;
+  TByteArray = array[0..65535] of byte;
   PByteArray = ^TByteArray;
-  TWordArray = array[0..255] of word;
+  TWordArray = array[0..65535] of word;
   PWordArray = ^TWordArray;
 
   TVector2fArray = array of TVector2f;
