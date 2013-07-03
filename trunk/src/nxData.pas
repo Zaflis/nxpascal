@@ -9,39 +9,48 @@ uses {$IFDEF UNIX}cthreads,{$ENDIF}
 type
 
   TDataBlock = record
-    data: PointerArrayType;
+    data: DynamicByteArray;
     compressed: TMemoryStream;
     useTime: cardinal;
     threading: boolean;
   end;
   pDataBlock = ^TDataBlock;
 
+  TCustomDataThread = class;
+  PCustomDataThread = ^TCustomDataThread;
+
+  { TCustomDataThread }
+
+  TCustomDataThread = class(TThread)
+  protected
+    pBlock: pDataBlock;
+    pt: PCustomDataThread;
+  public
+    destructor Destroy; override;
+  end;
+
   { TCompressThread }
 
-  TCompressThread = class(TThread)
+  TCompressThread = class(TCustomDataThread)
   private
-    pBlock: pDataBlock;
     leaveData: boolean;
     level: TCompressionlevel;
-    blockSize: integer;
+    blockSize: longint;
   public
-    constructor Create(_pBlock: pDataBlock; _blockSize: integer;
+    constructor Create(_pBlock: pDataBlock; _blockSize: longint;
       _level: TCompressionlevel; _leaveData: boolean);
-    destructor Destroy; override;
     procedure Execute; override;
   end;
 
   { TDeCompressThread }
 
-  TDeCompressThread = class(TThread)
+  TDeCompressThread = class(TCustomDataThread)
   private
-    pBlock: pDataBlock;
     leaveCompressed: boolean;
-    blockSize: integer;
+    blockSize: longint;
   public
-    constructor Create(_pBlock: pDataBlock; _blockSize: integer;
+    constructor Create(_pBlock: pDataBlock; _blockSize: longint;
       _leaveCompressed: boolean);
-    destructor Destroy; override;
     procedure Execute; override;
   end;
 
@@ -51,29 +60,34 @@ type
   private
     block: array of TDataBlock;
     level: TCompressionlevel;
-    FCount, blockSize: integer;
+    FCount, blockSize, FCompressed: longint;
     tick: cardinal;
     FFilename: string;
+    threadList: array of TCustomDataThread;
     procedure LoadStore(source: TStream);
     procedure SaveStore(dest: TStream);
     procedure SaveToFile(filename: string);
   public
     MaxTime, lastCheck: cardinal;
-    property count: integer read FCount;
-    constructor Create(_blockSize: integer; _level: TCompressionlevel = clDefault);
+    property compressed: longint read FCompressed;
+    property count: longint read FCount;
+    constructor Create(_blockSize: longint; _level: TCompressionlevel = clDefault);
     destructor Destroy; override;
+    function AddThread: integer;
     procedure Clear; overload;
-    procedure Compress(n: integer; leaveData, forced: boolean);
-    procedure DeCompress(n: integer; leaveCompressed, forced: boolean);
-    function GetBlock(n: integer; forced: boolean): PointerArrayType;
-    procedure Initialize(newBlockSize: integer); overload;
-    function IsLoaded(n: integer): boolean;
+    procedure Compress(n: longint; leaveData, forced: boolean);
+    procedure DeCompress(n: longint; leaveCompressed, forced: boolean);
+    function GetBlock(n: longint; forced: boolean): DynamicByteArray;
+    procedure Initialize(newBlockSize: longint); overload;
+    function IsLoaded(n: longint): boolean;
     procedure LoadFromFile(filename: string; CanCreate: boolean = false);
     procedure Save;
     procedure SetCompressionlevel(_level: TCompressionlevel);
     procedure SetFile(filename: string);
-    procedure SetSize(n: integer);
+    procedure SetSize(n: longint);
     procedure Update;
+    procedure WaitAllThreads;
+    procedure WaitFor(n: longint);
   end;
 
 var nxDataThreadCount: integer;
@@ -82,7 +96,7 @@ implementation
 
 { TDataStore }
 
-constructor TDataStore.Create(_blockSize: integer; _level: TCompressionlevel);
+constructor TDataStore.Create(_blockSize: longint; _level: TCompressionlevel);
 begin
   blockSize:=_blockSize;
   MaxTime:=1000*15; // 15 seconds default expiration time
@@ -92,9 +106,25 @@ end;
 
 destructor TDataStore.Destroy;
 begin
-  while (nxDataThreadCount>0) do sleep(1);
+  WaitAllThreads;
   Clear;
   inherited Destroy;
+end;
+
+function TDataStore.AddThread: integer;
+var i: integer;
+begin
+  // Check if there exists free slot for new thread in current list
+  for i:=0 to high(threadList) do
+    if threadList[i]=nil then begin
+      result:=i; exit;
+    end;
+  // Increase list size by 1
+  result:=length(threadList);
+  setlength(threadList, result+1);
+  // Pointers changed after array size changed! Update addresses to threads
+  for i:=0 to result-1 do
+    if threadList[i]<>nil then threadList[i].pt:=@threadList[i];
 end;
 
 procedure TDataStore.Clear;
@@ -102,19 +132,18 @@ begin
   SetSize(0); FFilename:='';
 end;
 
-procedure TDataStore.Compress(n: integer; leaveData, forced: boolean);
-var cs: TCompressionStream;
+procedure TDataStore.Compress(n: longint; leaveData, forced: boolean);
+var cs: TCompressionStream; t: integer;
 begin
   if (n<0) or (n>=count) then exit;
   with block[n] do begin
     if threading then
       if forced then begin
-        repeat
-          sleep(1);
-        until not threading;
+        WaitFor(n);
       end else exit;
     if forced or (nxDataThreadCount>=100) then begin
       if data<>nil then begin
+        // Start compression
         if compressed<>nil then compressed.Clear
         else begin
           compressed:=TMemoryStream.Create;
@@ -123,67 +152,72 @@ begin
         cs.Write(data[0], blockSize);
         cs.Free;
         if not leaveData then begin
-          freemem(data); data:=nil;
+          setlength(data, 0);
         end;
+        inc(FCompressed);
       end;
-    end else
-      TCompressThread.Create(@block[n], blocksize, level, leaveData);
+    end else begin
+      t:=AddThread;
+      threadList[t]:=TCompressThread.Create(@block[n], blocksize, level, leaveData);
+      threadList[t].pt:=@threadList[t];
+    end;
+    inc(FCompressed);
   end;
 end;
 
-procedure TDataStore.DeCompress(n: integer; leaveCompressed, forced: boolean);
-var ds: TDeCompressionStream;
+procedure TDataStore.DeCompress(n: longint; leaveCompressed, forced: boolean);
+var ds: TDeCompressionStream; t: integer;
 begin
   if (n<0) or (n>=count) then exit;
   with block[n] do begin
     if threading then
       if forced then begin
-        repeat
-          sleep(1);
-        until not threading;
+        WaitFor(n);
       end else exit;
     if forced or (nxDataThreadCount>=100) then begin
       if compressed<>nil then begin
         compressed.Position:=0;
         ds:=TDeCompressionStream.create(compressed);
-        if data=nil then data:=allocmem(blocksize);
+        setlength(data, blocksize);
         ds.read(data[0], blocksize);
         ds.Free;
         if not leaveCompressed then FreeAndNil(compressed);
         UseTime:=tick;
       end;
-    end else
-      TDeCompressThread.Create(@block[n], blocksize, leaveCompressed);
+    end else begin
+      t:=AddThread;
+      threadList[t]:=TDeCompressThread.Create(@block[n], blocksize, leaveCompressed);
+      threadList[t].pt:=@threadList[t];
+    end;
+    dec(FCompressed);
   end;
 end;
 
-function TDataStore.GetBlock(n: integer; forced: boolean): PointerArrayType;
+function TDataStore.GetBlock(n: longint; forced: boolean): DynamicByteArray;
 begin
   result:=nil;
   if (n<0) or (n>=count) then exit;
   with block[n] do begin
     if threading then
       if forced then begin
-        repeat
-          sleep(1);
-        until not threading;
+        WaitFor(n);
       end else exit;
     if data=nil then
       if compressed<>nil then begin
         DeCompress(n, false, forced);
       end else begin
-        data:=allocmem(blockSize);
+        setlength(data, blockSize);
       end;
     result:=data; UseTime:=tick;
   end;
 end;
 
-procedure TDataStore.Initialize(newBlockSize: integer);
+procedure TDataStore.Initialize(newBlockSize: longint);
 begin
   SetSize(0); blockSize:=newBlockSize; FFilename:='';
 end;
 
-function TDataStore.IsLoaded(n: integer): boolean;
+function TDataStore.IsLoaded(n: longint): boolean;
 begin
   if (n>=0) and (n<count) then
     result:=(block[n].data<>nil) and (not block[n].threading)
@@ -215,7 +249,7 @@ begin
   SaveToFile(FFilename);
 end;
 
-procedure TDataStore.SetCompressionlevel(_level: Tcompressionlevel);
+procedure TDataStore.SetCompressionlevel(_level: TCompressionlevel);
 begin
   level:=_level;
 end;
@@ -226,7 +260,7 @@ begin
 end;
 
 procedure TDataStore.LoadStore(source: TStream);
-var i: integer; n: cardinal; b: byte;
+var i: longint; n: cardinal; b: byte;
 begin
   Clear;
   blockSize:=0; n:=0; b:=0;
@@ -242,10 +276,11 @@ begin
         compressed.CopyFrom(source, n);
       end;
     end;
+  FCompressed:=FCount;
 end;
 
 procedure TDataStore.SaveStore(dest: TStream);
-var i: integer; hasComp: boolean; bVar: byte; intVar: cardinal;
+var i: longint; hasComp: boolean; bVar: byte; intVar: cardinal;
 begin
   dest.Write(blockSize, sizeof(blockSize));
   dest.Write(Count, sizeof(Count));
@@ -256,7 +291,7 @@ begin
         dest.Write(bVar, sizeof(bVar));
         HasComp:=compressed<>nil;
         if data<>nil then begin
-          while threading do sleep(1);
+          WaitFor(i);
           Compress(i, true, true);
         end;
         intVar:=compressed.Size;
@@ -284,15 +319,15 @@ begin
   end;
 end;
 
-procedure TDataStore.SetSize(n: integer);
-var i: integer;
+procedure TDataStore.SetSize(n: longint);
+var i: longint;
 begin
-  while nxDataThreadCount>0 do sleep(1);
+  WaitAllThreads;
   // Free left out blocks
   for i:=n to FCount-1 do
     with block[i] do begin
-      if data<>nil then freemem(data);
-      if compressed<>nil then compressed.Free;
+      setlength(data, 0);
+      FreeAndNil(compressed);
       threading:=false;
     end;
   setlength(block, n);
@@ -301,11 +336,11 @@ begin
     with block[i] do begin
       compressed:=nil; data:=nil; threading:=false;
     end;
-  FCount:=n;
+  FCount:=n; FCompressed:=0;
 end;
 
 procedure TDataStore.Update;
-var i: integer;
+var i: longint;
 begin
   tick:=(nxEngine.GetTick div 1000)*1000;
   if tick<>lastCheck then begin
@@ -318,22 +353,31 @@ begin
   end;
 end;
 
+procedure TDataStore.WaitAllThreads;
+var i: integer;
+begin
+  for i:=0 to high(threadList) do
+    if threadList[i]<>nil then threadList[i].WaitFor;
+end;
+
+procedure TDataStore.WaitFor(n: longint);
+var i: integer;
+begin
+  for i:=high(threadList) downto 0 do
+    if (threadList[i]<>nil) and (threadList[i].pBlock=@block[n]) then
+      threadList[i].WaitFor;
+end;
+
 { TCompressThread }
 
-constructor TCompressThread.Create(_pBlock: pDataBlock; _blockSize: integer;
+constructor TCompressThread.Create(_pBlock: pDataBlock; _blockSize: longint;
   _level: TCompressionlevel; _leaveData: boolean);
 begin
-  inherited Create(false);
   inc(nxDataThreadCount);
   pBlock:=_pBlock; pBlock^.threading:=true;
   leaveData:=_leaveData; level:=_level; blockSize:=_blockSize;
+  inherited Create(false);
   FreeOnTerminate:=true;
-end;
-
-destructor TCompressThread.Destroy;
-begin
-  dec(nxDataThreadCount);
-  inherited Destroy;
 end;
 
 procedure TCompressThread.Execute;
@@ -349,28 +393,23 @@ begin
       cs.Write(data[0], blockSize);
       cs.Free;
       if not leaveData then begin
-        freemem(data); data:=nil;
+        setlength(data, 0);
       end;
     end;
-    threading:=false;
+    pt^:=nil; threading:=false;
   end;
 end;
 
 { TDeCompressThread }
 
-constructor TDeCompressThread.Create(_pBlock: pDataBlock; _blockSize: integer; _leaveCompressed: boolean);
+constructor TDeCompressThread.Create(_pBlock: pDataBlock; _blockSize: longint;
+  _leaveCompressed: boolean);
 begin
   inherited Create(false);
   inc(nxDataThreadCount);
   pBlock:=_pBlock; pBlock^.threading:=true;
   leaveCompressed:=_leaveCompressed; blockSize:=_blockSize;
   FreeOnTerminate:=true;
-end;
-
-destructor TDeCompressThread.Destroy;
-begin
-  dec(nxDataThreadCount);
-  inherited Destroy;
 end;
 
 procedure TDeCompressThread.Execute;
@@ -380,14 +419,22 @@ begin
     if compressed<>nil then begin
       compressed.Position:=0;
       ds:=TDeCompressionStream.create(compressed);
-      if data=nil then data:=allocmem(blocksize);
+      setlength(data, blocksize);
       ds.read(data[0], blocksize);
       ds.Free;
       if not leaveCompressed then FreeAndNil(compressed);
       UseTime:=nxEngine.FrameTick;
     end;
-    threading:=false;
+    pt^:=nil; threading:=false;
   end;
+end;
+
+{ TCustomDataThread }
+
+destructor TCustomDataThread.Destroy;
+begin
+  dec(nxDataThreadCount);
+  inherited Destroy;
 end;
 
 end.

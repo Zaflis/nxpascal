@@ -102,7 +102,7 @@ begin
   G3 := 1.0/6.0;
   F4 := (sqrt(5.0)-1.0)/4.0;
   G4 := (5.0-sqrt(5.0))/20.0;
-  // Add custom made seed xor-operation, which is supposed to overflow
+  // Add custom made seed xor-operation
   for i:=0 to 511 do begin
     perm[i]:=p[i and 255] xor T8Bytes(seed)[i mod 8];
     permMod12[i]:=byte(perm[i] mod 12);
@@ -116,6 +116,7 @@ end;
 
 constructor TSimplexNoise.Create(const seed: int64);
 begin
+  // Seed overflowing is expected and ok
   InitWithSeed(seed * nxNoiseSeedMult);
 end;
 
