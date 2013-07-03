@@ -21,16 +21,20 @@ type
     // To remove the need for index wrapping, double the permutation table length
     perm: array[0..511] of byte;
     permMod12: array[0..511] of byte;
+    F2, G2, F3, G3, F4, G4: single;
     procedure InitWithSeed(const seed: int64);
   public
     constructor Create; overload;
     constructor Create(const seed: int64); overload;
-    function Noise(x, y: single): single; overload;
-    function Noise(x, y, z: single): single; overload;
-    function Noise(x, y, z, w: single): single; overload;
+    function Noise(const x, y: single): single; overload;
+    function Noise(const x, y, z: single): single; overload;
+    function Noise(const x, y, z, w: single): single; overload;
   end;
 
   T8Bytes = array[0..7] of byte;
+
+var
+  nxNoiseSeedMult: int64 = 85123154182917;
 
 implementation
 
@@ -39,15 +43,17 @@ var
 (x:1;y:1;z:0), (x:-1;y:1;z:0), (x:1;y:-1;z:0), (x:-1;y:-1;z:0),
 (x:1;y:0;z:1), (x:-1;y:0;z:1), (x:1;y:0;z:-1), (x:-1;y:0;z:-1),
 (x:0;y:1;z:1), (x:0;y:-1;z:1), (x:0;y:1;z:-1), (x:0;y:-1;z:-1));
+
   grad4: array[0..31] of TVector4f = (
 (x:0;y:1;z:1;w:1), (x:0;y:1;z:1;w:-1), (x:0;y:1;z:-1;w:1), (x:0;y:1;z:-1;w:-1),
-(x:0;y:-1;z:1;w:1), (x:0;y:-1;z:1;w:-1), (x:0;y:-1;z:-1;w:1), (x:0;y:-1;z:-1;w:-1),
-(x:1;y:0;z:1;w:1), (x:0;y:-1;z:1;w:-1), (x:0;y:-1;z:-1;w:1), (x:0;y:-1;z:-1;w:-1),
-(x:-1;y:0;z:1;w:1), (x:-1;y:0;z:1;w:-1), (x:-1;y:0;z:-1;w:1), (x:-1;y:0;z:-1;w:-1),
+(x:0;y:-1;z:1;w:1),(x:0;y:-1;z:1;w:-1),(x:0;y:-1;z:-1;w:1),(x:0;y:-1;z:-1;w:-1),
+(x:1;y:0;z:1;w:1), (x:0;y:-1;z:1;w:-1),(x:0;y:-1;z:-1;w:1),(x:0;y:-1;z:-1;w:-1),
+(x:-1;y:0;z:1;w:1),(x:-1;y:0;z:1;w:-1),(x:-1;y:0;z:-1;w:1),(x:-1;y:0;z:-1;w:-1),
 (x:1;y:1;z:0;w:1), (x:1;y:1;z:0;w:-1), (x:1;y:-1;z:0;w:1), (x:1;y:-1;z:0;w:-1),
-(x:-1;y:1;z:0;w:1), (x:-1;y:1;z:0;w:-1), (x:-1;y:-1;z:0;w:1), (x:-1;y:-1;z:0;w:-1),
+(x:-1;y:1;z:0;w:1),(x:-1;y:1;z:0;w:-1),(x:-1;y:-1;z:0;w:1),(x:-1;y:-1;z:0;w:-1),
 (x:1;y:1;z:1;w:0), (x:1;y:1;z:-1;w:0), (x:1;y:-1;z:1;w:0), (x:1;y:-1;z:-1;w:0),
-(x:-1;y:1;z:1;w:0), (x:-1;y:1;z:-1;w:0), (x:-1;y:-1;z:1;w:0), (x:-1;y:-1;z:-1;w:0));
+(x:-1;y:1;z:1;w:0),(x:-1;y:1;z:-1;w:0),(x:-1;y:-1;z:1;w:0),(x:-1;y:-1;z:-1;w:0));
+
   p: array[0..255] of byte = (151,160,137,91,90,15,
 131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
 190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
@@ -61,7 +67,6 @@ var
 251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
 49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
 138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180);
-  F2, G2, F3, G3, F4, G4: single;
 
 function Dot(const v: PVector3f; const x, y: single): single; overload;{$IFDEF CanInline}inline;{$ENDIF}
 begin
@@ -91,6 +96,12 @@ end;
 procedure TSimplexNoise.InitWithSeed(const seed: int64);
 var i: integer;
 begin
+  F2 := 0.5*(sqrt(3.0)-1.0);
+  G2 := (3.0-sqrt(3.0))/6.0;
+  F3 := 1.0/3.0;
+  G3 := 1.0/6.0;
+  F4 := (sqrt(5.0)-1.0)/4.0;
+  G4 := (5.0-sqrt(5.0))/20.0;
   // Add custom made seed xor-operation, which is supposed to overflow
   for i:=0 to 511 do begin
     perm[i]:=p[i and 255] xor T8Bytes(seed)[i mod 8];
@@ -105,10 +116,10 @@ end;
 
 constructor TSimplexNoise.Create(const seed: int64);
 begin
-  InitWithSeed(seed*85123154182917);
+  InitWithSeed(seed * nxNoiseSeedMult);
 end;
 
-function TSimplexNoise.Noise(x, y: single): single;
+function TSimplexNoise.Noise(const x, y: single): single;
 var i1, j1, // Offsets for second (middle) corner of simplex in (i,j) coords
     i, j, ii, jj, gi0, gi1, gi2: integer;
     n0, n1, n2, // Noise contributions from the three corners
@@ -167,7 +178,7 @@ begin
   result:=70.0 * (n0 + n1 + n2);
 end;
 
-function TSimplexNoise.Noise(x, y, z: single): single;
+function TSimplexNoise.Noise(const x, y, z: single): single;
 var i1, j1, k1, // Offsets for second corner of simplex in (i,j,k) coords
     i2, j2, k2, // Offsets for third corner of simplex in (i,j,k) coords
     i, j, k, ii, jj, kk, gi0, gi1, gi2, gi3: integer;
@@ -235,18 +246,21 @@ begin
     t0 := t0 * t0;
     n0 := t0 * t0 * dot(@grad3[gi0], xx, yy, zz);
   end;
+
   t1 := 0.6 - x1*x1 - y1*y1 - z1*z1;
   if (t1<0) then n1 := 0.0
   else begin
     t1 := t1 * t1;
     n1 := t1 * t1 * dot(@grad3[gi1], x1, y1, z1);
   end;
+
   t2 := 0.6 - x2*x2 - y2*y2 - z2*z2;
   if (t2<0) then n2 := 0.0
   else begin
     t2 := t2 * t2;
     n2 := t2 * t2 * dot(@grad3[gi2], x2, y2, z2);
   end;
+
   t3 := 0.6 - x3*x3 - y3*y3 - z3*z3;
   if (t3<0) then n3 := 0.0
   else begin
@@ -258,7 +272,7 @@ begin
   result:= 32.0*(n0 + n1 + n2 + n3);
 end;
 
-function TSimplexNoise.Noise(x, y, z, w: single): single;
+function TSimplexNoise.Noise(const x, y, z, w: single): single;
 var i, j, k, l, ii, jj, kk, ll, rankx, ranky, rankz, rankw, gi0, gi1, gi2, gi3, gi4,
     i1, j1, k1, l1, i2, j2, k2, l2, i3, j3, k3, l3: integer;
     n0, n1, n2, n3, n4, X0, Y0, Z0, W0, xx, yy, zz, ww, s, t, t0, t1, t2, t3, t4,
@@ -347,6 +361,7 @@ begin
     t0 := t0 * t0;
     n0 := t0 * t0 * dot(@grad4[gi0], xx, yy, zz, ww);
   end;
+
   t1 := 0.6 - x1*x1 - y1*y1 - z1*z1 - w1*w1;
   if (t1<0) then n1 := 0.0
   else begin
@@ -367,6 +382,7 @@ begin
     t3 := t3 * t3;
     n3 := t3 * t3 * dot(@grad4[gi3], x3, y3, z3, w3);
   end;
+
   t4 := 0.6 - x4*x4 - y4*y4 - z4*z4 - w4*w4;
   if (t4<0) then n4 := 0.0
   else begin
@@ -376,14 +392,5 @@ begin
   // Sum up and scale the result to cover the range [-1,1]
   result:= 27.0 * (n0 + n1 + n2 + n3 + n4);
 end;
-
-initialization
-
-  F2 := 0.5*(sqrt(3.0)-1.0);
-  G2 := (3.0-sqrt(3.0))/6.0;
-  F3 := 1.0/3.0;
-  G3 := 1.0/6.0;
-  F4 := (sqrt(5.0)-1.0)/4.0;
-  G4 := (5.0-sqrt(5.0))/20.0;
 
 end.
