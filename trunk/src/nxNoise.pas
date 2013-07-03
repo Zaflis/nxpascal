@@ -21,12 +21,16 @@ type
     // To remove the need for index wrapping, double the permutation table length
     perm: array[0..511] of byte;
     permMod12: array[0..511] of byte;
+    procedure InitWithSeed(const seed: int64);
   public
-    constructor Create;
+    constructor Create; overload;
+    constructor Create(const seed: int64); overload;
     function Noise(x, y: single): single; overload;
     function Noise(x, y, z: single): single; overload;
     function Noise(x, y, z, w: single): single; overload;
   end;
+
+  T8Bytes = array[0..7] of byte;
 
 implementation
 
@@ -84,13 +88,24 @@ end;
 
 { TSimplexNoise }
 
-constructor TSimplexNoise.Create;
+procedure TSimplexNoise.InitWithSeed(const seed: int64);
 var i: integer;
 begin
+  // Add custom made seed xor-operation, which is supposed to overflow
   for i:=0 to 511 do begin
-    perm[i]:=p[i and 255];
+    perm[i]:=p[i and 255] xor T8Bytes(seed)[i mod 8];
     permMod12[i]:=byte(perm[i] mod 12);
   end;
+end;
+
+constructor TSimplexNoise.Create;
+begin
+  InitWithSeed(0);
+end;
+
+constructor TSimplexNoise.Create(const seed: int64);
+begin
+  InitWithSeed(seed*85123154182917);
 end;
 
 function TSimplexNoise.Noise(x, y: single): single;
