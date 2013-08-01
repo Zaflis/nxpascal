@@ -388,12 +388,12 @@ type
     constructor CreateFont(fontName: string; fontSize, _TexSize: longint);
     constructor LoadFont(filename: string);
     procedure Draw(x,y: single; s: string; maxW: integer = 0); overload; override;
-    procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
-    procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); override;
-    procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); override;
-    procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: longint); override;
-    procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: longint = 0); override;
-    function RDraw(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single=-1): integer; overload;
+    procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0);
+    procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0);
+    procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0);
+    procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: longint);
+    procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: longint = 0);
+    function RDraw(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single=-1): integer;
     function RDrawC(renderer: TGLRenderer; x, y, scaleX, scaleY: single; s: string; maxW: single=-1): integer;
     procedure SetColor; overload;
     procedure SetTexture; override;
@@ -407,9 +407,11 @@ type
     {$IFnDEF NX_CUSTOM_WINDOW}procedure doResize(Sender: TObject);{$ENDIF}
     function GetFFPS: integer;
     function NewFontName(base: string): string;
+    function GetFont(index: integer): TGLFont;
   public
     {$IFDEF fpc}{$IFnDEF NX_CUSTOM_WINDOW}window: TOpenGLControl;{$ENDIF}{$ENDIF}
     rs: TRenderSettings;
+    property Font[index: integer]: TGLFont read GetFont;
     property FPS: integer read GetFFPS;
     function AllOK: boolean;
     function CanRender: boolean;
@@ -738,8 +740,10 @@ procedure TRenderSettings.SetAddBlend(enable: boolean);
 begin
   if enable<>FAddBlend[stackLevel] then begin
     FAddBlend[stackLevel]:=enable;
-    if FAddBlend[stackLevel] and FSubBlend[stackLevel] then
+    if FAddBlend[stackLevel] and FSubBlend[stackLevel] then begin
       FSubBlend[stackLevel]:=false;
+      glBlendEquationEXT(GL_FUNC_ADD_EXT);
+    end;
     SetBlend;
   end;
 end;
@@ -747,10 +751,8 @@ end;
 procedure TRenderSettings.SetBlend;
 begin
   if SubBlend then begin
-    glBlendEquationEXT(GL_FUNC_REVERSE_SUBTRACT_EXT);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
   end else begin
-    glBlendEquationEXT(GL_FUNC_ADD_EXT);
     if AddBlend then glBlendFunc(GL_SRC_ALPHA, GL_ONE)
     else glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   end;
@@ -810,6 +812,8 @@ begin
     FSubBlend[stackLevel]:=enable;
     if FSubBlend[stackLevel] and FAddBlend[stackLevel] then
       FAddBlend[stackLevel]:=false;
+    if enable then glBlendEquationEXT(GL_FUNC_REVERSE_SUBTRACT_EXT)
+    else glBlendEquationEXT(GL_FUNC_ADD_EXT);
     SetBlend;
   end;
 end;
@@ -837,8 +841,8 @@ end;
 procedure TNXGL.ClearFonts;
 var i: integer;
 begin
-  for i:=0 to FontCount-1 do font[i].Free;
-  FontCount:=0; setlength(font,0);
+  for i:=0 to FontCount-1 do FFont[i].Free;
+  FontCount:=0; setlength(FFont, 0);
 end;
 
 procedure TNXGL.CreateBasicFont;
@@ -849,23 +853,23 @@ end;
 function TNXGL.CreateFont(fontName: string; fontSize, TexSize: integer): integer;
 begin
   result:=fontCount;
-  inc(FontCount); setlength(font, fontcount);
-  font[result]:=TGLFont.CreateFont(fontName, fontSize, TexSize);
-  font[result].name:=NewFontName(fontName);
+  inc(FontCount); setlength(FFont, fontcount);
+  FFont[result]:=TGLFont.CreateFont(fontName, fontSize, TexSize);
+  FFont[result].name:=NewFontName(fontName);
 end;
 
 function TNXGL.LoadFont(filename: string): integer;
 begin
   result:=fontCount;
-  inc(FontCount); setlength(font, fontcount);
-  font[result]:=TGLFont.LoadFont(filename);
-  font[result].name:=NewFontName(filename);
+  inc(FontCount); setlength(FFont, fontcount);
+  FFont[result]:=TGLFont.LoadFont(filename);
+  FFont[result].name:=NewFontName(filename);
 end;
 
 procedure TNXGL.FontFromImage(TexSize: integer);
 begin
-  inc(FontCount); setlength(font,fontcount);
-  font[fontcount-1]:=TGLFont.Create(TexSize);
+  inc(FontCount); setlength(FFont, fontcount);
+  FFont[fontcount-1]:=TGLFont.Create(TexSize);
 end;
 
 {$IFnDEF NX_CUSTOM_WINDOW}
@@ -971,8 +975,8 @@ end;
 
 procedure TNXGL.DeleteFont(index: integer);
 begin
-  font[index].Free;
-  dec(FontCount); setlength(font,fontcount);
+  FFont[index].Free;
+  dec(FontCount); setlength(FFont, fontcount);
 end;
 
 destructor TNXGL.Destroy;
@@ -1377,10 +1381,15 @@ begin
   repeat
     h:=true;
     for i:=0 to FontCount-1 do
-      if result=font[i].name then begin
+      if result=FFont[i].name then begin
         h:=false; inc(n); result:=base+inttostr(n);
       end;
   until h;
+end;
+
+function TNXGL.GetFont(index: integer): TGLFont;
+begin
+  result:=TGLFont(FFont[index]);
 end;
 
 function TNXGL.AllOK: boolean;
@@ -1493,7 +1502,7 @@ end;
 
 procedure TNXGL.SetFont(index: integer);
 begin
-  TGLFont(Font[index]).SetTexture;
+  TGLFont(FFont[index]).SetTexture;
 end;
 
 procedure TNXGL.SetColor(r, g, b: single);

@@ -458,8 +458,8 @@ begin
     if (not terminated) and (conn<>nil) then conn.FOpened := True;
 
     while not Terminated do begin
-      if _TCP then s := _tcpSock.RecvBlock(200)
-      else s := _udpSock.RecvBlock(200); // Receive data
+      if _TCP then s := _tcpSock.RecvBlock(1000)
+      else s := _udpSock.RecvBlock(1000); // Receive data
       if conn = nil then Terminate;
       getError;
       if (err<>0) and (err<>WSAETIMEDOUT) then begin
@@ -547,7 +547,7 @@ begin
         end;
       end else // *** UDP Server ***
         with _udpSock do begin
-          s := RecvBlock(200); // Receive data
+          s := RecvBlock(1000); // Receive data
           if conn = nil then Terminate;
           if lastError = WSAETIMEDOUT then begin // Timed out
             //if conn <> nil then conn.doError(LastError, LastErrorDesc, -1);
@@ -653,7 +653,7 @@ begin
 
             // Start listening socket
             while not Terminated do begin
-              s := RecvBlock(200); // Receive data
+              s := RecvBlock(1000); // Receive data
               if conn = nil then Terminate;
               if lastError = WSAETIMEDOUT then begin // Timed out
                 //if conn <> nil then conn.doError(LastError, LastErrorDesc, ID);

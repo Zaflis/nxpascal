@@ -49,9 +49,10 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="Unit1"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="19"/>
+        <TopLine Value="2"/>
         <CursorPos X="33" Y="32"/>
         <UsageCount Value="71"/>
         <Loaded Value="True"/>
@@ -250,11 +251,10 @@
       <Unit30>
         <Filename Value="..\..\..\src\nxNetwork.pas"/>
         <UnitName Value="nxNetwork"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="29" Y="5"/>
+        <TopLine Value="407"/>
+        <CursorPos X="3" Y="328"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
       </Unit30>

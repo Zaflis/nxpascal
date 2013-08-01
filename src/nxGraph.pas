@@ -99,11 +99,6 @@ type
     function WrapLines(w,h: integer; s: TStrings; first: integer = 0): longint;
     procedure Draw(x,y: single; s: string; maxW: integer = 0); virtual; abstract;
     procedure DrawC(x,y: single; s: string; maxW: integer = 0);
-    procedure DrawCScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); virtual; abstract;
-    procedure DrawRotate(x,y, scaleX,scaleY, _angle: single; s: string; maxW: integer = 0); virtual; abstract;
-    procedure DrawScaled(x,y, scaleX,scaleY: single; s: string; maxW: integer = 0); virtual; abstract;
-    procedure DrawTextArea(r: TBoundsRect; s: TStrings; x_scroll,y_scroll: integer); virtual; abstract;
-    procedure DrawWrap(r: TBoundsRect; s: TStrings; y_scroll: longint = 0); virtual; abstract;
     procedure SetTexture; virtual; abstract;
   end;
 
@@ -148,7 +143,7 @@ type
     Left, Top, Width, Height, frames, FFPS: longint;
     secTick, FrameTick: cardinal;
     Enabled2D, RenderThreadReserved, PerspectiveStretch: boolean;
-    Font: array of TNXFont;
+    FFont: array of TNXFont;
     FontCount: integer;
     function CheckFile(const filename: string): boolean;
     procedure ClearError;
@@ -992,7 +987,7 @@ function TNXCustomEngine.IndexOfFont(name: string): integer;
 var i: integer;
 begin
   for i:=0 to fontCount-1 do
-    if name=font[i].name then begin
+    if name=FFont[i].name then begin
       result:=i; exit;
     end;
   result:=-1;

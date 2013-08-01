@@ -61,7 +61,7 @@
 </head>
 <body>
   <div id="header">
-    <h1>Delphi/Free Pascal OpenGL Header -Readme-</h1>
+    <h1>Delphi/Free Pascal OpenGL Header for OpenGL 4.4 - Readme -</h1>
     <div id="content">
       <p>(obtained and maintained through <a href="http://www.delphigl.com" target="_blank">www.delphigl.com</a>)</p>
     </div>
@@ -79,7 +79,10 @@
   <div id="content">
     <a name="desc" />
     <h2>Description</h2>
-    <p>This is the readme for the OpenGL-Headers for Delphi/FreePascal that has been developed by DGL's OpenGL2.0-Portteam. Please read carefully through this file before using the header to avoid common problems and faults.</p>
+    <p>This is the readme for the OpenGL-Headers for Delphi/FreePascal that has been developed by DGL's OpenGL2.0-Portteam. Please read carefully through this file before using the header to avoid common problems and faults.
+	
+	The changelog is included in the source file itself.
+	</p>
     </p>
   </div>
 
@@ -113,6 +116,25 @@ begin
   ReleaseDC(Handle, myDC);
 end;</pre>
   </div>
+  
+<div id="content">
+    <a name="howto" />
+    <h2>Creating a versioned rendering context</h2>
+    <p>As of OpenGL version 4.4, the header offers an additional way of creating a rendercontext, that allows for setting the desired OpenGL version and (if applicable) wether to create a forward compatible context (see OpenGL man pages on what that means) :
+    <pre id="code">
+procedure MyGLInit;
+begin
+  InitOpenGL; // Don't forget, or first gl-Call will result in an access violation!
+  MyDC := GetDC(...);
+  MyRC := CreateRenderingContext(...);
+  RC := CreateRenderingContextVersion(DC, [opDoubleBuffered], 4, 2, True, 32, 24, 8, 0, 0, 0); // Creates an OpenGL 4.2 forward-compatible context
+  ...
+end;</pre>
+Only use this method of creating a rendering context if you're sure what you're doing. Trying to create a versioned rendering context that's not supported by the target OpenGL implementation may fail!
+
+	</p>
+  </div>
+  
 
   <div id="content">
     <a name="support" />
@@ -155,7 +177,7 @@ Martin Waldegger (Mars)<br>
   </div>
 
   <div id="content">
-    Copyright (C) DGL-OpenGL2-Portteam 2003-2011 - All Rights Reserved
+    Copyright © 2003-2013 DGL-OpenGL-Portteam - All Rights Reserved
   </div>
 </div>
   
