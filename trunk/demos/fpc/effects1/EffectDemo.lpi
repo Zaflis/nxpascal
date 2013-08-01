@@ -42,7 +42,7 @@
         <Filename Value="EffectDemo.lpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="EffectDemo"/>
-        <UsageCount Value="60"/>
+        <UsageCount Value="61"/>
       </Unit0>
       <Unit1>
         <Filename Value="unit1.pas"/>
@@ -54,9 +54,9 @@
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="1"/>
-        <CursorPos X="19" Y="91"/>
-        <UsageCount Value="60"/>
+        <TopLine Value="186"/>
+        <CursorPos X="40" Y="198"/>
+        <UsageCount Value="61"/>
         <Bookmarks Count="1">
           <Item0 X="1" Y="216" ID="8"/>
         </Bookmarks>
@@ -178,8 +178,8 @@
         <Filename Value="..\..\..\src\nxGL.pas"/>
         <UnitName Value="nxGL"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="19"/>
-        <CursorPos X="1" Y="1"/>
+        <TopLine Value="724"/>
+        <CursorPos X="62" Y="740"/>
         <UsageCount Value="10"/>
       </Unit16>
       <Unit17>
