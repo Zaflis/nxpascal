@@ -19,7 +19,7 @@ type
 
   TGameHandler = class
   private
-    FrameInterval, nextTick: cardinal;
+    FrameInterval, nextTick, FMaxTick: cardinal;
     FNoFrameSkipping: boolean;
   protected
     procedure ResetTick;
@@ -46,6 +46,7 @@ type
     procedure MouseUp(button: TMouseButton; Shift: TShiftState);
     procedure SetCursorPos(x, y: integer);
     procedure SetFrameInterval(interval: cardinal);
+    procedure SetMaxTick(value: cardinal);
     procedure SetFrameSkipping(enable: boolean);
 
     // Override these
@@ -65,6 +66,7 @@ begin
   mouseXSpeed:=1; mouseYSpeed:=1;
   FMouseInitialized:=true;
   SetFrameInterval(16);
+  SetMaxTick(100);
   progDir:=ExtractFilePath(Application.ExeName);
   ResetTick;
 end;
@@ -108,6 +110,7 @@ begin
   if not initialized then exit;
   t:=nxEngine.GetTick;
   if t>=nextTick then begin
+    if (FMaxTick>0) and (t>nextTick+FMaxTick) then nextTick:=t-FMaxTick;
     // Center mouse
     if isMouseCentered and application.Active then begin
       center.x:=nxEngine.nxHWND.ClientOrigin.x+nxEngine.Width div 2;
@@ -216,6 +219,11 @@ procedure TGameHandler.SetFrameInterval(interval: cardinal);
 begin
   FrameInterval:=interval;
   mpt:=FrameInterval/1000.0;
+end;
+
+procedure TGameHandler.SetMaxTick(value: cardinal);
+begin
+  FMaxTick:=value;
 end;
 
 procedure TGameHandler.SetFrameSkipping(enable: boolean);

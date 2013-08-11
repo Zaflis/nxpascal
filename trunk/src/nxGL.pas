@@ -31,7 +31,7 @@ uses Classes, dglOpenGL, Controls, Forms, ExtCtrls,
   {$ELSE}Windows,{$ENDIF} nxShaders, nxModel, nxTypes, nxGraph;
 
 const
-  RS_COUNT = 16; // Render settings stack size
+  NX_RS_COUNT = 16; // Render settings stack size
 
 type
   TRenderProc = procedure(index: longint) of object;
@@ -199,6 +199,11 @@ type
     function SetSource(const s: string): boolean;
   end;
 
+  TShaderIndexDetails = record
+    index: GLint;
+    name: string;
+  end;
+
   { TShaderProgram }
 
   TShaderProgram = class
@@ -207,16 +212,23 @@ type
   public
     handle: GLhandle;
     attached: array of TShaderSource;
+    attrib, uniform: array of TShaderIndexDetails;
     property linked: boolean read FLinked;
     constructor Create;
     destructor Destroy; override;
+    function AddAttrib(aname: string): integer;
+    function AddUniform(uname: string): integer;
     function AttachShader(shader: TShaderSource): boolean;
     procedure DetachAllShaders;
     procedure DetachShader(index: integer);
     procedure Disable;
     procedure Enable;
+    // Get index directly from the shader
     function GetAttrib(aname: string): GLint;
     function GetUniform(uname: string): GLint;
+    // Get cached array index in TShaderProgram
+    function FindAttrib(aname: string): integer;
+    function FindUniform(uname: string): integer;
     function isCompiled: boolean;
     function Link: boolean;
   end;
@@ -266,7 +278,7 @@ type
     lights: array of T3DLight;
     buf2D, buf3D: GLuint;
     att_2Dpos, att_2Dtex, att_2Dcol: GLint;
-    att_3Dpos: GLint;
+    att_3Dpos, att_3Dtex, att_3Dcol: GLint;
     uniModel, uniNormal, uniDiffuse2D: GLint;
     uniPmv2D, uniPmv3D, uniTex2D, uniTex3D: GLint;
     uniLightcount, uniLights, uniAmbient3D, uniSpecular, uniShininess: GLint;
@@ -274,6 +286,9 @@ type
     property isEnabled: boolean read FisEnabled;
     property isBuffer3D: boolean read FisBuffer3D;
     property polyMode: GLuint read FpolyMode;
+    function AddProgram: integer; overload;
+    function AddProgram(vert, frag: TShaderSource): integer; overload;
+    function AddProgram(vert_file, frag_file: string): integer; overload;
     constructor Create; overload;
     constructor Create(buffer2D, buffer3D: word); overload;
     destructor Destroy; override;
@@ -283,6 +298,10 @@ type
       sizeX, sizeY: single): word;
     procedure Enable2D(ForceUpdateUniforms: boolean = false);
     procedure Enable3D(ForceUpdateUniforms: boolean = false);
+    procedure EnableProgram(index: integer; is3D: boolean;
+      ForceUpdateUniforms: boolean = false); overload;
+    procedure EnableProgram(prog: TShaderProgram; is3D: boolean;
+      ForceUpdateUniforms: boolean = false); overload;
     function NewQuad: word;
     function NewTriangle: word;
     procedure Render;
@@ -322,13 +341,13 @@ type
   TRenderSettings = class
   private
     parent: TNXGL;
-    FAddBlend: array[0..RS_COUNT-1] of boolean;
-    FCullBack: array[0..RS_COUNT-1] of boolean;
-    FCullFront: array[0..RS_COUNT-1] of boolean;
-    FDepthTest: array[0..RS_COUNT-1] of boolean;
-    FLighting: array[0..RS_COUNT-1] of boolean;
-    FSubBlend: array[0..RS_COUNT-1] of boolean;
-    FWireFrame: array[0..RS_COUNT-1] of boolean;
+    FAddBlend: array[0..NX_RS_COUNT-1] of boolean;
+    FCullBack: array[0..NX_RS_COUNT-1] of boolean;
+    FCullFront: array[0..NX_RS_COUNT-1] of boolean;
+    FDepthTest: array[0..NX_RS_COUNT-1] of boolean;
+    FLighting: array[0..NX_RS_COUNT-1] of boolean;
+    FSubBlend: array[0..NX_RS_COUNT-1] of boolean;
+    FWireFrame: array[0..NX_RS_COUNT-1] of boolean;
     stackLevel: shortint;
     function GetAddBlend: boolean;
     function GetCullBack: boolean;
@@ -659,7 +678,7 @@ end;
 
 function TRenderSettings.Push: boolean;
 begin
-  if StackLevel<RS_COUNT-1 then begin
+  if StackLevel<NX_RS_COUNT-1 then begin
     inc(StackLevel);
     FAddBlend[StackLevel]:=FAddBlend[StackLevel-1];
     FCullBack[StackLevel]:=FCullBack[StackLevel-1];
@@ -2271,7 +2290,7 @@ begin
   result:=-1;
   mColor:=MultiplyColor(color, renderer.color);
   with renderer do begin
-    Enable2D;
+    if FisBuffer3D or (not FisEnabled) then Enable2D;
     wLimit:=0;
     d1:=1/TexSize; x1:=x; y1:=y;
     sy2:=(sy-1)*scaleY;
@@ -2927,6 +2946,40 @@ begin
   inherited Destroy;
 end;
 
+function TShaderProgram.AddAttrib(aname: string): integer;
+var i: GLint;
+begin
+  i:=GetAttrib(aname);
+  if i<0 then result:=-1
+  else begin
+    result:=FindAttrib(aname);
+    if result<0 then begin
+      result:=length(attrib);
+      setlength(attrib, result+1);
+      with attrib[result] do begin
+        name:=aname; index:=i;
+      end;
+    end;
+  end;
+end;
+
+function TShaderProgram.AddUniform(uname: string): integer;
+var i: GLint;
+begin
+  i:=GetUniform(uname);
+  if i<0 then result:=-1
+  else begin
+    result:=FindUniform(uname);
+    if result<0 then begin
+      result:=length(uniform);
+      setlength(uniform, result+1);
+      with uniform[result] do begin
+        name:=uname; index:=i;
+      end;
+    end;
+  end;
+end;
+
 function TShaderProgram.AttachShader(shader: TShaderSource): boolean;
 begin
   if (shader=nil) or (shader.handle=0) then begin
@@ -2975,6 +3028,26 @@ function TShaderProgram.GetUniform(uname: string): GLint;
 begin
   result:=glGetUniformLocation(handle, PGLChar(uname));
   if result=-1 then nxSetError('Shader uniform "'+uname+'" not found');
+end;
+
+function TShaderProgram.FindAttrib(aname: string): integer;
+var i: integer;
+begin
+  for i:=high(attrib) downto 0 do
+    if attrib[i].name=aname then begin
+      result:=i; exit;
+    end;
+  result:=-1;
+end;
+
+function TShaderProgram.FindUniform(uname: string): integer;
+var i: integer;
+begin
+  for i:=high(uniform) downto 0 do
+    if uniform[i].name=uname then begin
+      result:=i; exit;
+    end;
+  result:=-1;
 end;
 
 function TShaderProgram.isCompiled: boolean;
@@ -3101,9 +3174,31 @@ end;
 
 { TGLRenderer }
 
+function TGLRenderer.AddProgram: integer;
+begin
+  shader.AddProgram(false);
+  result:=high(shader.programs);
+end;
+
+function TGLRenderer.AddProgram(vert, frag: TShaderSource): integer;
+begin
+  result:=AddProgram();
+  shader.programs[result].AttachShader(vert);
+  shader.programs[result].AttachShader(frag);
+  shader.programs[result].Link;
+end;
+
+function TGLRenderer.AddProgram(vert_file, frag_file: string): integer;
+begin
+  result:=AddProgram();
+  shader.programs[result].AttachShader(shader.LoadShader(vert_file, true));
+  shader.programs[result].AttachShader(shader.LoadShader(frag_file, false));
+  shader.programs[result].Link;
+end;
+
 constructor TGLRenderer.Create;
 begin
-  Create(300, 300); // multiple of numbers 3 and 4
+  Create(300, 300); // multiple of numbers 3 and 4 for triangles and quads
 end;
 
 constructor TGLRenderer.Create(buffer2D, buffer3D: word);
@@ -3114,7 +3209,8 @@ begin
   color:=fRGBA(1, 1, 1, 1);
   shader:=TGLShader.Create;
   if buffer2D>0 then begin
-    program2D:=shader.AddDefault2D; shader.Link;
+    program2D:=shader.AddDefault2D;
+    shader.Link;
     setlength(va2D, buffer2D); Length2D:=buffer2D;
     glGenBuffers(1, @buf2D);
     uniPmv2D:=program2D.GetUniform('pmv');
@@ -3126,7 +3222,8 @@ begin
   end;
   if buffer3D>0 then begin
     program3D:=shader.AddProgram(false);
-    //shader.AddDefault3D(false); shader.Link;
+    //shader.AddDefault3D(false);
+    //shader.Link;
     setlength(va3D, buffer3D); Length3D:=buffer3D;
     glGenBuffers(1, @buf3D);
     {att_3Dpos:=program3D.GetAttrib('in_position');
@@ -3134,6 +3231,9 @@ begin
     uniShininess:=program3D.GetUniform('shininess');}
     //uniLightcount:=program3D.GetUniform('lightcount');
     //uniLights:=program3D.GetUniform('lights');
+    att_3Dpos:=program2D.GetAttrib('in_position');
+    att_3Dtex:=program2D.GetAttrib('in_texCoord');
+    att_3Dcol:=program2D.GetAttrib('in_color');
   end;
   FpolyMode:=GL_QUADS;
   solidWhite:=fRGBA(1, 1, 1, 1);
@@ -3154,13 +3254,15 @@ end;
 
 procedure TGLRenderer.Disable;
 begin
+  Render;
   FisEnabled:=false; shader.Disable;
 end;
 
 function TGLRenderer.Draw(x, y: single; pattern: longint): word;
 var tx, ty, tw, th, w, h: single;
 begin
-  Enable2D; result:=NewQuad;
+  if FisBuffer3D or (not FisEnabled) then Enable2D;
+  result:=NewQuad;
   tex.GetPatternCoords(tx, ty, tw, th, pattern);
   tex.GetImageSize(w, h);
   SetVertex(result, x, y, tx, ty);
@@ -3178,7 +3280,8 @@ end;
 function TGLRenderer.DrawRotateS(x, y: single; pattern: longint; radians, cx, cy, sizeX, sizeY: single): word;
 var tx, ty, tw, th, w, h: single; dx, dy: TVector2f;
 begin
-  Enable2D; result:=NewQuad;
+  if FisBuffer3D or (not FisEnabled) then Enable2D;
+  result:=NewQuad;
   tex.GetPatternCoords(tx, ty, tw, th, pattern);
   tex.GetImageSize(w, h);
   dx.x:=cos(radians); dx.y:=sin(radians);
@@ -3201,7 +3304,7 @@ end;
 procedure TGLRenderer.Enable2D(ForceUpdateUniforms: boolean);
 begin
   if FisEnabled then begin
-    if FisBuffer3D then begin
+    if shader.current<>program2D then begin
       Render; FisBuffer3D:=false;
       shader.SelectProgram(program2D, true);
       SetUniforms;
@@ -3217,15 +3320,38 @@ end;
 procedure TGLRenderer.Enable3D(ForceUpdateUniforms: boolean);
 begin
   if FisEnabled then begin
-    if not FisBuffer3D then begin
+    if shader.current<>program3D then begin
       Render; FisBuffer3D:=true;
-      shader.SelectProgram(program3D, true);
+      shader.SelectProgram(program3D);
       SetUniforms;
     end else if ForceUpdateUniforms then
       SetUniforms;
   end else begin
     FisEnabled:=true; FisBuffer3D:=true;
-    shader.SelectProgram(program3D, true);
+    shader.SelectProgram(program3D);
+    SetUniforms; curTexture:=tex.LastTexIndex;
+  end;
+end;
+
+procedure TGLRenderer.EnableProgram(index: integer; is3D: boolean;
+  ForceUpdateUniforms: boolean);
+begin
+  EnableProgram(shader.programs[index], is3D, ForceUpdateUniforms);
+end;
+
+procedure TGLRenderer.EnableProgram(prog: TShaderProgram; is3D: boolean;
+  ForceUpdateUniforms: boolean);
+begin
+  if FisEnabled then begin
+    if shader.current<>prog then begin
+      Render; FisBuffer3D:=is3D;
+      shader.SelectProgram(prog);
+      SetUniforms;
+    end else if ForceUpdateUniforms then
+      SetUniforms;
+  end else begin
+    FisEnabled:=true; FisBuffer3D:=is3D;
+    shader.SelectProgram(prog);
     SetUniforms; curTexture:=tex.LastTexIndex;
   end;
 end;
@@ -3261,32 +3387,46 @@ begin
 end;
 
 procedure TGLRenderer.Render;
-//var i: integer; c: TfRGBA;
+var att_pos, att_tex, att_col: GLint;
 begin
   if count=0 then exit;
-  if isBuffer3D then begin
-    shader.SelectProgram(program3D);
-    //glUniform1i(uniLightcount, length(lights));
-    {glBindBuffer(GL_ARRAY_BUFFER, buf3D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(va3D), @va3D[0], GL_STREAM_DRAW);
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 12, GL_FLOAT, false, 0, nil);
-    glDisableVertexAttribArray(1); }
-  end else begin
-    shader.SelectProgram(program2D);
-    //program2D.Enable;
-    glBindBuffer(GL_ARRAY_BUFFER, buf2D);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(T2DVertex)*length2D, @va2D[0], GL_STREAM_DRAW);
-    glVertexAttribPointer(att_2Dpos, 2, GL_FLOAT, false, sizeof(T2DVertex), nil);
-    glEnableVertexAttribArray(att_2Dpos);
-    glVertexAttribPointer(att_2Dtex, 2, GL_FLOAT, false, sizeof(T2DVertex), pointer(8));
-    glEnableVertexAttribArray(att_2Dtex);
-    glVertexAttribPointer(att_2Dcol, 4, GL_FLOAT, false, sizeof(T2DVertex), pointer(16));
-    glEnableVertexAttribArray(att_2Dcol);
+  if FisEnabled then begin
+    if shader.current=program2D then begin
+      att_pos:=att_2Dpos;
+      att_tex:=att_2Dtex;
+      att_col:=att_2Dcol;
+    end else if shader.current=program3D then begin
+      att_pos:=att_3Dpos;
+      att_tex:=att_3Dtex;
+      att_col:=att_3Dcol;
+    end else with shader.current do begin
+      att_pos:=attrib[shader.current.FindAttrib('in_position')].index;
+      att_tex:=attrib[shader.current.FindAttrib('in_texCoord')].index;
+      att_col:=attrib[shader.current.FindAttrib('in_color')].index;
+    end;
+    if isBuffer3D then begin
+      glBindBuffer(GL_ARRAY_BUFFER, buf3D);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(T3DVertex)*length3D, @va3D[0], GL_STREAM_DRAW);
+    end else begin
+      glBindBuffer(GL_ARRAY_BUFFER, buf2D);
+      glBufferData(GL_ARRAY_BUFFER, sizeof(T2DVertex)*length2D, @va2D[0], GL_STREAM_DRAW);
+    end;
+    if att_pos>-1 then begin
+      glVertexAttribPointer(att_pos, 2, GL_FLOAT, false, sizeof(T2DVertex), nil);
+      glEnableVertexAttribArray(att_pos);
+    end;
+    if att_tex>-1 then begin
+      glVertexAttribPointer(att_tex, 2, GL_FLOAT, false, sizeof(T2DVertex), pointer(8));
+      glEnableVertexAttribArray(att_tex);
+    end;
+    if att_col>-1 then begin
+      glVertexAttribPointer(att_col, 4, GL_FLOAT, false, sizeof(T2DVertex), pointer(16));
+      glEnableVertexAttribArray(att_col);
+    end;
     glDrawArrays(polyMode, 0, count);
-    glDisableVertexAttribArray(att_2Dpos);
-    glDisableVertexAttribArray(att_2Dtex);
-    glDisableVertexAttribArray(att_2Dcol);
+    if att_pos>-1 then glDisableVertexAttribArray(att_pos);
+    if att_tex>-1 then glDisableVertexAttribArray(att_tex);
+    if att_col>-1 then glDisableVertexAttribArray(att_col);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
   end;
   count:=0;
@@ -3344,7 +3484,8 @@ begin
 end;
 
 procedure TGLRenderer.SetUniforms(camera: TCamera);
-var pmv, modelM, projM: TMatrix; //normal: TMatrix3f;
+var pmv, modelM, projM: TMatrix; uni: GLint;
+  //normal: TMatrix3f;
 begin
   glGetFloatv(GL_PROJECTION_MATRIX, @projM);
   if camera=nil then begin
@@ -3355,14 +3496,36 @@ begin
   pmv:=multiply(modelM, projM);
 
   if isBuffer3D then begin
-    //glUniformMatrix4fv(uniPmv3D, 1, bytebool(GL_FALSE), @pmv);
     //glUniformMatrix4fv(uniModel, 1, bytebool(GL_FALSE), @modelM);
     //glUniformMatrix3fv(uniNormal, 1, bytebool(GL_FALSE), @normal);
+    if shader.current=program3D then begin
+      glUniformMatrix4fv(uniPmv3D, 1, bytebool(GL_FALSE), @pmv);
+      glUniform1i(uniTex3D, 0);
+      //with diffuse do glUniform4f(uniDiffuse3D, r, g, b, a);
+    end else with shader.current do begin
+      uni:=uniform[FindUniform('pmv')].index;
+      if uni>-1 then glUniformMatrix4fv(uni, 1, bytebool(GL_FALSE), @pmv);
+      uni:=uniform[shader.current.FindUniform('texture')].index;
+      if uni>-1 then glUniform1i(uni, 0);
+      uni:=uniform[shader.current.FindUniform('diffuse')].index;
+      if uni>-1 then
+        with diffuse do glUniform4f(uni, r, g, b, a);
+    end;
 
   end else begin
-    glUniformMatrix4fv(uniPmv2D, 1, bytebool(GL_FALSE), @pmv);
-    glUniform1i(uniTex2D, 0);
-    with diffuse do glUniform4f(uniDiffuse2D, r, g, b, a);
+    if shader.current=program2D then begin
+      glUniformMatrix4fv(uniPmv2D, 1, bytebool(GL_FALSE), @pmv);
+      glUniform1i(uniTex2D, 0);
+      with diffuse do glUniform4f(uniDiffuse2D, r, g, b, a);
+    end else with shader.current do begin
+      uni:=uniform[FindUniform('pmv')].index;
+      if uni>-1 then glUniformMatrix4fv(uni, 1, bytebool(GL_FALSE), @pmv);
+      uni:=uniform[shader.current.FindUniform('texture')].index;
+      if uni>-1 then glUniform1i(uni, 0);
+      uni:=uniform[shader.current.FindUniform('diffuse')].index;
+      if uni>-1 then
+        with diffuse do glUniform4f(uni, r, g, b, a);
+    end;
   end;
 end;
 

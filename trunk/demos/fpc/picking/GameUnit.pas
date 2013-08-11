@@ -45,7 +45,7 @@ constructor TGame.Create;
 var i: integer;
 begin
   inherited Create;
-  mouseXSpeed:=0.5; mouseYSpeed:=mouseXSpeed;
+  mouseXSpeed:=0.1; mouseYSpeed:=mouseXSpeed;
   CenterMouse(true);
 
   camera:=TCamera.Create;

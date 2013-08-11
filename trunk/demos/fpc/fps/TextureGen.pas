@@ -12,10 +12,10 @@ procedure AddGlowTex;
 implementation
 
 procedure AddForceFieldTex;
-var data: PointerArrayType; w, h, x, y, n, i: integer;
+var data: DynamicByteArray; w, h, x, y, n, i: integer;
 begin
   w:=128; h:=128;
-  data:=allocmem(w*h*3);
+  setlength(data, w*h*3);
   fillchar(data[0], w*h*3, 30);
   for i:=1 to 30 do begin
     y:=random(h div 2)*2;
@@ -36,11 +36,11 @@ begin
 end;
 
 procedure AddGlowTex;
-var data: PointerArrayType; w, h, x, y, n: integer;
+var data: DynamicByteArray; w, h, x, y, n: integer;
     d: single;
 begin
   w:=64; h:=64; n:=0;
-  data:=allocmem(w*h*3);
+  setlength(data, w*h*3);
   for y:=0 to h-1 do
     for x:=0 to w-1 do begin
       d:=hypot(x-31.5, y-31.5);
