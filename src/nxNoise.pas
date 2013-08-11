@@ -22,10 +22,12 @@ type
     perm: array[0..511] of byte;
     permMod12: array[0..511] of byte;
     F2, G2, F3, G3, F4, G4: single;
-    procedure InitWithSeed(const seed: int64);
+    FSeed: int64;
+    procedure InitWithSeed(const _seed: int64);
   public
+    property Seed: int64 read FSeed;
     constructor Create; overload;
-    constructor Create(const seed: int64); overload;
+    constructor Create(const _seed: int64); overload;
     function Noise(const x, y: single): single; overload;
     function Noise(const x, y, z: single): single; overload;
     function Noise(const x, y, z, w: single): single; overload;
@@ -93,9 +95,10 @@ end;
 
 { TSimplexNoise }
 
-procedure TSimplexNoise.InitWithSeed(const seed: int64);
+procedure TSimplexNoise.InitWithSeed(const _seed: int64);
 var i: integer;
 begin
+  FSeed:=_seed;
   F2 := 0.5*(sqrt(3.0)-1.0);
   G2 := (3.0-sqrt(3.0))/6.0;
   F3 := 1.0/3.0;
@@ -104,20 +107,20 @@ begin
   G4 := (5.0-sqrt(5.0))/20.0;
   // Add custom made seed xor-operation
   for i:=0 to 511 do begin
-    perm[i]:=p[i and 255] xor T8Bytes(seed)[i mod 8];
+    perm[i]:=p[i and 255] xor T8Bytes(_seed)[i mod 8];
     permMod12[i]:=byte(perm[i] mod 12);
   end;
 end;
 
 constructor TSimplexNoise.Create;
 begin
-  InitWithSeed(0);
+  InitWithSeed(random(high(int64)));
 end;
 
-constructor TSimplexNoise.Create(const seed: int64);
+constructor TSimplexNoise.Create(const _seed: int64);
 begin
   // Seed overflowing is expected and ok
-  InitWithSeed(seed * nxNoiseSeedMult);
+  InitWithSeed(_seed * nxNoiseSeedMult);
 end;
 
 function TSimplexNoise.Noise(const x, y: single): single;
@@ -393,5 +396,8 @@ begin
   // Sum up and scale the result to cover the range [-1,1]
   result:= 27.0 * (n0 + n1 + n2 + n3 + n4);
 end;
+
+initialization
+  Randomize;
 
 end.
