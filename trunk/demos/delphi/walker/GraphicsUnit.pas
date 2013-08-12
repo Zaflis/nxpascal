@@ -30,6 +30,8 @@ begin
   nx.Flip;
 
   nx.CreateFont('Courier', 8, 256);
+  tex.Options:=[toFitScale];
+  nx.rs.CullBack:=false;
 
   tex.AddTexture('tile', GetPath('textures\tile.png'));
   n:=tex.AddTexture('spark', GetPath('textures\spark.png'));
@@ -38,8 +40,6 @@ begin
   tex.TextureQuality:=GL_NEAREST;
   n:=tex.AddTexture('walker', GetPath('textures\walker.png'), true);
   tex.SetPattern(n, 17, 26, 1, 1);
-
-  nx.rs.CullBack:=false;
 
   // Last operations
   if nx.LastError<>'' then ShowMessage(nx.LastError);
@@ -54,13 +54,15 @@ begin
   nx.Enable2D;
 
   glPushMatrix;
-  glScalef(nx.Width/400, nx.Height/300, 1);
+  i:=(nx.Width-nx.Height*4 div 3) div 2;
+  if i>0 then glTranslatef(i, 0, 0);
+  glScalef(nx.Height/300, nx.Height/300, 1);
 
   tex.SetByName('tile');
   nx.SetColor(0.5, 0.6, 0.7);
   // Draw tiles
   for j:=0 to 7 do
-    for i:=0 to 7 do
+    for i:=-2 to 9 do
       nx.Draw(i*55, j*38);
 
   // Draw walkers
