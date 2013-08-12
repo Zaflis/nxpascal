@@ -501,7 +501,7 @@ end;
 {$ELSE}
 function TTextureSet.LoadPNGData(tex: PTexture; filename: string): boolean;
 var png: TPNGObject; sx,sy: single;
-    x,y: word; n,x1,y1: longint;
+    x,y: word; n,n2,x1,y1: longint;
     a: pngimage.pByteArray; col: pRGBLine; UseScale: boolean;
 begin
   result:=false;
@@ -537,37 +537,67 @@ begin
   setlength(tex^.Data, tex^.sizeX*tex^.sizeY*tex^.values);
   n:=0; a:=nil;
   {$R-}
-  for y:=0 to tex.sizeY-1 do begin
+  for y:=0 to tex^.Height-1 do begin
     if UseScale then y1:=trunc(y*sy) else y1:=y;
     col:=png.Scanline[y1];
-    if tex.values=4 then a:=png.AlphaScanline[y1];
-    for x:=0 to tex.sizeX-1 do begin
+    if tex^.values=4 then a:=png.AlphaScanline[y1];
+    for x:=0 to tex^.Width-1 do begin
       if UseScale then x1:=trunc(x*sx) else x1:=x;
-      tex.Data[n]:=col[x1].rgbtRed;
-      tex.Data[n+1]:=col[x1].rgbtGreen;
-      tex.Data[n+2]:=col[x1].rgbtBlue;
+      tex^.Data[n]:=col[x1].rgbtRed;
+      tex^.Data[n+1]:=col[x1].rgbtGreen;
+      tex^.Data[n+2]:=col[x1].rgbtBlue;
       if tex.values=4 then begin
         if toAlphaColor in Options then
-          tex.Data[n+3]:=(tex.Data[n]+tex.Data[n+1]+tex.Data[n+2]) div 3
+          tex^.Data[n+3]:=(tex.Data[n]+tex^.Data[n+1]+tex^.Data[n+2]) div 3
         else if toColorKey in Options then begin
-          if (tex.Data[n]=TransparentColor.r) and
-             (tex.Data[n+1]=TransparentColor.g) and
-             (tex.Data[n+2]=TransparentColor.b) then
-            tex.Data[n+3]:=0
+          if (tex^.Data[n]=TransparentColor.r) and
+             (tex^.Data[n+1]=TransparentColor.g) and
+             (tex^.Data[n+2]=TransparentColor.b) then
+            tex^.Data[n+3]:=0
           else
-            tex.Data[n+3]:=255;
-        end else if a<>nil then
-          tex.Data[n+3]:=a[x1]
-        else tex.Data[n+3]:=255;
-        if tex.Data[n+3]=0 then begin
-          tex.Data[n]:=0; tex.Data[n+1]:=0; tex.Data[n+2]:=0;
+            tex^.Data[n+3]:=255;
+        end else if (not (toAlphaColor in Options)) and (a<>nil) then
+          tex^.Data[n+3]:=a[x1]
+        else if toAlphaColor in Options then tex^.Data[n+3]:=
+          (tex^.Data[n]+tex^.Data[n+1]+tex^.Data[n+2]) div 3
+        else tex^.Data[n+3]:=255;
+        if tex^.Data[n+3]=0 then begin
+          tex^.Data[n]:=0; tex^.Data[n+1]:=0; tex^.Data[n+2]:=0;
         end;
       end;
-      inc(n, tex.values);
+      inc(n, tex^.values);
     end;
+    if not UseScale then
+      inc(n, tex^.values*(tex^.sizeX-tex^.Width));
   end;
   {$R+}
-  png.Free; result:=true;
+  png.Free;
+  // Fill extra areas with border pixels
+  // Right side and bottom corner
+  y1:=tex^.values*tex^.sizeX;
+  n2:=tex^.values*(tex^.Width-1);
+  for y:=0 to tex^.sizeY-1 do begin
+    n:=n2+tex^.values;
+    if y>=tex^.Height then
+      n2:=tex^.values*((tex^.Height-1)*tex^.sizeX+tex^.Width-1);
+    for x:=tex^.Width to tex^.sizeX-1 do begin
+      move(tex^.Data[n2], tex^.Data[n], tex^.values);
+      inc(n,tex^.values);
+    end;
+    inc(n2,y1);
+  end;
+  // Bottom
+  n2:=tex^.values*((tex^.Height-1)*tex^.sizeX);
+  y1:=tex^.values*tex^.sizeX;
+  for x:=0 to tex^.Width-1 do begin
+    n:=n2+y1;
+    for y:=tex^.Height to tex^.sizeY-1 do begin
+      move(tex^.Data[n2], tex^.Data[n], tex^.values);
+      inc(n,y1);
+    end;
+    inc(n2,tex^.values);
+  end;
+  result:=true;
 end;
 {$ENDIF}
 
@@ -580,10 +610,10 @@ begin
   tex^.sizeX:=tex^.Width; tex^.sizeY:=tex^.Height;
   if toFitScale in Options then begin
     UseScale:=false;
-    Pow2Fit(tex^.sizeX,tex^.sizeY,sx,sy);
+    Pow2Fit(tex^.sizeX, tex^.sizeY, sx, sy);
     sx:=1; sy:=1;
   end else if toScale in Options then begin
-    UseScale:=Pow2Near(tex^.sizeX,tex^.sizeY,sx,sy);
+    UseScale:=Pow2Near(tex^.sizeX, tex^.sizeY, sx, sy);
     tex^.Width:=tex^.SizeX; tex^.Height:=tex^.SizeY;
   end else if (toCustomScale in Options) and (scaleX*scaleY>0) then begin
     UseScale:=true;
@@ -622,10 +652,10 @@ begin
           tex^.Data[n]:=0; tex^.Data[n+1]:=0; tex^.Data[n+2]:=0;
         end;
       end;
-      inc(n,tex^.values);
+      inc(n, tex^.values);
     end;
     if not UseScale then
-      inc(n,tex^.values*(tex^.sizeX-tex^.Width));
+      inc(n, tex^.values*(tex^.sizeX-tex^.Width));
   end;
 
   // Fill extra areas with border pixels
