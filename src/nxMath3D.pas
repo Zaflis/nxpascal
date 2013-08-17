@@ -1172,7 +1172,7 @@ end;
 
 operator*(const a, b: TVector): TVector;{$IFDEF CanInline}inline;{$ENDIF}
 begin
-  result:=CrossProduct(a, b);
+  result:=Multiply(a, b);
 end;
 
 operator*(const a: TVector; const n: single): TVector;
