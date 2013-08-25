@@ -397,6 +397,7 @@ type
     procedure SetFrames(count: integer);
     procedure SetFrame(t: single; fStart,fEnd: longint; loop: boolean);
     procedure SetFrameEx(a,b,c,d: PVertexFrame; delta: single);
+    procedure SetMaterial(index: integer);
     procedure SetPointers;
   end;
 
@@ -1677,21 +1678,19 @@ begin
 end;
 
 procedure TGLModel.Render(Initialize: boolean);
-var i: longint;
+var i, lastMat: longint; _UseMaterials: boolean;
 begin
   if Initialize then begin
     SetPointers; EnableStates;
   end;
   nx.rs.Push;
+  lastMat:=-1;
+  _UseMaterials:=UseMaterials and (mCount>0);
   for i:=0 to groups-1 do
     if grp[i].visible then with grp[i] do begin
-      if UseMaterials and (matIndex>-1) and (mCount>0) then
-        with mat[matIndex] do begin
-          tex.SetTex(texIndex);
-          nx.SetSpecular(specular>0.01, specular,specular,specular, shininess);
-          nx.rs.AddBlend:=addMode;
-          if UseColors then glColor4ubv(@color);
-        end;
+      if _UseMaterials and (matIndex<>lastMat) and (matIndex>-1) then begin
+        SetMaterial(matIndex); lastMat:=matIndex;
+      end;
       glDrawElements(GL_TRIANGLES, Count*3, GL_UNSIGNED_SHORT,
         @fa[first]);
     end;
@@ -1735,6 +1734,16 @@ begin
     //ta[i]:=Catmull(a^.ta[i], b^.ta[i], c^.ta[i], d^.ta[i], delta);
     //va[i]:=Interpolate(b^.va[i], c^.va[i], delta);
     //na[i]:=Interpolate(b^.na[i], c^.na[i], delta);
+  end;
+end;
+
+procedure TGLModel.SetMaterial(index: integer);
+begin
+  with mat[index] do begin
+    tex.SetTex(texIndex);
+    nx.SetSpecular(specular>0.01, specular,specular,specular, shininess);
+    nx.rs.AddBlend:=addMode;
+    if UseColors then glColor4ubv(@color);
   end;
 end;
 
