@@ -541,7 +541,7 @@ function Tangent(const a,b,c: TVector): TVector; stdcall;{$IFDEF CanInline}inlin
 begin
   result.x:=(b.y-a.y)*(c.z-a.z)-(b.z-a.z)*(c.y-a.y);
   result.y:=-((b.x-a.x)*(c.z-a.z)-(b.z-a.z)*(c.x-a.x));
-  result.z:=((b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x)); // --Z (OpenGL compatible)
+  result.z:=((b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x));
   result:=Norm(result);
 end;
 

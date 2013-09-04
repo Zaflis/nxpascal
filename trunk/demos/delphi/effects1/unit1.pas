@@ -73,7 +73,7 @@ begin
   // Face vertex indexes
   for j:=0 to GS-1 do
     for i:=0 to GS-1 do
-      if i mod 2=0 then begin
+      if (i+j) mod 2=0 then begin
         grid.fa[4*(i+j*GS)]:=  i   +j   *(GS+1);
         grid.fa[4*(i+j*GS)+1]:=i  +(j+1)*(GS+1);
         grid.fa[4*(i+j*GS)+2]:=i+1+(j+1)*(GS+1);
@@ -232,14 +232,11 @@ begin
   nx.Clear(true, false);
   tex.SetTex(fb.texture);
   nx.SetColor(1, 1, 1);
-  grid.EnableStates;
-  grid.SetPointers;
   nx.rs.AddBlend:=true;
   nx.rs.WireFrame:=DoWireFrame;
   grid.Render; // Draw grid (or wireframe)
   nx.rs.WireFrame:=false;
   nx.rs.AddBlend:=false;
-  grid.DisableStates;
 
   if DoWireFrame then begin
     // Draw partially transparent image
