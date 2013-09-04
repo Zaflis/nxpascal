@@ -59,6 +59,7 @@ type
     property vCount: longint read FvCount write SetvCount;
     procedure Center(_x, _y, _z: boolean);
     procedure Clear;
+    procedure CombineGroups(separateMaterials: boolean = true);
     function GetRadius(cubic: boolean = false): single;
     function GetRadiusX(): single;
     function GetRadiusY(): single;
@@ -291,6 +292,29 @@ procedure T3DModel.Clear;
 begin
   vCount:=0; groups:=0; mCount:=0; bCount:=0;
   setlength(bone, 0);
+end;
+
+procedure T3DModel.CombineGroups(separateMaterials: boolean);
+var i, j: integer;
+begin
+  i:=0;
+  while i<groups-2 do begin
+    j:=0;
+    while j<groups do begin
+      // Face indices of 2 compared groups must be next to eachother
+      if (i<>j) and (grp[j].first=grp[i].first+grp[i].count) and
+         ((not separateMaterials) or (grp[i].matIndex=grp[j].matIndex)) then begin
+        inc(grp[i].count, grp[j].count);
+        // Move combined group in front of grp[i]
+        if j<>i+1 then switchvar(@grp[i+1], @grp[j], sizeof(TFaceGroup));
+        // Delete group, and move remaining groups backwards
+        for j:=i+1 to groups-2 do grp[j]:=grp[j+1];
+        groups:=groups-1;
+        j:=0;
+      end else inc(j);
+    end;
+    inc(i);
+  end;
 end;
 
 function T3DModel.GetRadius(cubic: boolean): single;
@@ -1629,7 +1653,7 @@ begin
   result:=rayIntersect(rayStart, rayDir, findClosest, intersect, normal);
 end;
 
-procedure TTriModel.RotateUV(_angle, centerX, centerY: single; group: longint);
+procedure TTriModel.RotateUV(_angle, centerX, centerY: single; group: integer);
 var i, vc: longint; vi: TIndexArray;
 begin
   GetGrpVertices(vi, vc, group);

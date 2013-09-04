@@ -528,7 +528,7 @@ var
   nx: TNXGL;
   tex: TGLTextureSet;
   va_states_set: boolean;
-  va_pointers_owner: TCustomVertexArray;
+  va_pointers_owner: TObject;
 
   procedure nxInitGL;
   procedure nxFreeModelTextures(model: T3DModel);
@@ -1762,6 +1762,7 @@ begin
   glVertexPointer(3, GL_FLOAT, 0, @(va[0]));
   glNormalPointer(GL_FLOAT, 0, @(na[0]));
   glTexCoordPointer(2, GL_FLOAT, 0, @(ta[0]));
+  va_pointers_owner:=self;
 end;
 
 { TTextureSet }

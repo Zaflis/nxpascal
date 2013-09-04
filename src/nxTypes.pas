@@ -92,6 +92,8 @@ type
   function pointf(const x, y: single): TVector2f;
   function rectf(const x1, y1, x2, y2: single): TRectf;
   function recti(const x1, y1, x2, y2: longint): TRecti;
+  function boundsf(const x1, y1, w, h: single): TRectf;
+  function boundsi(const x1, y1, w, h: longint): TRecti;
   function bRect(const x, y, w, h: longint): TBoundsRect;
   procedure switchVar(const p1, p2: Pointer; const Size: longint);
   function vector(const x, y: single; const z: single = 0): TVector;{$IFDEF CanInline}inline;{$ENDIF}
@@ -170,6 +172,18 @@ function recti(const x1, y1, x2, y2: longint): TRecti;
 begin
   result.x1:=x1; result.y1:=y1;
   result.x2:=x2; result.y2:=y2;
+end;
+
+function boundsf(const x1, y1, w, h: single): TRectf;
+begin
+  result.x1:=x1; result.y1:=y1;
+  result.x2:=x1+w; result.y2:=y1+h;
+end;
+
+function boundsi(const x1, y1, w, h: longint): TRecti;
+begin
+  result.x1:=x1; result.y1:=y1;
+  result.x2:=x1+w-1; result.y2:=y1+h-1;
 end;
 
 function bRect(const x, y, w, h: longint): TBoundsRect;
