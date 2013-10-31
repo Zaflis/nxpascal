@@ -28,6 +28,8 @@ type
     procedure DrawTab(e: TUITab);
     procedure DrawTabControl(e: TUITabControl);
     procedure DrawWindow(e: TUIWindow);
+
+    procedure DrawCaret(left, top, bottom, delta, alpha: single);
   public
     constructor Create(texturePath: string);
     procedure Draw;
@@ -184,7 +186,7 @@ begin
 end;
 
 procedure TGLUI.DrawEdit(e: TUIEdit);
-var r: TBoundsRect; d: integer; a: single;
+var r: TBoundsRect; d: integer;
 begin
   with e do begin
     r:=GetDrawRect;
@@ -208,16 +210,9 @@ begin
         d:=0; // Reset caret
       // Draw caret
       if focused and (not nxUIEditorMode) then begin
-        tex.Disable;
-        glBegin(GL_LINES);
-        a:=sin(nx.FrameTick*toRad*0.25)*0.5+0.5;
         if centered then d:=d-5+(r.w-nx.Font[font].TextW(text)) div 2;
-        glColor4f(1-a,1-a,1-a, DrawAlpha);
-        glVertex2f(r.x+d+5.5, r.y+r.h*0.2);
-        glColor4f(a*0.5,a,a, DrawAlpha);
-        glVertex2f(r.x+d+5.5, r.y+r.h*0.8);
-        glEnd;
-        tex.Enable;
+        DrawCaret(r.x+d+5.5, r.y+r.h*0.2, r.y+r.h*0.8,
+          sin(nx.FrameTick*toRad*0.25)*0.5+0.5, DrawAlpha);
       end;
     end;
   end;
@@ -475,6 +470,18 @@ begin
       end;
     end;
   end;
+end;
+
+procedure TGLUI.DrawCaret(left, top, bottom, delta, alpha: single);
+begin
+  tex.Disable;
+  glBegin(GL_LINES);
+  glColor4f(1-delta,1-delta,1-delta, alpha);
+  glVertex2f(left, top);
+  glColor4f(delta*0.5,delta,delta, alpha);
+  glVertex2f(left, bottom);
+  glEnd;
+  tex.Enable;
 end;
 
 end.

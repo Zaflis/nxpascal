@@ -243,14 +243,14 @@ function PointInCircle(const p,circle: TVector2f; const radius: single): boolean
 var x,y: single;
 begin
   x:=circle.x-p.x; y:=circle.y-p.y;
-  PointInCircle:=(x*x+y*y)<(radius*radius);
+  result:=(x*x+y*y)<(radius*radius);
 end;
 
 function PointInCircle(const pX,pY,circleX,circleY,radius: single): boolean;
 var x,y: single;
 begin
   x:=circleX-pX; y:=circleY-pY;
-  PointInCircle:=(x*x+y*y)<(radius*radius);
+  result:=(x*x+y*y)<(radius*radius);
 end;
 
 function PointInRect(const x, y: longint; rect: TRecti): boolean;

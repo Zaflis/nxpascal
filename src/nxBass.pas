@@ -276,7 +276,7 @@ end;
 
 constructor TBassSound.Create(const filename: string; _3D: boolean; channels: integer);
 begin
-  ChannelCount:=channels; ChannelIndex:=0;
+  ChannelCount:=channels; ChannelIndex:=0; looped:=false;
   setlength(FChannel, ChannelCount);
   orientation:=vector(0,1,0);
   if filename<>'' then Load(filename, _3D);

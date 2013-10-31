@@ -69,20 +69,24 @@ type
   PMouseRay = ^TMouseRay;
 
   T2DVertex = packed record // size 8 float
-    v: TVector2f;
-    uv: TVector2f;
-    color: TfRGBA;
+    v, uv: TVector2f; // 2+2
+    color: TfRGBA; // 4
   end;
   T3DVertex = packed record // size 12 float
-    v, n: TVector;
-    uv: TVector2f;
-    color: TfRGBA;
+    v, n: TVector; // 3+3
+    uv: TVector2f; // 2
+    color: TfRGBA; // 4
+  end;
+  TSkeletalVertex = packed record // size 12 float
+    v, n: TVector; // 3+3
+    uv: TVector2f; // 2
+    index, weight: TVector2f; // 2+2
   end;
 
   T3DLight = packed record // size 7 float
-    position: TVector;
-    radius: single;
-    color: TfRGB;
+    position: TVector; // 3
+    radius: single; // 1
+    color: TfRGB; // 3
   end;
 
   {TTexturePart = record

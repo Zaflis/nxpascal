@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -34,7 +34,7 @@
         <PackageName Value="LCL"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="18">
+    <Units Count="21">
       <Unit0>
         <Filename Value="UITest.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -42,20 +42,21 @@
         <WindowIndex Value="0"/>
         <TopLine Value="1"/>
         <CursorPos X="19" Y="5"/>
-        <UsageCount Value="71"/>
+        <UsageCount Value="72"/>
       </Unit0>
       <Unit1>
         <Filename Value="TestMain.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="TestMain"/>
         <IsVisibleTab Value="True"/>
         <EditorIndex Value="0"/>
         <WindowIndex Value="0"/>
-        <TopLine Value="3"/>
-        <CursorPos X="1" Y="9"/>
-        <UsageCount Value="71"/>
+        <TopLine Value="8"/>
+        <CursorPos X="10" Y="133"/>
+        <UsageCount Value="72"/>
         <Loaded Value="True"/>
         <LoadedDesigner Value="True"/>
       </Unit1>
@@ -139,52 +140,42 @@
       <Unit12>
         <Filename Value="..\src\nx\nxGraph.pas"/>
         <UnitName Value="nxGraph"/>
-        <EditorIndex Value="2"/>
         <WindowIndex Value="0"/>
         <TopLine Value="102"/>
         <CursorPos X="35" Y="114"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit12>
       <Unit13>
         <Filename Value="..\src\nx\nxGLUI.pas"/>
         <UnitName Value="nxGLUI"/>
-        <EditorIndex Value="4"/>
         <WindowIndex Value="0"/>
         <TopLine Value="188"/>
         <CursorPos X="5" Y="230"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit13>
       <Unit14>
         <Filename Value="..\src\nx\nxUI.pas"/>
         <UnitName Value="nxUI"/>
-        <EditorIndex Value="5"/>
         <WindowIndex Value="0"/>
         <TopLine Value="256"/>
         <CursorPos X="3" Y="296"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit14>
       <Unit15>
         <Filename Value="..\src\nx\nxGL.pas"/>
         <UnitName Value="nxGL"/>
-        <EditorIndex Value="1"/>
         <WindowIndex Value="0"/>
         <TopLine Value="157"/>
         <CursorPos X="1" Y="170"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit15>
       <Unit16>
         <Filename Value="..\src\nx\nxTypes.pas"/>
         <UnitName Value="nxTypes"/>
-        <EditorIndex Value="3"/>
         <WindowIndex Value="0"/>
         <TopLine Value="31"/>
         <CursorPos X="5" Y="40"/>
         <UsageCount Value="11"/>
-        <Loaded Value="True"/>
       </Unit16>
       <Unit17>
         <Filename Value="..\src\nx\dglOpenGL.pas"/>
@@ -194,139 +185,131 @@
         <CursorPos X="27" Y="368"/>
         <UsageCount Value="10"/>
       </Unit17>
+      <Unit18>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <UnitName Value="nxUI"/>
+        <EditorIndex Value="2"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="1857"/>
+        <CursorPos X="3" Y="1890"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="..\..\src\nxGLUI.pas"/>
+        <UnitName Value="nxGLUI"/>
+        <EditorIndex Value="1"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="42"/>
+        <CursorPos X="49" Y="34"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="..\..\src\nxGL.pas"/>
+        <UnitName Value="nxGL"/>
+        <WindowIndex Value="0"/>
+        <TopLine Value="28"/>
+        <CursorPos X="24" Y="23"/>
+        <UsageCount Value="10"/>
+      </Unit20>
     </Units>
-    <JumpHistory Count="30" HistoryIndex="29">
+    <JumpHistory Count="21" HistoryIndex="20">
       <Position1>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="377" Column="21" TopLine="368"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position1>
       <Position2>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="298" Column="10" TopLine="288"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1290" Column="38" TopLine="1277"/>
       </Position2>
       <Position3>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="20" Column="3" TopLine="1"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1303" Column="38" TopLine="1283"/>
       </Position3>
       <Position4>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="74" Column="26" TopLine="57"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1334" Column="38" TopLine="1325"/>
       </Position4>
       <Position5>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="262" Column="22" TopLine="250"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1363" Column="38" TopLine="1342"/>
       </Position5>
       <Position6>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="847" Column="21" TopLine="847"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1615" Column="49" TopLine="1602"/>
       </Position6>
       <Position7>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="279" Column="34" TopLine="261"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1620" Column="22" TopLine="1606"/>
       </Position7>
       <Position8>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="832" Column="14" TopLine="823"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1719" Column="56" TopLine="1705"/>
       </Position8>
       <Position9>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="842" Column="13" TopLine="837"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1761" Column="41" TopLine="1747"/>
       </Position9>
       <Position10>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="262" Column="15" TopLine="248"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1802" Column="20" TopLine="1788"/>
       </Position10>
       <Position11>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="276" Column="41" TopLine="262"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1925" Column="61" TopLine="1911"/>
       </Position11>
       <Position12>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="398" Column="1" TopLine="385"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1930" Column="25" TopLine="1915"/>
       </Position12>
       <Position13>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="79" Column="48" TopLine="64"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1594" Column="3" TopLine="1589"/>
       </Position13>
       <Position14>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="75" Column="19" TopLine="64"/>
+        <Filename Value="..\..\src\nxUI.pas"/>
+        <Caret Line="1817" Column="3" TopLine="1815"/>
       </Position14>
       <Position15>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="266" Column="34" TopLine="265"/>
+        <Filename Value="TestMain.pas"/>
+        <Caret Line="16" Column="37" TopLine="3"/>
       </Position15>
       <Position16>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="294" Column="19" TopLine="286"/>
+        <Filename Value="..\..\src\nxGLUI.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position16>
       <Position17>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="271" Column="27" TopLine="267"/>
+        <Filename Value="..\..\src\nxGLUI.pas"/>
+        <Caret Line="189" Column="3" TopLine="183"/>
       </Position17>
       <Position18>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="72" Column="7" TopLine="61"/>
+        <Filename Value="..\..\src\nxGLUI.pas"/>
+        <Caret Line="32" Column="46" TopLine="7"/>
       </Position18>
       <Position19>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="279" Column="52" TopLine="263"/>
+        <Filename Value="..\..\src\nxGLUI.pas"/>
+        <Caret Line="485" Column="28" TopLine="467"/>
       </Position19>
       <Position20>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="452" Column="1" TopLine="438"/>
+        <Filename Value="..\..\src\nxGLUI.pas"/>
+        <Caret Line="483" Column="30" TopLine="467"/>
       </Position20>
       <Position21>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="673" Column="5" TopLine="660"/>
+        <Filename Value="..\..\src\nxGLUI.pas"/>
+        <Caret Line="479" Column="7" TopLine="441"/>
       </Position21>
-      <Position22>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="674" Column="5" TopLine="661"/>
-      </Position22>
-      <Position23>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="662" Column="22" TopLine="658"/>
-      </Position23>
-      <Position24>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="475" Column="17" TopLine="468"/>
-      </Position24>
-      <Position25>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position25>
-      <Position26>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="1028" Column="25" TopLine="1006"/>
-      </Position26>
-      <Position27>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="1" Column="1" TopLine="1"/>
-      </Position27>
-      <Position28>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="1028" Column="1" TopLine="1006"/>
-      </Position28>
-      <Position29>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="815" Column="1" TopLine="814"/>
-      </Position29>
-      <Position30>
-        <Filename Value="..\src\nx\nxGL.pas"/>
-        <Caret Line="1008" Column="46" TopLine="992"/>
-      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <PathDelim Value="\"/>
     <Target>
       <Filename Value="$NameOnly($ProjFile())"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\src\nx"/>
+      <OtherUnitFiles Value="..\..\src"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>
@@ -365,4 +348,5 @@
       </Item3>
     </Exceptions>
   </Debugging>
+  <EditorMacros Count="0"/>
 </CONFIG>

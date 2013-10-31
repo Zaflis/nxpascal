@@ -4,12 +4,20 @@ unit nxStrings;
 
 interface
 
-{$IFDEF fpc}uses LCLProc;{$ENDIF}
+uses {$IFDEF fpc}LCLProc,{$ENDIF} IniFiles;
 
 type
   TStrAlign = (saLeft, saRight, saCenter);
   TCustomRead = (crString, crInt, crSingle, crDouble, crByte, crWord,
     crShortInt, crSmallInt, crCardinal, crBool, crInt64);
+
+  { TIniFileExt }
+
+  TIniFileExt = class(IniFiles.TIniFile)
+  public
+    // Allows boolean values be read as 1/0, true/false with or without caps
+    function ReadBool(const Section, Ident: string; Default: Boolean): Boolean; override;
+  end;
 
   function BoolToStr(const b: Boolean): string;
   function FillStr(s,str: string; count: Word; align: TStrAlign = saCenter): string;
@@ -231,6 +239,20 @@ begin
   result:=inttostr(i)+s;
 end;
 {$ENDIF}
+
+{ TIniFileExt }
+
+function TIniFileExt.ReadBool(const Section, Ident: string; Default: Boolean): Boolean;
+  function CharToBool(AChar: char): boolean;
+  begin
+    Result := (AChar<>'0') and (AChar<>'f') and (AChar<>'F');
+  end;
+var s: string;
+begin
+  s := ReadString(Section, Ident, '');
+  if s > '' then Result := CharToBool(s[1])
+  else Result := Default;
+end;
 
 initialization
 

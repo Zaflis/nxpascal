@@ -34,8 +34,7 @@ type
   PVertexFrame = ^TVertexFrame;
 
   TBone = record
-    rot: TMatrix3f;
-    position: TVector;
+    mat: TMatrix;
   end;
 
   { T3DModel }
