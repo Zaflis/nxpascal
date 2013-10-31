@@ -1287,20 +1287,20 @@ function BoolToStr(b: boolean): string;
           begin
             f.Add(' texture '+nxTex.texture[TUIButton(e).texture].name);
             f.Add(' text '+TUIButton(e).caption);
-            f.Add(' font '+nxEngine.Font[TUIButton(e).font].name);
+            f.Add(' font '+nxEngine.FFont[TUIButton(e).font].name);
           end;
         uiCheckBox:
           begin
             f.Add(' texture '+nxTex.texture[TUICheckBox(e).texture].name);
             f.Add(' text '+TUICheckBox(e).caption);
-            f.Add(' font '+nxEngine.Font[TUICheckBox(e).font].name);
+            f.Add(' font '+nxEngine.FFont[TUICheckBox(e).font].name);
             f.Add(' group '+inttostr(TUICheckBox(e).group));
             f.Add(' checked '+booltostr(TUICheckBox(e).checked));
           end;
         uiDropDown:
           begin
             f.Add(' texture '+nxTex.texture[TUIDropDown(e).edit.texture].name);
-            f.Add(' font '+nxEngine.Font[TUIDropDown(e).edit.font].name);
+            f.Add(' font '+nxEngine.FFont[TUIDropDown(e).edit.font].name);
             f.Add(' editable '+booltostr(TUIDropDown(e).editable));
             WriteString(TUIDropDown(e).list.items);
             f.Add(' itemindex '+inttostr(TUIDropDown(e).itemIndex));
@@ -1310,7 +1310,7 @@ function BoolToStr(b: boolean): string;
             f.Add(' texture '+nxTex.texture[TUIEdit(e).texture].name);
             f.Add(' maxlength '+inttostr(TUIEdit(e).maxLength));
             f.Add(' text '+TUIEdit(e).text);
-            f.Add(' font '+nxEngine.Font[TUIEdit(e).font].name);
+            f.Add(' font '+nxEngine.FFont[TUIEdit(e).font].name);
             f.Add(' centered '+booltostr(TUIEdit(e).centered));
           end;
         uiImage:
@@ -1320,7 +1320,7 @@ function BoolToStr(b: boolean): string;
         uiList:
           begin
             f.Add(' texture '+nxTex.texture[TUIList(e).texture].name);
-            f.Add(' font '+nxEngine.Font[TUIList(e).font].name);
+            f.Add(' font '+nxEngine.FFont[TUIList(e).font].name);
             f.Add(' centered '+booltostr(TUIList(e).centered));
             WriteString(TUIList(e).items);
             f.Add(' itemindex '+inttostr(TUIList(e).itemIndex));
@@ -1328,7 +1328,7 @@ function BoolToStr(b: boolean): string;
         uiMemo:
           begin
             f.Add(' texture '+nxTex.texture[TUIMemo(e).texture].name);
-            f.Add(' font '+nxEngine.Font[TUIMemo(e).font].name);
+            f.Add(' font '+nxEngine.FFont[TUIMemo(e).font].name);
             f.Add(' wrap '+booltostr(TUIMemo(e).wrap));
             WriteString(TUIMemo(e).strings);
           end;
@@ -1352,7 +1352,7 @@ function BoolToStr(b: boolean): string;
         uiLabel:
           begin
             f.Add(' text '+TUILabel(e).caption);
-            f.Add(' font '+nxEngine.Font[TUILabel(e).font].name);
+            f.Add(' font '+nxEngine.FFont[TUILabel(e).font].name);
             f.Add(' centered '+booltostr(TUILabel(e).centered));
           end;
         uiWindow:
@@ -1360,7 +1360,7 @@ function BoolToStr(b: boolean): string;
             f.Add(' texture '+nxTex.texture[TUIwindow(e).texture].name);
             f.Add(' titletex '+nxTex.texture[TUIwindow(e).titleTex].name);
             f.Add(' text '+TUIwindow(e).caption);
-            f.Add(' font '+nxEngine.Font[TUIwindow(e).font].name);
+            f.Add(' font '+nxEngine.FFont[TUIwindow(e).font].name);
             f.Add(' titleheight '+inttostr(TUIwindow(e).titleHeight));
             f.Add(' draggable '+booltostr(TUIwindow(e).draggable ));
           end;
@@ -1612,12 +1612,12 @@ var i,x1: integer; s: string;
 begin
   s:=UTF8toSys(text);
   caretPos:=0;
-  if centered then x1:=DrawX+1+(DrawW-nxEngine.Font[font].TextW(text)) div 2
+  if centered then x1:=DrawX+1+(DrawW-nxEngine.FFont[font].TextW(text)) div 2
   else x1:=DrawX+6;
   for i:=1 to length(s) do begin
     if x1>mx then break;
     CaretPos:=i;
-    x1:=x1+nxEngine.Font[font].TextW(s[i]);
+    x1:=x1+nxEngine.FFont[font].TextW(s[i]);
   end;
 end;
 
@@ -1716,7 +1716,7 @@ begin
     focus:=2; bar.MouseDown(mx,my);
   end else begin
     focus:=1;
-    ItemIndex:=bar.position+(my-DrawY-2) div nxEngine.Font[font].height;
+    ItemIndex:=bar.position+(my-DrawY-2) div nxEngine.FFont[font].height;
     if assigned(onMouseDown) then onMouseDown(self,mbLeft);
   end;
 end;
@@ -1758,7 +1758,7 @@ var r: TBoundsRect;
 begin
   r:=GetDrawRect;
   bar.x:=r.w-bar.DrawW; bar.height:=r.h;
-  visibleItems:=(DrawH-3) div nxEngine.Font[font].height;
+  visibleItems:=(DrawH-3) div nxEngine.FFont[font].height;
   bar.max:=max(0,items.Count-visibleItems);
   bar.Visible:=bar.max>0;
   bar.UpdateSize;
@@ -1799,7 +1799,7 @@ begin
   if wrap then begin
     sl:=length(s);
     if sl>1 then begin
-      f:=nxEngine.Font[font];
+      f:=nxEngine.FFont[font];
       x1:=f.charW[byte(s[1])]; w:=DrawW-4-barVertical.DrawW;
       for i:=2 to sl do begin
         x1:=x1+f.charW[byte(s[i])];
@@ -1922,10 +1922,10 @@ begin
   barHorizontal.UpdateSize;
   barVertical.UpdateSize;
   RemoveWrap; UpdateWrap;
-  barVertical.max:=max(0,strings.Count+1-r.h div (nxEngine.Font[font].height));
+  barVertical.max:=max(0,strings.Count+1-r.h div (nxEngine.FFont[font].height));
   barHorizontal.max:=0;
   for i:=0 to strings.Count-1 do begin
-    w:=nxEngine.Font[font].TextW(strings[i])-r.w+integer(round(barVertical.width))*2;
+    w:=nxEngine.FFont[font].TextW(strings[i])-r.w+integer(round(barVertical.width))*2;
     if w>barHorizontal.max then barHorizontal.max:=w;
   end;
 end;

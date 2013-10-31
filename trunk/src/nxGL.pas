@@ -20,7 +20,7 @@ unit nxGL;
 
 { TODO:
 - Test and finalize TNXGL.MousePick()
-- TGLRenderer
+- TGLRenderer 3D shader
 }
 
 interface
