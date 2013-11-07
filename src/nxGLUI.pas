@@ -15,26 +15,29 @@ type
   private
     procedure DrawElement(e: TUIElement);
     procedure DrawSubElements(e: TUIContainer);
-    procedure DrawButton(e: TUIButton);
-    procedure DrawCheckBox(e: TUICheckBox);
+    procedure DrawButton(e: TUIButton); virtual;
+    procedure DrawCheckBox(e: TUICheckBox); virtual;
     procedure DrawDropDown(e: TUIDropDown);
-    procedure DrawEdit(e: TUIEdit);
-    procedure DrawImage(e: TUIImage);
-    procedure DrawLabel(e: TUILabel);
-    procedure DrawList(e: TUIList);
-    procedure DrawMemo(e: TUIMemo);
-    procedure DrawPanel(e: TUIPanel);
-    procedure DrawScrollBar(e: TUIScrollBar);
-    procedure DrawTab(e: TUITab);
-    procedure DrawTabControl(e: TUITabControl);
-    procedure DrawWindow(e: TUIWindow);
+    procedure DrawEdit(e: TUIEdit); virtual;
+    procedure DrawImage(e: TUIImage); virtual;
+    procedure DrawLabel(e: TUILabel); virtual;
+    procedure DrawList(e: TUIList); virtual;
+    procedure DrawMemo(e: TUIMemo); virtual;
+    procedure DrawPanel(e: TUIPanel); virtual;
+    procedure DrawScrollBar(e: TUIScrollBar); virtual;
+    procedure DrawTab(e: TUITab); virtual;
+    procedure DrawTabControl(e: TUITabControl); virtual;
+    procedure DrawWindow(e: TUIWindow); virtual;
 
-    procedure DrawCaret(left, top, bottom, delta, alpha: single);
+    procedure DrawCaret(left, top, bottom, delta, alpha: single); virtual;
   public
     constructor Create(texturePath: string);
     procedure Draw;
     procedure LoadTextures(path: string);
   end;
+
+procedure UI_Draw(const r: TBoundsRect; pattern: integer; dt: TUIDrawStyle;
+  bdSize: byte);
 
 implementation
 
