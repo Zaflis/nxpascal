@@ -7,9 +7,11 @@ nxPascal is a free game engine that tries to remain lightweight and portable. It
 Forum thread for the project is at: http://www.pascalgamedevelopment.com/showthread.php?8785-nxPascal
 If you wish to send me private message, you can do it there or Lazarus forums too (to User137).
 
-More showcase videos about nxPascal on Youtube playlist: http://www.youtube.com/playlist?list=PLraemX84dJwUgp9IcXUS0U4lvdwLFumA7
+[More showcase videos about nxPascal on Youtube playlist.](http://www.youtube.com/playlist?list=PLraemX84dJwUgp9IcXUS0U4lvdwLFumA7)
 
 ## [Wiki pages](Wiki)
+
+[Old wiki](https://code.google.com/p/nxpascal/wiki/Introduction)
 
 ## Downloads
 
