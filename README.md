@@ -7,7 +7,7 @@ If you wish to send me private message, you can do it there or Lazarus forums to
 
 [More showcase videos about nxPascal on Youtube playlist.](http://www.youtube.com/playlist?list=PLraemX84dJwUgp9IcXUS0U4lvdwLFumA7)
 
-## [Wiki pages](wiki)
+## [Wiki pages](https://github.com/Zaflis/nxpascal/wiki)
 
 ## Downloads
 
