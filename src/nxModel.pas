@@ -1537,7 +1537,7 @@ procedure TTriModel.LoadFromFile(filename: string);
 var ext: string;
 begin
   FixPath(filename);
-  if (filename<>'') and (not FileExistsUTF8(filename)) then begin
+  if (filename<>'') and (not FileExists(filename)) then begin
     nxSetError(format('[TriModel] File "%s" not found.',[filename]));
     exit;
   end;
