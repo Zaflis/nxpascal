@@ -180,7 +180,7 @@ function TTextureSet.Add3DTexture2(name, filename: string; cols, rows: integer; 
 var i: longint;
 begin
   result:=-1;
-  if (filename<>'') and (not FileExistsUTF8(filename)) then begin
+  if (filename<>'') and (not FileExists(filename)) then begin
     nxSetError(format('[Add3DTexture2] File "%s" not found.',[filename]));
     exit;
   end;
@@ -217,7 +217,7 @@ var i: longint;
 begin
   result:=-1;
   // File not found
-  if (filename<>'') and (not FileExistsUTF8(filename)) then begin
+  if (filename<>'') and (not FileExists(filename)) then begin
     nxSetError(format('[AddTexture2] File "%s" not found.',[filename]));
     exit;
   end;
@@ -711,7 +711,7 @@ begin
   result:=false;
   FixPath(filename);
   ext:=lowercase(copy(filename,length(filename)-3,4));
-  if not FileExistsUTF8(filename) or false then begin
+  if not FileExists(filename) or false then begin
     nxSetError(format('[LoadTextureData] File "%s" not found.',[filename]));
   end else if length(filename)>=5 then begin
     try
