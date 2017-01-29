@@ -1441,7 +1441,6 @@ end;
 
 procedure TNXGL.Perspective(Stretch: boolean = false);
 begin
-  Disable2D;
   PerspectiveStretch:=Stretch;
   if Initialized then begin
     if Height<1 then Height:=1;

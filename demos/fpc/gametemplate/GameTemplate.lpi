@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -44,7 +44,6 @@
       <Unit0>
         <Filename Value="GameTemplate.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="GameTemplate"/>
       </Unit0>
       <Unit1>
         <Filename Value="Main.pas"/>
@@ -52,17 +51,14 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="Main"/>
       </Unit1>
       <Unit2>
         <Filename Value="GameUnit.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="GameUnit"/>
       </Unit2>
       <Unit3>
         <Filename Value="GraphicsUnit.pas"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="GraphicsUnit"/>
       </Unit3>
     </Units>
   </ProjectOptions>
@@ -79,8 +75,6 @@
     </SearchPaths>
     <CodeGeneration>
       <SmartLinkUnit Value="True"/>
-      <TargetCPU Value="i386"/>
-      <TargetOS Value="win32"/>
     </CodeGeneration>
     <Linking>
       <Debugging>
@@ -94,12 +88,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <UseMsgFile Value="True"/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <CONFIG>
   <ProjectOptions>
     <Version Value="9"/>
@@ -41,7 +41,6 @@
       <Unit0>
         <Filename Value="GLSLTest.lpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="GLSLTest"/>
       </Unit0>
       <Unit1>
         <Filename Value="MainUnit.pas"/>
@@ -49,7 +48,6 @@
         <ComponentName Value="Form1"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="MainUnit"/>
       </Unit1>
       <Unit2>
         <Filename Value="dialogUnit.pas"/>
@@ -57,7 +55,6 @@
         <ComponentName Value="errorForm"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="dialogUnit"/>
       </Unit2>
     </Units>
   </ProjectOptions>
@@ -74,8 +71,6 @@
     </SearchPaths>
     <CodeGeneration>
       <SmartLinkUnit Value="True"/>
-      <TargetCPU Value="i386"/>
-      <TargetOS Value="win32"/>
       <Optimizations>
         <OptimizationLevel Value="0"/>
       </Optimizations>
@@ -92,12 +87,6 @@
         </Win32>
       </Options>
     </Linking>
-    <Other>
-      <CompilerMessages>
-        <UseMsgFile Value="True"/>
-      </CompilerMessages>
-      <CompilerPath Value="$(CompPath)"/>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">

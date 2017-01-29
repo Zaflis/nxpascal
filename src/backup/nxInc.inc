@@ -1,0 +1,14 @@
+{$IFDEF fpc}{$DEFINE CanInline}{$ENDIF}
+
+// Delphi versions
+{$IFDEF VER170}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER180}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER185}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER200}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER210}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER220}{$DEFINE CanInline}{$ENDIF}
+{$IFDEF VER230}{$DEFINE CanInline}{$ENDIF}
+
+// 32- OR 64-bit
+// Use CPU32 or CPU64 defines
+// http://www.freepascal.org/docs-html/3.0.0/prog/progap7.html

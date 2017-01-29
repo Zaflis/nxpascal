@@ -11,7 +11,7 @@ unit Main;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Dialogs, LCLType, Graphics,
+  Classes, SysUtils, Forms, Controls, Dialogs, LCLType, Graphics, ExtCtrls,
   nxGL, nxTypes, GraphicsUnit, nxBass;
 
 type
@@ -20,6 +20,7 @@ type
 
   TForm1 = class(TForm)
     AppProperties: TApplicationProperties;
+    Timer1: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormPaint(Sender: TObject);
     procedure AppPropertiesIdle(Sender: TObject; var Done: Boolean);
@@ -30,6 +31,7 @@ type
     procedure FormMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure FormMouseUp(Sender: TObject; Button: TMouseButton; Shift: TShiftState; {%H-}X, {%H-}Y: Integer);
     procedure FormMouseWheel(Sender: TObject; {%H-}Shift: TShiftState; {%H-}WheelDelta: Integer; {%H-}MousePos: TPoint; var {%H-}Handled: Boolean);
+    procedure Timer1Timer(Sender: TObject);
   private
     game: TGraphicalGame;
   public
@@ -81,7 +83,7 @@ end;
 
 procedure TForm1.AppPropertiesIdle(Sender: TObject; var Done: Boolean);
 begin
-  if game<>nil then begin
+  if (game<>nil) and (not timer1.Enabled) then begin
     Done:=false;
     game.Idle;
   end;
@@ -148,6 +150,13 @@ begin
     with game do begin
 
     end;
+end;
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+begin
+  if game<>nil then begin
+    game.Idle;
+  end;
 end;
 
 end.

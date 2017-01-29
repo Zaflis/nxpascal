@@ -12,7 +12,7 @@ const ToRad = 0.0174532925199433;  // (PI / 180) = Deg To Rad
       TextCutChar = #30;
       {$IFDEF windows}PathChar = '\';
       {$ELSE}PathChar = PathDelim;{$ENDIF}
-      EPSILON: Single = 1e-40; // 0.00...001
+      EPSILON: Single = 1e-40;
 
 type
   {$IFDEF fpc}PointerArrayType = PByte;

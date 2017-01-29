@@ -55,7 +55,7 @@ type
     procedure Pause;
     function Play: boolean;
     function Playing: boolean;
-    procedure Set3DAttributes(min, max: single; iangle, oangle, outvol: LongInt);
+    procedure Set3DAttributes(min, max: FLOAT; iangle, oangle, outvol: LongInt);
     procedure SetLocation(const _loc: TVector);
     procedure SetOrientation(const _front: TVector);
     procedure SetPanning(pan: single);
@@ -381,8 +381,7 @@ begin
   result:=BASS_ChannelIsActive(channel)=BASS_ACTIVE_PLAYING;
 end;
 
-procedure TBassSound.Set3DAttributes(min, max: single; iangle, oangle,
-  outvol: LongInt);
+procedure TBassSound.Set3DAttributes(min, max: FLOAT; iangle, oangle, outvol: LongInt);
 var mode: integer;
 begin
   if FUse3D then begin

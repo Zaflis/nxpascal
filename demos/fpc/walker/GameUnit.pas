@@ -129,8 +129,8 @@ begin
               v.y:=v.y*d;
               x:=x-v.x;
               y:=y-v.y;
-              position.x:=position.x+v.x;
-              position.y:=position.y+v.y;
+              //position.x:=position.x+v.x;
+              //position.y:=position.y+v.y;
               result:=true;
               if random<0.1 then begin
                 pt.AddParticle(0, 1-random*0.4, 1-random*0.3, 1, 4,

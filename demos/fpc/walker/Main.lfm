@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 288
+  Left = 268
   Height = 240
-  Top = 124
+  Top = 123
   Width = 320
   HorzScrollBar.Visible = False
   VertScrollBar.Visible = False
@@ -16,7 +16,7 @@ object Form1: TForm1
   OnMouseWheel = FormMouseWheel
   OnPaint = FormPaint
   Position = poScreenCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.3'
   object AppProperties: TApplicationProperties
     OnIdle = AppPropertiesIdle
     left = 64

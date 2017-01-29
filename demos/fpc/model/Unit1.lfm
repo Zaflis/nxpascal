@@ -1,6 +1,6 @@
 object Form1: TForm1
   Cursor = crCross
-  Left = 302
+  Left = 255
   Height = 240
   Top = 137
   Width = 320
@@ -11,7 +11,7 @@ object Form1: TForm1
   OnMouseMove = FormMouseMove
   OnMouseUp = FormMouseUp
   Position = poScreenCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.3'
   object Timer1: TTimer
     Enabled = False
     Interval = 15

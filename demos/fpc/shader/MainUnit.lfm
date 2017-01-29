@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 292
+  Left = 256
   Height = 240
-  Top = 118
+  Top = 128
   Width = 320
   Caption = 'GLSL Test'
   OnClose = FormClose
@@ -11,7 +11,7 @@ object Form1: TForm1
   OnMouseMove = FormMouseMove
   OnPaint = FormPaint
   Position = poScreenCenter
-  LCLVersion = '1.1'
+  LCLVersion = '1.6.2.0'
   object Timer1: TTimer
     Enabled = False
     Interval = 17
